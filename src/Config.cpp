@@ -2,6 +2,8 @@
 
 #include <FS.h>
 
+#include "logger.hpp"
+
 bool Config::load(String data)
 {
     JSONVar config = JSON.parse(data);
@@ -11,7 +13,7 @@ bool Config::load(String data)
         auto wifi = config["wifi"];
         if (!wifi.hasOwnProperty("ssid") && !wifi.hasOwnProperty("pass"))
         {
-            Serial.println("ERROR: Missing ssid or pass");
+            logger::logErr("Missing ssid or pass");
             return false;
         }
 
@@ -20,7 +22,7 @@ bool Config::load(String data)
     }
     else
     {
-        Serial.println("ERROR: Missing wifi field");
+        logger::logErr("Missing wifi field");
         return false;
     }
 

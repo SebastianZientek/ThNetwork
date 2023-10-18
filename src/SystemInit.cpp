@@ -5,18 +5,22 @@
 #include <esp_now.h>
 
 #include "RaiiFile.hpp"
+#include "boardsettings.hpp"
+#include "logger.hpp"
 
 void SystemInit::init()
 {
-    if (initSerial() == Status::FAIL) return;
+    delay(initDelay);
+
+    if (initLogger() == Status::FAIL) return;
     if (initSD() == Status::FAIL) return;
     if (readConfig() == Status::FAIL) return;
     if (connectWiFi() == Status::FAIL) return;
 }
 
-SystemInit::Status SystemInit::initSerial()
+SystemInit::Status SystemInit::initLogger()
 {
-    Serial.begin(115200);
+    logger::init();
     return Status::OK;
 }
 
@@ -24,13 +28,13 @@ SystemInit::Status SystemInit::initSD()
 {
     if (!SD.begin())
     {
-        Serial.println("Card Mount Failed");
+        logger::logErr("Card Mount Failed");
         return Status::FAIL;
     }
 
     if (SD.cardType() == CARD_NONE)
     {
-        Serial.println("No SD card attached");
+        logger::logErr("No SD card attached");
         return Status::FAIL;
     }
     return Status::OK;
@@ -42,7 +46,7 @@ SystemInit::Status SystemInit::readConfig()
     String data = file.asString();
     if (!m_config.load(data))
     {
-        Serial.println("Reading config error");
+        logger::logErr("Reading config error");
         return Status::FAIL;
     }
     return Status::OK;
@@ -52,17 +56,15 @@ SystemInit::Status SystemInit::connectWiFi()
 {
     WiFi.mode(WIFI_AP_STA);
     WiFi.begin(m_config.getWifiSsid(), m_config.getWifiPass());
-    Serial.print("Connecting to WiFi");
+    logger::logInf("Connecting to WiFi");
     while (WiFi.status() != WL_CONNECTED)
     {
-        delay(1000);
-        Serial.print(".");
+        delay(wifiConnectDelay);
+        logger::logInf(".");
     }
-    Serial.println();
 
-    Serial.printf("Connected to %s IP: %s MAC: %s\n", WiFi.SSID(),
-    WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str());
-    Serial.println(WiFi.channel());
+    logger::logInfF("Connected to %s IP: %s MAC: %s, channel %d\n", WiFi.SSID(),
+                  WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), WiFi.channel());
 
     return Status::OK;
 }

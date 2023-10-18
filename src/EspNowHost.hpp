@@ -7,5 +7,5 @@
 
 #include "THMessage.hpp"
 
-using RecvCB = void (*)(THMessage, String);
+using RecvCB = void (*)(float temp, float hum, String mac);
 void initEspNow(RecvCB cb);

@@ -3,12 +3,14 @@
 #include <SD.h>
 #include <SPI.h>
 
+#include "logger.hpp"
+
 RaiiFile::RaiiFile(String path)
 {
     m_file = SD.open(path);
     if (!m_file)
     {
-        Serial.println("Failed to open file for reading");
+        logger::logErr("Failed to open file for reading");
     }
 }
 
@@ -22,8 +24,7 @@ String RaiiFile::asString()
     String str;
     while (m_file.available())
     {
-        char c = m_file.read();
-        str += c;
+        str += static_cast<char>(m_file.read());
     }
 
     return str;

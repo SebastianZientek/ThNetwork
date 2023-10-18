@@ -12,7 +12,7 @@ public:
 
     void load(String path);
     void sendEvent(const char *message,
-                   const char *event = NULL,
+                   const char *event = nullptr,
                    uint32_t id = 0,
                    uint32_t reconnect = 0);
     void startServer();
