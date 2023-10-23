@@ -2,7 +2,6 @@
 
 #include <Arduino_JSON.h>
 
-#include "EspNowHost.hpp"
 #include "SystemInit.hpp"
 #include "logger.hpp"
 
@@ -10,13 +9,13 @@ void App::run()
 {
     static SystemInit sysInit;
     sysInit.init();
-    static JSONVar board;
 
-    auto sensorsMap = sysInit.getConfig().getSensorsMap();
+    auto &sensorsMap = sysInit.getConfig().getSensorsMap();
 
     m_espNow.init(
         [this, sensorsMap](float temp, float hum, String mac)
         {
+            JSONVar board;
             board["id"] = 1;
             board["temperature"] = temp;
             board["humidity"] = hum;

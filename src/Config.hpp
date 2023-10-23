@@ -12,7 +12,7 @@ public:
 
     String getWifiSsid();
     String getWifiPass();
-    std::map<String, String> getSensorsMap();
+    std::map<String, String> &getSensorsMap();
 
 private:
     String m_wifiSsid;

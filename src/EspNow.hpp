@@ -5,6 +5,8 @@
 
 #include <functional>
 
+#include "MacAddr.hpp"
+
 class EspNow
 {
 public:

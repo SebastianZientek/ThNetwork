@@ -53,7 +53,7 @@ String Config::getWifiPass()
     return m_wifiPass;
 }
 
-std::map<String, String> Config::getSensorsMap()
+std::map<String, String> &Config::getSensorsMap()
 {
     return m_sensorsMap;
 }

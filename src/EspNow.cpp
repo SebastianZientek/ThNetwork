@@ -38,13 +38,13 @@ void EspNow::onDataRecv(const uint8_t *macAddr, const uint8_t *incomingData, int
     case PAIR_OK:
         logger::logErr("PAIR_OK received, but this message should be handled by sensor");
         break;
-        case TH_DATA:
-            logger::logInf("TH_DATA received");
-            logger::logInfF("T: %f, H: %f", recvMsg.temperature, recvMsg.humidity);
+    case TH_DATA:
+        logger::logInf("TH_DATA received");
+        logger::logInfF("T: %f, H: %f", recvMsg.temperature, recvMsg.humidity);
 
-            // recvCB(recvMsg.temperature, recvMsg.humidity, macToStrNoDots(recvMsg.mac));
-            m_newReadingsCb(recvMsg.temperature, recvMsg.humidity, "");
-            break;
+        // recvCB(recvMsg.temperature, recvMsg.humidity, macToStrNoDots(recvMsg.mac));
+        m_newReadingsCb(recvMsg.temperature, recvMsg.humidity, "");
+        break;
     }
 }
 
