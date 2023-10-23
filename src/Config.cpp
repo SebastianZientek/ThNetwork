@@ -32,9 +32,11 @@ bool Config::load(String data)
         auto keys = sensors.keys();
         for (int i = 0; i < keys.length(); ++i)
         {
-            auto key = keys[i];
-            auto value = sensors[key];
+            String key = keys[i];
+            String value = sensors[key];
             m_sensorsMap[key] = String(value);
+
+            logger::logInfF("sensor: %s -> %s", key, value);
         }
     }
 

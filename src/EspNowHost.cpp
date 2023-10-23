@@ -24,6 +24,18 @@ String macToStr(const uint8_t *macAddr)
     return addr;
 }
 
+String macToStrNoDots(const uint8_t *macAddr)
+{
+    String addr;
+
+    char macCStr[18];                                                                // NOLINT
+    snprintf(macCStr, sizeof(macCStr), "%02x%02x%02x%02x%02x%02x", macAddr[0],  // NOLINT
+             macAddr[1],                                                             // NOLINT
+             macAddr[2], macAddr[3], macAddr[4], macAddr[5]);                        // NOLINT
+    addr = macCStr;                                                                  // NOLINT
+    return addr;
+}
+
 void addPeer(const uint8_t *macAddr, uint8_t channel)
 {
     esp_now_peer_info_t peer = {};
@@ -64,12 +76,11 @@ void onDataRecv(const uint8_t *macAddr, const uint8_t *incomingData, int len)
     case TH_DATA:
         logger::logInf("TH_DATA received");
         logger::logInfF("T: %f, H: %f", recvMsg.temperature, recvMsg.humidity);
-        recvCB(recvMsg.temperature, recvMsg.humidity, macToStr(recvMsg.mac));  // NOLINT
+
+
+        recvCB(recvMsg.temperature, recvMsg.humidity, macToStrNoDots(recvMsg.mac));  // NOLINT
         break;
     }
-    // String addr = macToStr(macAddr);
-
-    // recvCB(message, addr);
 }
 
 void onDataSend(const uint8_t *mac_addr, esp_now_send_status_t status)

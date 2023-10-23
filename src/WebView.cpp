@@ -1,5 +1,7 @@
 #include "WebView.hpp"
 
+#include "logger.hpp"
+
 WebView::WebView(int port)
     : m_server(port)
     , m_events("/events")
@@ -27,7 +29,7 @@ void WebView::startServer()
         {
             if (client->lastId())
             {
-                Serial.printf("Client reconnected, last ID: %u\n", client->lastId());
+                logger::logInfF("Client reconnected, last ID: %u\n", client->lastId());
             }
             client->send("init", NULL, millis(), 10000);
         });

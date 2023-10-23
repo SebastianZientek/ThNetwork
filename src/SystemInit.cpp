@@ -18,6 +18,11 @@ void SystemInit::init()
     if (connectWiFi() == Status::FAIL) return;
 }
 
+Config SystemInit::getConfig()
+{
+    return m_config;
+}
+
 SystemInit::Status SystemInit::initLogger()
 {
     logger::init();

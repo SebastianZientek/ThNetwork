@@ -12,6 +12,7 @@ class SystemInit
 
 public:
     void init();
+    Config getConfig();
 
 private:
     Config m_config;

@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>T/H monitor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+        html {
+            display: inline-block;
+            text-align: center;
+        }
+
+        body {
+            margin: 0;
+            background-color: #1b1b1b;
+        }
+
+        .main_bar {
+            overflow: hidden;
+            background-color: #263453;
+            color: #e2e2e2;
+            font-size: 24pt;
+            padding: 15pt;
+        }
+
+        .content {
+            margin: auto;
+            width: 60%;
+            padding: 10px;
+        }
+
+        .tg {
+            border-collapse: collapse;
+            border-color: #93a1a1;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .tg td {
+            background-color: #fdf6e3;
+            border-color: #93a1a1;
+            border-style: solid;
+            border-width: 0px;
+            color: #002b36;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            padding: 10px 5px;
+            word-break: normal;
+        }
+
+        .tg th {
+            background-color: #263453;
+            border-color: #2e3a55;
+            border-style: solid;
+            border-width: 0px;
+            color: #fdf6e3;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: normal;
+            overflow: hidden;
+            padding: 10px 5px;
+            word-break: normal;
+        }
+
+        .tg .tg-0pky {
+            border-color: inherit;
+            text-align: left;
+            vertical-align: top
+        }
+
+        .tg tr {
+            border-bottom: 1px solid #93a1a1
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main_bar">T/H monitor</div>
+    <div class="content">
+
+        <table class="tg">
+            <thead>
+                <tr>
+                    <th class="tg-0lax">Sensor</th>
+                    <th class="tg-0lax">Temperature</th>
+                    <th class="tg-0lax">Humidity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="tg-0lax">Blabla</td>
+                    <td class="tg-0lax">123</td>
+                    <td class="tg-0lax">321</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Blabla</td>
+                    <td class="tg-0lax">123</td>
+                    <td class="tg-0lax">321</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Blabla</td>
+                    <td class="tg-0lax">123</td>
+                    <td class="tg-0lax">321</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Blabla</td>
+                    <td class="tg-0lax">123</td>
+                    <td class="tg-0lax">321</td>
+                </tr>
+                <tr>
+                    <td class="tg-0lax">Blabla</td>
+                    <td class="tg-0lax">123</td>
+                    <td class="tg-0lax">321</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        if (!!window.EventSource) {
+            var source = new EventSource('/events');
+
+            source.addEventListener('open', function (e) {
+                console.log("Events Connected");
+            }, false);
+            source.addEventListener('error', function (e) {
+                if (e.target.readyState != EventSource.OPEN) {
+                    console.log("Events Disconnected");
+                }
+            }, false);
+
+            source.addEventListener('message', function (e) {
+                console.log("message", e.data);
+            }, false);
+
+            source.addEventListener('new_readings', function (e) {
+                console.log("new_readings", e.data);
+                var obj = JSON.parse(e.data);
+                document.getElementById("t" + obj.id).innerHTML = obj.temperature.toFixed(2);
+                document.getElementById("h" + obj.id).innerHTML = obj.humidity.toFixed(2);
+                document.getElementById("rt" + obj.id).innerHTML = obj.readingId;
+                document.getElementById("rh" + obj.id).innerHTML = obj.readingId;
+            }, false);
+        }
+    </script>
+</body>
+
+</html>
