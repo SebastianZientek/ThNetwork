@@ -8,8 +8,9 @@
 #include "logger.hpp"
 
 constexpr auto macSize = 6;
+constexpr auto msgSignatureSize = 4;
 constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-constexpr std::array<uint8_t, macSize> msgSignature{'T', 'H', 'D', 'T'};
+constexpr std::array<uint8_t, 4> msgSignature{'T', 'H', 'D', 'T'};
 
 void EspNow::init(NewReadingsCb newReadingsCb)
 {
@@ -24,7 +25,7 @@ void EspNow::init(NewReadingsCb newReadingsCb)
     setOnDataSendCb();
 }
 
-void EspNow::onDataRecv(const uint8_t *macAddr, const uint8_t *incomingData, int len)
+void EspNow::onDataRecv(MacAddr mac, const uint8_t *incomingData, int len)
 {
     THMessage recvMsg{};
     memcpy(&recvMsg, incomingData, sizeof(recvMsg));
@@ -32,8 +33,8 @@ void EspNow::onDataRecv(const uint8_t *macAddr, const uint8_t *incomingData, int
     {
     case PAIR_REQ:
         logger::logInf("PAIR_REQ received");
-        addPeer(macAddr, WiFi.channel());
-        sendPairOK(macAddr);
+        addPeer(mac, WiFi.channel());
+        sendPairOK(mac);
         break;
     case PAIR_OK:
         logger::logErr("PAIR_OK received, but this message should be handled by sensor");
@@ -42,20 +43,17 @@ void EspNow::onDataRecv(const uint8_t *macAddr, const uint8_t *incomingData, int
         logger::logInf("TH_DATA received");
         logger::logInfF("T: %f, H: %f", recvMsg.temperature, recvMsg.humidity);
 
-        // recvCB(recvMsg.temperature, recvMsg.humidity, macToStrNoDots(recvMsg.mac));
-        m_newReadingsCb(recvMsg.temperature, recvMsg.humidity, "");
+        m_newReadingsCb(recvMsg.temperature, recvMsg.humidity, mac);
         break;
     }
 }
 
-void EspNow::onDataSend(const uint8_t *macAddr, esp_now_send_status_t status)
+void EspNow::onDataSend(MacAddr mac, esp_now_send_status_t status)
 {
     logger::logInf("Last Packet Send Status: ");
     if (status == 0)
     {
-        // String mac = macToStr(macAddr);
-        logger::logInf("Delivery success: ");
-        // logger::logInf(mac);
+        logger::logInfF("Delivery success: %s", String(mac).c_str());
     }
     else
     {
@@ -65,8 +63,8 @@ void EspNow::onDataSend(const uint8_t *macAddr, esp_now_send_status_t status)
 
 void EspNow::setOnDataRecvCb()
 {
-    static auto onRecvDataThis = [this](const uint8_t *macAddr, const uint8_t *incomingData,
-                                        int len) { this->onDataRecv(macAddr, incomingData, len); };
+    static auto onRecvDataThis = [this](MacAddr mac, const uint8_t *incomingData, int len)
+    { this->onDataRecv(mac, incomingData, len); };
     auto onDataRecv = [](const uint8_t *macAddr, const uint8_t *incomingData, int len)
     { onRecvDataThis(macAddr, incomingData, len); };
 
@@ -75,29 +73,29 @@ void EspNow::setOnDataRecvCb()
 
 void EspNow::setOnDataSendCb()
 {
-    static auto onDataSendThis = [this](const uint8_t *macAddr, esp_now_send_status_t status)
-    { this->onDataSend(macAddr, status); };
+    static auto onDataSendThis
+        = [this](MacAddr mac, esp_now_send_status_t status) { this->onDataSend(mac, status); };
     auto onDataSend = [](const uint8_t *macAddr, esp_now_send_status_t status)
     { onDataSendThis(macAddr, status); };
 
     esp_now_register_send_cb(onDataSend);
 }
 
-void EspNow::addPeer(const uint8_t *macAddr, uint8_t channel)
+void EspNow::addPeer(MacAddr mac, uint8_t channel)
 {
     esp_now_peer_info_t peer = {};
-    memcpy(&peer.peer_addr[0], macAddr, ESP_NOW_ETH_ALEN);
+    memcpy(&peer.peer_addr[0], mac, ESP_NOW_ETH_ALEN);
     peer.channel = channel;
     esp_now_add_peer(&peer);
 }
 
-void EspNow::sendPairOK(const uint8_t *mac)
+void EspNow::sendPairOK(MacAddr mac)
 {
     THMessage msg{};
     msg.type = PAIR_OK;
     msg.channel = WiFi.channel();
     WiFi.softAPmacAddress(&msg.mac[0]);
-    memcpy(&msg.signature[0], msgSignature.data(), sizeof(msgSignature));
+    std::copy(msgSignature.begin(), msgSignature.end(), &msg.signature[0]);
     auto state = esp_now_send(mac, reinterpret_cast<uint8_t *>(&msg), sizeof(msg));  // NOLINT
 
     if (state != ESP_OK)

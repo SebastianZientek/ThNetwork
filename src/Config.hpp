@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Arduino.h>
-#include <Arduino_JSON.h>
 
 #include <map>
 

@@ -10,6 +10,7 @@ class MacAddr
 public:
     MacAddr(const uint8_t *mac);
     operator String();
+    operator uint8_t *();
 
 private:
     constexpr static auto macDigits = 6;

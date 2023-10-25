@@ -27,12 +27,12 @@ public:
     void init(NewReadingsCb newReadingsCb);
 
 private:
-    void onDataRecv(const uint8_t *macAddr, const uint8_t *incomingData, int len);
-    void onDataSend(const uint8_t *macAddr, esp_now_send_status_t status);
+    void onDataRecv(MacAddr mac, const uint8_t *incomingData, int len);
+    void onDataSend(MacAddr mac, esp_now_send_status_t status);
     void setOnDataRecvCb();
     void setOnDataSendCb();
-    void addPeer(const uint8_t *macAddr, uint8_t channel);
-    void sendPairOK(const uint8_t *mac);
+    void addPeer(MacAddr mac, uint8_t channel);
+    void sendPairOK(MacAddr mac);
 
     NewReadingsCb m_newReadingsCb;
 };

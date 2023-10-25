@@ -1,17 +1,26 @@
 #include "Config.hpp"
 
+// #include <Arduino_JSON.h>
+#include <ArduinoJson.h>
 #include <FS.h>
 
 #include "logger.hpp"
 
 bool Config::load(String data)
 {
-    JSONVar config = JSON.parse(data);
+    DynamicJsonDocument config(1000);
+    DeserializationError error = deserializeJson(config, data);
 
-    if (config.hasOwnProperty("wifi"))
+    if (error)
+    {
+        logger::logErr("Deserialize json error");
+        return false;
+    }
+
+    if (config.containsKey("wifi"))
     {
         auto wifi = config["wifi"];
-        if (!wifi.hasOwnProperty("ssid") && !wifi.hasOwnProperty("pass"))
+        if (!wifi.containsKey("ssid") && !wifi.containsKey("pass"))
         {
             logger::logErr("Missing ssid or pass");
             return false;
@@ -26,17 +35,16 @@ bool Config::load(String data)
         return false;
     }
 
-    if (config.hasOwnProperty("sensors"))
+    if (config.containsKey("sensors"))
     {
         auto sensors = config["sensors"];
-        auto keys = sensors.keys();
-        for (int i = 0; i < keys.length(); ++i)
+        for (JsonPair keyValue : sensors.as<JsonObject>())
         {
-            String key = keys[i];
-            String value = sensors[key];
+            String key = keyValue.key().c_str();
+            String value = keyValue.value();
             m_sensorsMap[key] = String(value);
 
-            logger::logInfF("sensor: %s -> %s", key, value);
+            logger::logInfF("sensor: %s -> %s", key.c_str(), value.c_str());
         }
     }
 
