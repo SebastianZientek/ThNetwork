@@ -1,3 +1,5 @@
+# data type for temperature and humidity optimization (now float is used, but we don't need so high precision)
+
 # New webpage
     - plan how that page should look like
 

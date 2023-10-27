@@ -10,8 +10,11 @@ FetchContent_Declare(
 set(TESTS OFF CACHE BOOL "Switch off CppUTest Test build")
 FetchContent_MakeAvailable(CppUTest)
 
-add_executable(UnitTests unittests/test_main.cpp)
+add_executable(UnitTests
+    unittests/test_main.cpp
+    unittests/TestReadingsBuffer.cpp)
 
+target_include_directories(UnitTests PRIVATE src)
 target_link_libraries(UnitTests PRIVATE
     CppUTest::CppUTest
     CppUTest::CppUTestExt)

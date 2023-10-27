@@ -3,7 +3,7 @@ BasedOnStyle:  Google
 
 AccessModifierOffset: -4
 PointerAlignment: Right
-AllowShortFunctionsOnASingleLine : false
+AllowShortFunctionsOnASingleLine : true
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: false
@@ -19,4 +19,5 @@ IndentCaseLabels : false
 IndentWidth:     4
 PenaltyBreakComment: 60
 TabWidth:        4
+InsertNewlineAtEOF: true
 ---

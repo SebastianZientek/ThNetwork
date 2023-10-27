@@ -4,6 +4,7 @@
 #include "WebView.hpp"
 #include "boardsettings.hpp"
 #include "Config.hpp"
+#include "ReadingsStorage.hpp"
 
 class App
 {
@@ -25,4 +26,5 @@ private:
     WebView m_web{boardsettings::serverPort};
     EspNow m_espNow;
     Config m_config;
+    ReadingsStorage m_readings;
 };
