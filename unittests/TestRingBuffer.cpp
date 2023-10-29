@@ -2,14 +2,14 @@
 
 #include <vector>
 
-#include "ReadingsBuffer.hpp"
+#include "RingBuffer.hpp"
 
-TEST_GROUP(ReadingsBufferTest)  // NOLINT
+TEST_GROUP(RingBufferTest)  // NOLINT
 {};
 
-TEST(ReadingsBufferTest, ReadingLastValueWhenOverload)  // NOLINT
+TEST(RingBufferTest, ReadingLastValueWhenOverload)  // NOLINT
 {
-    ReadingsBuffer<int, 3> rb;
+    RingBuffer<int, 3> rb;
     rb.addReading(1);
     CHECK_EQUAL(1, rb.getLast());
     rb.addReading(2);
@@ -22,9 +22,9 @@ TEST(ReadingsBufferTest, ReadingLastValueWhenOverload)  // NOLINT
     CHECK_EQUAL(rb.getLast(), 4);
 }
 
-TEST(ReadingsBufferTest, ReadingWithIteratorsNotFullBuffer)  // NOLINT
+TEST(RingBufferTest, ReadingWithIteratorsNotFullBuffer)  // NOLINT
 {
-    ReadingsBuffer<int, 3> rb;
+    RingBuffer<int, 3> rb;
     rb.addReading(1);
     rb.addReading(2);
 
@@ -34,9 +34,9 @@ TEST(ReadingsBufferTest, ReadingWithIteratorsNotFullBuffer)  // NOLINT
     CHECK_EQUAL(2, *it);
 }
 
-TEST(ReadingsBufferTest, ReadingWithIteratorsFullBuffer)  // NOLINT
+TEST(RingBufferTest, ReadingWithIteratorsFullBuffer)  // NOLINT
 {
-    ReadingsBuffer<int, 3> rb;
+    RingBuffer<int, 3> rb;
     rb.addReading(1);
     rb.addReading(2);
     rb.addReading(3);
@@ -49,9 +49,9 @@ TEST(ReadingsBufferTest, ReadingWithIteratorsFullBuffer)  // NOLINT
     CHECK_EQUAL(3, *it);
 }
 
-TEST(ReadingsBufferTest, ReadingWithIteratorsBufferOverload)  // NOLINT
+TEST(RingBufferTest, ReadingWithIteratorsBufferOverload)  // NOLINT
 {
-    ReadingsBuffer<int, 3> rb;
+    RingBuffer<int, 3> rb;
     rb.addReading(1);
     rb.addReading(2);
     rb.addReading(3);
@@ -67,9 +67,9 @@ TEST(ReadingsBufferTest, ReadingWithIteratorsBufferOverload)  // NOLINT
     CHECK_EQUAL(4, *it);
 }
 
-TEST(ReadingsBufferTest, RangeForLoop)  // NOLINT
+TEST(RingBufferTest, RangeForLoop)  // NOLINT
 {
-    ReadingsBuffer<int, 3> rb;
+    RingBuffer<int, 3> rb;
     rb.addReading(1);
     rb.addReading(2);
     rb.addReading(3);
@@ -91,9 +91,9 @@ TEST(ReadingsBufferTest, RangeForLoop)  // NOLINT
 }
 
 
-TEST(ReadingsBufferTest, RangeForLoopLongerOverride)  // NOLINT
+TEST(RingBufferTest, RangeForLoopLongerOverride)  // NOLINT
 {
-    ReadingsBuffer<int, 3> rb;
+    RingBuffer<int, 3> rb;
     rb.addReading(1);
     rb.addReading(2);
     rb.addReading(3);

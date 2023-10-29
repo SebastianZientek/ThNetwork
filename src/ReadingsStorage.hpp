@@ -3,7 +3,7 @@
 #include <map>
 
 #include "MacAddr.hpp"
-#include "ReadingsBuffer.hpp"
+#include "RingBuffer.hpp"
 
 class ReadingsStorage
 {
@@ -19,5 +19,5 @@ public:
 
 private:
     std::map<MacAddr, Reading> m_readings;
-    ReadingsBuffer<Reading, 5> test;
+    RingBuffer<Reading, 5> test;
 };

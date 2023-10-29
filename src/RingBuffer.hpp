@@ -6,7 +6,7 @@
 #include <utility>
 
 template <typename T, uint8_t size>
-class ReadingsBuffer
+class RingBuffer
 {
     constexpr static auto maxSize = 254;
     constexpr static auto bufferLenght = size + 1;
