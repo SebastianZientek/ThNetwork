@@ -29,14 +29,14 @@
             padding: 10px;
         }
 
-        .tg {
+        .sensors_tb {
             border-collapse: collapse;
             border-color: #93a1a1;
             border-spacing: 0;
             width: 100%;
         }
 
-        .tg td {
+        .sensors_tb td {
             background-color: #fdf6e3;
             border-color: #93a1a1;
             border-style: solid;
@@ -49,7 +49,7 @@
             word-break: normal;
         }
 
-        .tg th {
+        .sensors_tb th {
             background-color: #263453;
             border-color: #2e3a55;
             border-style: solid;
@@ -63,13 +63,13 @@
             word-break: normal;
         }
 
-        .tg .tg-0pky {
+        .sensors_tb .sensors_tb-0pky {
             border-color: inherit;
             text-align: left;
             vertical-align: top
         }
 
-        .tg tr {
+        .sensors_tb tr {
             border-bottom: 1px solid #93a1a1
         }
     </style>
@@ -80,54 +80,59 @@
     <div class="main_bar">T/H monitor</div>
     <div class="content">
 
-        <table class="tg">
+        <table id="sensorsTable" class="sensors_tb">
             <thead>
                 <tr>
-                    <th class="tg-0lax">Sensor</th>
-                    <th class="tg-0lax">Temperature</th>
-                    <th class="tg-0lax">Humidity</th>
+                    <th class="sensors_tb-0lax">Sensor</th>
+                    <th class="sensors_tb-0lax">Temperature</th>
+                    <th class="sensors_tb-0lax">Humidity</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td class="tg-0lax">Blabla</td>
-                    <td class="tg-0lax">123</td>
-                    <td class="tg-0lax">321</td>
-                </tr>
-                <tr>
-                    <td class="tg-0lax">Blabla</td>
-                    <td class="tg-0lax">123</td>
-                    <td class="tg-0lax">321</td>
-                </tr>
-                <tr>
-                    <td class="tg-0lax">Blabla</td>
-                    <td class="tg-0lax">123</td>
-                    <td class="tg-0lax">321</td>
-                </tr>
-                <tr>
-                    <td class="tg-0lax">Blabla</td>
-                    <td class="tg-0lax">123</td>
-                    <td class="tg-0lax">321</td>
-                </tr>
-                <tr>
-                    <td class="tg-0lax">Blabla</td>
-                    <td class="tg-0lax">123</td>
-                    <td class="tg-0lax">321</td>
-                </tr>
             </tbody>
         </table>
     </div>
 
     <script>
+        function addSensorRow(id)
+        {
+            console.log("addSensorRow");
+            var table = document.getElementById("sensorsTable");
+            var row = table.insertRow();
+            var cellSensor = row.insertCell(0);
+            var cellTemperature = row.insertCell(1);
+            var cellHumidity = row.insertCell(2);
+
+            row.id = id;
+            cellSensor.innerHTML = id;
+
+            return row;
+        }
+
+        function setSensorValue(id, temperature, humidity)
+        {
+            var sensorRow = document.getElementById(id);
+            if (!sensorRow)
+            {
+                row = addSensorRow(id);
+            }
+            var cells = row.cells;
+            var cellTemperature = cells[1];
+            var cellHumidity = cells[2];
+
+            cellTemperature.innerHTML = temperature;
+            cellHumidity.innerHTML = humidity;
+        }
+
         if (!!window.EventSource) {
             var source = new EventSource('/events');
 
             source.addEventListener('open', function (e) {
-                console.log("Events Connected");
+                console.log("Connected");
             }, false);
             source.addEventListener('error', function (e) {
                 if (e.target.readyState != EventSource.OPEN) {
-                    console.log("Events Disconnected");
+                    console.log("Disconnected");
                 }
             }, false);
 
@@ -137,11 +142,12 @@
 
             source.addEventListener('new_readings', function (e) {
                 console.log("new_readings", e.data);
-                var obj = JSON.parse(e.data);
-                document.getElementById("t" + obj.id).innerHTML = obj.temperature.toFixed(2);
-                document.getElementById("h" + obj.id).innerHTML = obj.humidity.toFixed(2);
-                document.getElementById("rt" + obj.id).innerHTML = obj.readingId;
-                document.getElementById("rh" + obj.id).innerHTML = obj.readingId;
+                var readings = JSON.parse(e.data);
+
+                var id = readings.readingId;
+                var temperature = readings.temperature.toFixed(2);
+                var humidity = readings.humidity.toFixed(2);
+                setSensorValue(id, temperature, humidity);
             }, false);
         }
     </script>
