@@ -13,7 +13,8 @@ void App::run()
     if (systemInit() != Status::OK)
     {
         constexpr auto msInSecond = 1000;
-        logger::logErrF("System will be rebooted in %ds", boardsettings::failRebootDelay / msInSecond);
+        logger::logErrF("System will be rebooted in %ds",
+                        boardsettings::failRebootDelay / msInSecond);
         delay(boardsettings::failRebootDelay);
         ESP.restart();
     }
@@ -42,9 +43,18 @@ App::Status App::systemInit()
 {
     delay(boardsettings::initDelay);
     logger::init();
-    if (auto status = initSD(); status != Status::OK) return status;
-    if (auto status = readConfig(); status != Status::OK) return status;
-    if (auto status = connectWiFi(); status != Status::OK) return status;
+    if (auto status = initSD(); status != Status::OK)
+    {
+        return status;
+    }
+    if (auto status = readConfig(); status != Status::OK)
+    {
+        return status;
+    }
+    if (auto status = connectWiFi(); status != Status::OK)
+    {
+        return status;
+    }
 
     return Status::OK;
 }
@@ -92,6 +102,8 @@ App::Status App::connectWiFi()
 
         if (wifiConnectionTries >= boardsettings::wifiConnectionRetriesBeforeReboot)
         {
+            logger::logErr("WiFi connection issue, reboot.");
+            delay(boardsettings::wifiConnectionIssueRebootDelay);
             ESP.restart();
         }
     }

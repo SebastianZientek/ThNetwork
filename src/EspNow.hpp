@@ -12,13 +12,8 @@ class EspNow
 public:
     using NewReadingsCb = std::function<void(float temp, float hum, String mac)>;
 
-    EspNow()
-    {
-    }
-    ~EspNow()
-    {
-    }
-
+    EspNow() = default;
+    ~EspNow() = default;
     EspNow(const EspNow &) = delete;
     EspNow(EspNow &&) = delete;
     EspNow &operator=(const EspNow &) = delete;
