@@ -4,12 +4,33 @@
 #include <ArduinoJson.h>
 #include <FS.h>
 
+#include "ArduinoJson/Deserialization/DeserializationError.hpp"
 #include "logger.hpp"
+
+namespace
+{
+std::pair<DynamicJsonDocument, DeserializationError> jsonFromString(const String &str)
+{
+    constexpr size_t initialCapacity = 32;
+    size_t capacity = 0;
+    DeserializationError error = DeserializationError::NoMemory;
+
+    while (error == DeserializationError::NoMemory)
+    {
+        capacity += initialCapacity;
+        DynamicJsonDocument json(capacity);
+        error = deserializeJson(json, str);
+        if (error == DeserializationError::Ok)
+        {
+            return {json, error};
+        }
+    }
+}
+}  // namespace
 
 bool Config::load(String data)
 {
-    DynamicJsonDocument config(1000);
-    DeserializationError error = deserializeJson(config, data);
+    auto [config, error] = jsonFromString(data);
 
     if (error)
     {
@@ -51,17 +72,8 @@ bool Config::load(String data)
     return true;
 }
 
-String Config::getWifiSsid()
-{
-    return m_wifiSsid;
-}
+String Config::getWifiSsid() { return m_wifiSsid; }
 
-String Config::getWifiPass()
-{
-    return m_wifiPass;
-}
+String Config::getWifiPass() { return m_wifiPass; }
 
-std::map<String, String> &Config::getSensorsMap()
-{
-    return m_sensorsMap;
-}
+std::map<String, String> &Config::getSensorsMap() { return m_sensorsMap; }

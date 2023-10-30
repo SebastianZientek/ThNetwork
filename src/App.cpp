@@ -13,7 +13,7 @@ void App::run()
     if (systemInit() != Status::OK)
     {
         constexpr auto msInSecond = 1000;
-        logger::logErrF("System will be rebooted in %d", boardsettings::failRebootDelay / msInSecond);
+        logger::logErrF("System will be rebooted in %ds", boardsettings::failRebootDelay / msInSecond);
         delay(boardsettings::failRebootDelay);
         ESP.restart();
     }
