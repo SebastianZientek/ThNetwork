@@ -15,6 +15,8 @@ add_executable(UnitTests
     unittests/TestRingBuffer.cpp)
 
 target_include_directories(UnitTests PRIVATE src)
+target_compile_options(UnitTests PUBLIC -fsanitize=address -Os -g)
+target_link_options(UnitTests PRIVATE -fsanitize=address)
 target_link_libraries(UnitTests PRIVATE
     CppUTest::CppUTest
     CppUTest::CppUTestExt)
