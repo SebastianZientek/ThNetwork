@@ -8,15 +8,18 @@ WebView::WebView(int port)
 {
 }
 
-void WebView::load(String path)
+void WebView::load(const String &path)
 {
     RaiiFile webpage(path);
     m_pageData = webpage.asString();
 }
 
-void WebView::sendEvent(const char *message, const char *event, uint32_t id, uint32_t reconnect)
+void WebView::sendEvent(const char *message,
+                        const char *event,
+                        uint32_t identifier,
+                        uint32_t reconnect)
 {
-    m_events.send(message, event, id, reconnect);
+    m_events.send(message, event, identifier, reconnect);
 }
 
 void WebView::startServer()

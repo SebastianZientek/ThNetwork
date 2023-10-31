@@ -47,6 +47,10 @@ App::Status App::systemInit()
     {
         return status;
     }
+    if (auto status = saveExampleConfig(); status != Status::OK)
+    {
+        return status;
+    }
     if (auto status = readConfig(); status != Status::OK)
     {
         return status;
@@ -84,6 +88,22 @@ App::Status App::readConfig()
         logger::logErr("Reading config error");
         return Status::FAIL;
     }
+    return Status::OK;
+}
+
+App::Status App::saveExampleConfig()
+{
+    if (SD.exists("/config_example.json"))
+    {
+        logger::logInf("config_example.json exists");
+    }
+    else
+    {
+        logger::logInf("Saving config_example.json");
+        RaiiFile file("/config_example.json", FILE_WRITE);
+        file.saveString(m_config.getExampleConfig());
+    }
+
     return Status::OK;
 }
 

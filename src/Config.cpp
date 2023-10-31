@@ -25,10 +25,11 @@ std::pair<DynamicJsonDocument, DeserializationError> jsonFromString(const String
             return {json, error};
         }
     }
+    return {DynamicJsonDocument(1), DeserializationError::EmptyInput};
 }
 }  // namespace
 
-bool Config::load(String data)
+bool Config::load(const String &data)
 {
     auto [config, error] = jsonFromString(data);
 
@@ -70,6 +71,19 @@ bool Config::load(String data)
     }
 
     return true;
+}
+
+String Config::getExampleConfig()
+{
+    return R"rawliteral({
+    "wifi": {
+        "ssid": "",
+        "pass": ""
+    },
+    "sensors":{
+        "44:17:93:0e:46:26": "Some sensor"
+    }
+})rawliteral";
 }
 
 String Config::getWifiSsid() { return m_wifiSsid; }

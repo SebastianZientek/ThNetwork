@@ -47,8 +47,15 @@ class RingBuffer
             return tmp;
         }
 
-        friend bool operator==(const Iterator &a, const Iterator &b) { return a.m_idx == b.m_idx; };
-        friend bool operator!=(const Iterator &a, const Iterator &b) { return a.m_idx != b.m_idx; };
+        friend bool operator==(const Iterator &lhs, const Iterator &rhs)
+        {
+            return lhs.m_idx == rhs.m_idx;
+        }
+
+        friend bool operator!=(const Iterator &lhs, const Iterator &rhs)
+        {
+            return lhs.m_idx != rhs.m_idx;
+        }
 
     private:
         difference_type m_idx;
@@ -56,7 +63,7 @@ class RingBuffer
     };
 
 public:
-    void addReading(T reading)
+    void push(T reading)
     {
         m_head = modInc(m_head);
         m_buffer[m_head] = reading;
@@ -67,7 +74,7 @@ public:
         }
     }
 
-    T getLast() { return m_buffer[m_head]; }
+    T peekLast() { return m_buffer[m_head]; }
     Iterator begin() { return Iterator(&m_buffer, modInc(m_tailId)); }
     Iterator end() { return Iterator(&m_buffer, modInc(m_head)); }
 

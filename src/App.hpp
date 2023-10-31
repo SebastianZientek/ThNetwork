@@ -21,6 +21,7 @@ private:
     Status systemInit();
     Status initSD();
     Status readConfig();
+    Status saveExampleConfig();
     Status connectWiFi();
 
     WebView m_web{boardsettings::serverPort};

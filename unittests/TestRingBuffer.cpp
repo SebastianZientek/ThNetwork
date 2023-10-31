@@ -7,26 +7,26 @@
 TEST_GROUP(RingBufferTest)  // NOLINT
 {};
 
-TEST(RingBufferTest, ReadingLastValueWhenOverload)  // NOLINT
+TEST(RingBufferTest, LastValueWhenOverload)  // NOLINT
 {
     RingBuffer<int, 3> rb;
-    rb.addReading(1);
-    CHECK_EQUAL(1, rb.getLast());
-    rb.addReading(2);
-    CHECK_EQUAL(2, rb.getLast());
-    rb.addReading(3);
-    CHECK_EQUAL(3, rb.getLast());
+    rb.push(1);
+    CHECK_EQUAL(1, rb.peekLast());
+    rb.push(2);
+    CHECK_EQUAL(2, rb.peekLast());
+    rb.push(3);
+    CHECK_EQUAL(3, rb.peekLast());
 
     // Should overwrite index 0
-    rb.addReading(4);
-    CHECK_EQUAL(rb.getLast(), 4);
+    rb.push(4);
+    CHECK_EQUAL(rb.peekLast(), 4);
 }
 
-TEST(RingBufferTest, ReadingWithIteratorsNotFullBuffer)  // NOLINT
+TEST(RingBufferTest, WithIteratorsNotFullBuffer)  // NOLINT
 {
     RingBuffer<int, 3> rb;
-    rb.addReading(1);
-    rb.addReading(2);
+    rb.push(1);
+    rb.push(2);
 
     auto it = rb.begin();
     CHECK_EQUAL(1, *it);
@@ -34,12 +34,12 @@ TEST(RingBufferTest, ReadingWithIteratorsNotFullBuffer)  // NOLINT
     CHECK_EQUAL(2, *it);
 }
 
-TEST(RingBufferTest, ReadingWithIteratorsFullBuffer)  // NOLINT
+TEST(RingBufferTest, WithIteratorsFullBuffer)  // NOLINT
 {
     RingBuffer<int, 3> rb;
-    rb.addReading(1);
-    rb.addReading(2);
-    rb.addReading(3);
+    rb.push(1);
+    rb.push(2);
+    rb.push(3);
 
     auto it = rb.begin();
     CHECK_EQUAL(1, *it);
@@ -49,15 +49,15 @@ TEST(RingBufferTest, ReadingWithIteratorsFullBuffer)  // NOLINT
     CHECK_EQUAL(3, *it);
 }
 
-TEST(RingBufferTest, ReadingWithIteratorsBufferOverload)  // NOLINT
+TEST(RingBufferTest, WithIteratorsBufferOverload)  // NOLINT
 {
     RingBuffer<int, 3> rb;
-    rb.addReading(1);
-    rb.addReading(2);
-    rb.addReading(3);
+    rb.push(1);
+    rb.push(2);
+    rb.push(3);
 
     // Rotation - should override 1
-    rb.addReading(4);
+    rb.push(4);
 
     auto it = rb.begin();
     CHECK_EQUAL(2, *it);
@@ -67,16 +67,16 @@ TEST(RingBufferTest, ReadingWithIteratorsBufferOverload)  // NOLINT
     CHECK_EQUAL(4, *it);
 }
 
-TEST(RingBufferTest, RangeForLoop)  // NOLINT
+TEST(RingBufferTest, ForLoop)  // NOLINT
 {
     RingBuffer<int, 3> rb;
-    rb.addReading(1);
-    rb.addReading(2);
-    rb.addReading(3);
+    rb.push(1);
+    rb.push(2);
+    rb.push(3);
 
     // Rotation - should override 1 and 2
-    rb.addReading(4);
-    rb.addReading(5);
+    rb.push(4);
+    rb.push(5);
 
     std::vector<int> values;
     for (const auto &r : rb)
@@ -91,20 +91,20 @@ TEST(RingBufferTest, RangeForLoop)  // NOLINT
 }
 
 
-TEST(RingBufferTest, RangeForLoopLongerOverride)  // NOLINT
+TEST(RingBufferTest, ForLoopLongerOverride)  // NOLINT
 {
     RingBuffer<int, 3> rb;
-    rb.addReading(1);
-    rb.addReading(2);
-    rb.addReading(3);
+    rb.push(1);
+    rb.push(2);
+    rb.push(3);
 
     // Rotation - should override 1 and 2, and 3 twice
-    rb.addReading(4);
-    rb.addReading(5);
-    rb.addReading(6);
-    rb.addReading(7);
-    rb.addReading(8);
-    rb.addReading(9);
+    rb.push(4);
+    rb.push(5);
+    rb.push(6);
+    rb.push(7);
+    rb.push(8);
+    rb.push(9);
 
     std::vector<int> values;
     for (const auto &r : rb)

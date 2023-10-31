@@ -7,7 +7,8 @@
 class Config
 {
 public:
-    bool load(String data);
+    bool load(const String &data);
+    String getExampleConfig();
 
     String getWifiSsid();
     String getWifiPass();

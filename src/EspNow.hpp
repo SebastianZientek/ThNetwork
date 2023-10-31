@@ -19,7 +19,7 @@ public:
     EspNow &operator=(const EspNow &) = delete;
     EspNow &operator=(EspNow &&) = delete;
 
-    void init(NewReadingsCb newReadingsCb);
+    void init(const NewReadingsCb &newReadingsCb);
 
 private:
     void onDataRecv(MacAddr mac, const uint8_t *incomingData, int len);

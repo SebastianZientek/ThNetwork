@@ -8,9 +8,6 @@
 # Synchronize date and time by NTP server
     - ntp server address should be saved in config file
 
-# Save default configuration file, if it is not saved on card
-    - name should be config.json_template
-
 # Warning on webpage if data from sensor was readed earlier than update_time * 2
 
 # Saving historical data

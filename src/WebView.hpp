@@ -10,10 +10,10 @@ class WebView
 public:
     WebView(int port);
 
-    void load(String path);
+    void load(const String &path);
     void sendEvent(const char *message,
                    const char *event = nullptr,
-                   uint32_t id = 0,
+                   uint32_t identifier = 0,
                    uint32_t reconnect = 0);
     void startServer();
 
