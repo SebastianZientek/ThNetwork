@@ -2,9 +2,6 @@
 
 # Estimate needed size for json instead of hardcoded value
 
-# New webpage
-    - plan how that page should look like
-
 # Synchronize date and time by NTP server
     - ntp server address should be saved in config file
 
