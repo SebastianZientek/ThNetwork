@@ -4,9 +4,11 @@
 #include <ESPAsyncWebServer.h>
 
 #include "RaiiFile.hpp"
+#include <MacAddr.hpp>
 
 class WebView
 {
+    using NewClientCb = std::function<void()>;
 public:
     WebView(int port);
 
@@ -15,7 +17,7 @@ public:
                    const char *event = nullptr,
                    uint32_t identifier = 0,
                    uint32_t reconnect = 0);
-    void startServer();
+    void startServer(NewClientCb newClientCb = []{});
 
 private:
     String m_pageData;

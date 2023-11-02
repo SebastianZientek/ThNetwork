@@ -9,8 +9,18 @@ class MacAddr
 {
 public:
     MacAddr(const uint8_t *mac);
+    String str()
+    {
+        return operator String();
+    }
+    
     operator String();
     operator uint8_t *();
+    friend bool operator<(const MacAddr& lhs, const MacAddr& rhs)
+    {
+        return lhs.macString < rhs.macString;
+    }
+
 
 private:
     constexpr static auto macDigits = 6;

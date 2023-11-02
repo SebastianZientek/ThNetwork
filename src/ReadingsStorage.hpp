@@ -9,15 +9,16 @@ class ReadingsStorage
 {
     struct Reading
     {
-        int8_t temperature : 7, frac : 1;  // If point == 1 -> +0.5 to temperature
-        int8_t humidity;
+        float temperature;
+        float humidity;
+        unsigned long epochTime;
     };
 
 public:
-    void addReading(MacAddr mac, float temperature, float humidity);
-    std::pair<float, float> getReading();
+    void addReading(const MacAddr &mac, float temperature, float humidity, unsigned long epochTime);
+    std::map<MacAddr, Reading> &getReadings() { return m_readings; }
 
 private:
     std::map<MacAddr, Reading> m_readings;
-    RingBuffer<Reading, 5> test;
+    // RingBuffer<Reading, 5> test;
 };

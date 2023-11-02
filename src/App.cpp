@@ -5,6 +5,7 @@
 
 #include "ArduinoJson/Document/StaticJsonDocument.hpp"
 #include "ArduinoJson/Json/JsonSerializer.hpp"
+#include "MacAddr.hpp"
 #include "boardsettings.hpp"
 #include "logger.hpp"
 
@@ -25,8 +26,39 @@ void App::run()
 
     auto &sensorsMap = m_config.getSensorsMap();
     m_espNow.init(
-        [this, sensorsMap](float temp, float hum, String mac, unsigned long epochTime)
+        [this, sensorsMap](float temp, float hum, MacAddr mac, unsigned long epochTime)
         {
+            std::array<char, 5> buf;
+            std::sprintf(&buf[0], "%.1f", temp);
+            String temperature = buf.data();
+            std::sprintf(&buf[0], "%.1f", hum);
+            String humidity = buf.data();
+
+            m_readings.addReading(mac, temp, hum, epochTime);
+
+            StaticJsonDocument<120> readings{};
+            readings["epochTime"] = epochTime;
+            readings["temperature"] = temperature;
+            readings["humidity"] = humidity;
+            readings["id"] = mac.str();
+            auto containsMac = sensorsMap.find(mac) != sensorsMap.end();
+            readings["name"] = containsMac ? sensorsMap.at(mac) : mac.str();
+            String jsonString{};
+            serializeJson(readings, jsonString);
+            m_web.sendEvent(jsonString.c_str(), "new_readings", millis());
+        });
+
+    m_web.load("/index.html");
+    m_web.startServer(
+        [this, sensorsMap]{
+        auto &currentReadings = m_readings.getReadings();
+        for (const auto &[macAddr, reading]: currentReadings)
+        {
+            auto temp = reading.temperature;
+            auto hum = reading.humidity;
+            auto epochTime = reading.epochTime;
+            auto mac = macAddr;
+
             std::array<char, 5> buf;
             std::sprintf(&buf[0], "%.1f", temp);
             String temperature = buf.data();
@@ -37,16 +69,15 @@ void App::run()
             readings["epochTime"] = epochTime;
             readings["temperature"] = temperature;
             readings["humidity"] = humidity;
-            readings["id"] = mac;
+            readings["id"] = mac.str();
             auto containsMac = sensorsMap.find(mac) != sensorsMap.end();
-            readings["name"] = containsMac ? sensorsMap.at(mac) : mac;
+            readings["name"] = containsMac ? sensorsMap.at(mac) : mac.str();
             String jsonString{};
             serializeJson(readings, jsonString);
             m_web.sendEvent(jsonString.c_str(), "new_readings", millis());
-        });
-
-    m_web.load("/index.html");
-    m_web.startServer();
+        }
+    }
+    );
 }
 
 App::Status App::systemInit()
@@ -70,7 +101,6 @@ App::Status App::systemInit()
         return status;
     }
 
-    // m_timeClient.setTimeOffset(3600);
     m_timeClient.update();
 
     return Status::OK;

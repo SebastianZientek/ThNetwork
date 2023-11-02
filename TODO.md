@@ -1,5 +1,7 @@
 # Sending on connection status of current sensors
 
+# Refactor of ReadingStorage and things around
+
 # Saving historical data
     - data should be stored in files, one file per day, per sensor,
     - format should be easy to parse,

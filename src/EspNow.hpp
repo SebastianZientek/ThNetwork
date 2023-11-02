@@ -11,7 +11,7 @@
 class EspNow
 {
 public:
-    using NewReadingsCb = std::function<void(float temp, float hum, String mac, unsigned long epochTime)>;
+    using NewReadingsCb = std::function<void(float temp, float hum, MacAddr mac, unsigned long epochTime)>;
 
     EspNow(NTPClient &ntpClient);
     ~EspNow() = default;

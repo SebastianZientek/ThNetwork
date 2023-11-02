@@ -22,19 +22,21 @@ void WebView::sendEvent(const char *message,
     m_events.send(message, event, identifier, reconnect);
 }
 
-void WebView::startServer()
+void WebView::startServer(NewClientCb newClientCb)
 {
     m_server.on("/", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
                 { request->send_P(200, "text/html", m_pageData.c_str()); });
     m_events.onConnect(
-        [](AsyncEventSourceClient *client)
+        [newClientCb](AsyncEventSourceClient *client)
         {
+            logger::logInf("Client connected");
             if (client->lastId())
             {
                 logger::logInfF("Client reconnected, last ID: %u\n", client->lastId());
             }
             client->send("init", NULL, millis(), 10000);
+            newClientCb();
         });
     m_server.addHandler(&m_events);
     m_server.begin();
