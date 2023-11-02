@@ -1,7 +1,3 @@
-# data type for temperature and humidity optimization (now float is used, but we don't need so high precision)
-
-# Estimate needed size for json instead of hardcoded value
-
 # Synchronize date and time by NTP server
     - ntp server address should be saved in config file
 

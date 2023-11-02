@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include <NTPClient.h>
 #include <esp_now.h>
 
 #include <functional>
@@ -10,9 +11,9 @@
 class EspNow
 {
 public:
-    using NewReadingsCb = std::function<void(float temp, float hum, String mac)>;
+    using NewReadingsCb = std::function<void(float temp, float hum, String mac, unsigned long epochTime)>;
 
-    EspNow() = default;
+    EspNow(NTPClient &ntpClient);
     ~EspNow() = default;
     EspNow(const EspNow &) = delete;
     EspNow(EspNow &&) = delete;
@@ -30,4 +31,5 @@ private:
     void sendPairOK(MacAddr mac);
 
     NewReadingsCb m_newReadingsCb;
+    NTPClient &m_ntpClient;
 };

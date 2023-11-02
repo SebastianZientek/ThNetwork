@@ -4,6 +4,7 @@
 
 #include <array>
 
+#include "NTPClient.h"
 #include "THMessage.hpp"
 #include "logger.hpp"
 
@@ -11,6 +12,11 @@ constexpr auto macSize = 6;
 constexpr auto msgSignatureSize = 4;
 constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 constexpr std::array<uint8_t, 4> msgSignature{'T', 'H', 'D', 'T'};
+
+EspNow::EspNow(NTPClient &ntpClient)
+    : m_ntpClient(ntpClient)
+{
+}
 
 void EspNow::init(const NewReadingsCb &newReadingsCb)
 {
@@ -41,9 +47,10 @@ void EspNow::onDataRecv(MacAddr mac, const uint8_t *incomingData, int len)
         break;
     case TH_DATA:
         logger::logInf("TH_DATA received");
-        logger::logInfF("T: %f, H: %f", recvMsg.temperature, recvMsg.humidity);
+        logger::logInf(m_ntpClient.getFormattedTime());
+        logger::logInfF("T: %.1f, H: %.1f", recvMsg.temperature, recvMsg.humidity);
 
-        m_newReadingsCb(recvMsg.temperature, recvMsg.humidity, mac);
+        m_newReadingsCb(recvMsg.temperature, recvMsg.humidity, mac, m_ntpClient.getEpochTime());
         break;
     }
 }
@@ -73,8 +80,8 @@ void EspNow::setOnDataRecvCb()
 
 void EspNow::setOnDataSendCb()
 {
-    static auto onDataSendThis
-        = [this](MacAddr mac, esp_now_send_status_t status) { this->onDataSend(std::move(mac), status); };
+    static auto onDataSendThis = [this](MacAddr mac, esp_now_send_status_t status)
+    { this->onDataSend(std::move(mac), status); };
     auto onDataSend = [](const uint8_t *macAddr, esp_now_send_status_t status)
     { onDataSendThis(macAddr, status); };
 

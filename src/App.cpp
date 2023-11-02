@@ -8,6 +8,10 @@
 #include "boardsettings.hpp"
 #include "logger.hpp"
 
+App::App()
+{
+}
+
 void App::run()
 {
     if (systemInit() != Status::OK)
@@ -21,13 +25,19 @@ void App::run()
 
     auto &sensorsMap = m_config.getSensorsMap();
     m_espNow.init(
-        [this, sensorsMap](float temp, float hum, String mac)
+        [this, sensorsMap](float temp, float hum, String mac, unsigned long epochTime)
         {
-            StaticJsonDocument<100> readings{};
-            readings["id"] = 1;
-            readings["temperature"] = temp;
-            readings["humidity"] = hum;
-            readings["readingId"] = "Blabla";
+            std::array<char, 5> buf;
+            std::sprintf(&buf[0], "%.1f", temp);
+            String temperature = buf.data();
+            std::sprintf(&buf[0], "%.1f", hum);
+            String humidity = buf.data();
+
+            StaticJsonDocument<120> readings{};
+            readings["epochTime"] = epochTime;
+            readings["temperature"] = temperature;
+            readings["humidity"] = humidity;
+            readings["id"] = mac;
             auto containsMac = sensorsMap.find(mac) != sensorsMap.end();
             readings["name"] = containsMac ? sensorsMap.at(mac) : mac;
             String jsonString{};
@@ -59,6 +69,9 @@ App::Status App::systemInit()
     {
         return status;
     }
+
+    // m_timeClient.setTimeOffset(3600);
+    m_timeClient.update();
 
     return Status::OK;
 }

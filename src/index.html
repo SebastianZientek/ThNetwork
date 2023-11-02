@@ -94,7 +94,7 @@
     </div>
 
     <script>
-        function addSensorRow(id)
+        function addSensorRow(id, name)
         {
             console.log("addSensorRow");
             var table = document.getElementById("sensorsTable");
@@ -104,17 +104,17 @@
             var cellHumidity = row.insertCell(2);
 
             row.id = id;
-            cellSensor.innerHTML = id;
+            cellSensor.innerHTML = name;
 
             return row;
         }
 
-        function setSensorValue(id, temperature, humidity)
+        function setSensorValue(id, name, temperature, humidity)
         {
             var sensorRow = document.getElementById(id);
             if (!sensorRow)
             {
-                row = addSensorRow(id);
+                row = addSensorRow(id, name);
             }
             var cells = row.cells;
             var cellTemperature = cells[1];
@@ -144,10 +144,11 @@
                 console.log("new_readings", e.data);
                 var readings = JSON.parse(e.data);
 
-                var id = readings.readingId;
-                var temperature = readings.temperature.toFixed(2);
-                var humidity = readings.humidity.toFixed(2);
-                setSensorValue(id, temperature, humidity);
+                var id = readings.id;
+                var name = readings.name;
+                var temperature = parseFloat(readings.temperature).toFixed(1);
+                var humidity = parseFloat(readings.humidity).toFixed(1);
+                setSensorValue(id, name, temperature, humidity);
             }, false);
         }
     </script>
