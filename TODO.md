@@ -1,5 +1,3 @@
-# Sending on connection status of current sensors
-
 # Refactor of ReadingStorage and things around
 
 # Saving historical data
