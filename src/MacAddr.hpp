@@ -9,21 +9,14 @@ class MacAddr
 {
 public:
     MacAddr(const uint8_t *mac);
-    String str()
-    {
-        return operator String();
-    }
-    
+    String str();
     operator String();
     operator uint8_t *();
-    friend bool operator<(const MacAddr& lhs, const MacAddr& rhs)
-    {
-        return lhs.macString < rhs.macString;
-    }
 
+    friend bool operator<(const MacAddr &lhs, const MacAddr &rhs);
 
 private:
     constexpr static auto macDigits = 6;
-    std::array<uint8_t, macDigits> macAddr{};
-    String macString;
+    std::array<uint8_t, macDigits> m_macAddr{};
+    String m_macString;
 };

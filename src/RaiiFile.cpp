@@ -5,9 +5,9 @@
 
 #include "logger.hpp"
 
-RaiiFile::RaiiFile(const String &path, const char* mode)
+RaiiFile::RaiiFile(const String &path, const char* mode, bool create)
 {
-    m_file = SD.open(path, mode);
+    m_file = SD.open(path, mode, create);
     if (!m_file)
     {
         logger::logErr("Failed to open file for reading");
@@ -27,7 +27,12 @@ String RaiiFile::asString()
     return str;
 }
 
-void RaiiFile::saveString(const String &str)
+void RaiiFile::print(const String &str)
 {
     m_file.print(str);
+}
+
+void RaiiFile::println(const String &str)
+{
+    m_file.println(str);
 }

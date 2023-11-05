@@ -6,6 +6,7 @@
 #include "ArduinoJson/Document/StaticJsonDocument.hpp"
 #include "ArduinoJson/Json/JsonSerializer.hpp"
 #include "MacAddr.hpp"
+#include "RaiiFile.hpp"
 #include "boardsettings.hpp"
 #include "logger.hpp"
 #include "utils.hpp"
@@ -117,7 +118,7 @@ App::Status App::saveExampleConfig()
     {
         logger::logInf("Saving config_example.json");
         RaiiFile file("/config_example.json", FILE_WRITE);
-        file.saveString(m_config.getExampleConfig());
+        file.print(m_config.getExampleConfig());
     }
 
     return Status::OK;

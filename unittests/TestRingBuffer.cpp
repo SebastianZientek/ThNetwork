@@ -90,7 +90,6 @@ TEST(RingBufferTest, ForLoop)  // NOLINT
     CHECK_EQUAL(5, values[2]);
 }
 
-
 TEST(RingBufferTest, ForLoopLongerOverride)  // NOLINT
 {
     RingBuffer<int, 3> rb;
