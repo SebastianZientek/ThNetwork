@@ -24,5 +24,5 @@ public:
 private:
     std::map<MacAddr, Reading> m_readings;
 
-    void saveReading(MacAddr mac, const Reading &reading);
+    void saveReading(MacAddr mac, const String &sensorName, const Reading &reading);
 };

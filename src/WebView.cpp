@@ -3,8 +3,10 @@
 #include "logger.hpp"
 
 WebView::WebView(int port)
-    : m_server(port)
+    : m_pageData()
+    , m_server(port)
     , m_events("/events")
+    , m_newClientCb()
 {
 }
 

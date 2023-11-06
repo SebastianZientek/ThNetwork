@@ -16,24 +16,21 @@ void ReadingsStorage::addReading(const MacAddr &mac,
     Reading reading = {temperature, humidity, epochTime};
     m_readings[mac] = reading;
 
-    saveReading(mac, reading);
+    saveReading(mac, sensorName, reading);
 }
 
 std::map<MacAddr, ReadingsStorage::Reading> &ReadingsStorage::getReadings() { return m_readings; }
 
-void ReadingsStorage::saveReading(MacAddr mac, const Reading &reading)
+void ReadingsStorage::saveReading(MacAddr mac, const String &sensorName, const Reading &reading)
 {
-    auto sensorId = mac.str();
-    sensorId.replace(':', '_');
-
     String path = "/readings/" + utils::epochToFormattedDate(reading.epochTime) + String("/")
-                  + sensorId + String(".json");
+                  + sensorName + String(".json");
 
     logger::logInf(utils::epochToFormattedDate(reading.epochTime));
     RaiiFile dataFile(path, FILE_APPEND, true);
 
     dataFile->print("[");
-    dataFile->print(mac);
+    dataFile->print(mac.str.replace(':', '_'));
     dataFile->print(",");
     dataFile->print(reading.epochTime);
     dataFile->print(",");

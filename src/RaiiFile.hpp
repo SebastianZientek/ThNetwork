@@ -16,5 +16,5 @@ public:
     File *operator->() { return &m_file; }
 
 private:
-    File m_file;
+    File m_file{};
 };
