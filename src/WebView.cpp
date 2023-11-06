@@ -11,7 +11,7 @@ WebView::WebView(int port)
 void WebView::load(const String &path)
 {
     RaiiFile webpage(path);
-    m_pageData = webpage.asString();
+    m_pageData = webpage->readString();
 }
 
 void WebView::sendEvent(const char *message,
