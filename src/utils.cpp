@@ -2,6 +2,8 @@
 
 #include <ArduinoJson.h>
 
+#include <ctime>
+
 #include "ArduinoJson/Document/StaticJsonDocument.hpp"
 #include "ArduinoJson/Json/JsonSerializer.hpp"
 
@@ -35,5 +37,15 @@ String readingsToJsonString(
     serializeJson(readings, jsonString);
 
     return jsonString;
+}
+
+String epochToFormattedDate(unsigned long epochTime)
+{
+    auto epoch = static_cast<time_t>(epochTime);
+    constexpr auto bufSize = 15;
+    std::array<char, bufSize> buf{};
+    std::strftime(buf.data(), buf.size(), "%Y_%m_%d", std::localtime(&epoch));
+
+    return buf.data();
 }
 }  // namespace utils

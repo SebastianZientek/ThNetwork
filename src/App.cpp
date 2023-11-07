@@ -6,6 +6,7 @@
 #include "ArduinoJson/Document/StaticJsonDocument.hpp"
 #include "ArduinoJson/Json/JsonSerializer.hpp"
 #include "MacAddr.hpp"
+#include "RaiiFile.hpp"
 #include "boardsettings.hpp"
 #include "logger.hpp"
 #include "utils.hpp"
@@ -25,18 +26,24 @@ void App::run()
 
     auto &sensorsMap = m_config.getSensorsMap();
 
-    auto sendEvent = [this, sensorsMap](float temp, float hum, MacAddr mac, unsigned long epochTime)
-    {
+    auto getSensorName = [this, sensorsMap](MacAddr mac){
         auto containsMac = sensorsMap.find(mac) != sensorsMap.end();
         String sensorName = containsMac ? sensorsMap.at(mac) : mac.str();
+        return sensorName;
+    };
+
+    auto sendEvent = [this, getSensorName](float temp, float hum, MacAddr mac, unsigned long epochTime)
+    {
+        String sensorName = getSensorName(mac);
         String jsonString = utils::readingsToJsonString(temp, hum, mac, sensorName, epochTime);
         m_web.sendEvent(jsonString.c_str(), "new_readings", millis());
     };
 
     m_espNow.init(
-        [this, sendEvent](float temp, float hum, MacAddr mac, unsigned long epochTime)
+        [this, sendEvent, getSensorName](float temp, float hum, MacAddr mac, unsigned long epochTime)
         {
-            m_readings.addReading(mac, temp, hum, epochTime);
+            String sensorName = getSensorName(mac);
+            m_readings.addReading(mac, sensorName, temp, hum, epochTime);
             sendEvent(temp, hum, mac, epochTime);
         });
 
@@ -98,7 +105,7 @@ App::Status App::initSD()
 App::Status App::readConfig()
 {
     RaiiFile file("/config.json");
-    String data = file.asString();
+    String data = file->readString();
     if (!m_config.load(data))
     {
         logger::logErr("Reading config error");
@@ -117,7 +124,7 @@ App::Status App::saveExampleConfig()
     {
         logger::logInf("Saving config_example.json");
         RaiiFile file("/config_example.json", FILE_WRITE);
-        file.saveString(m_config.getExampleConfig());
+        file->print(m_config.getExampleConfig());
     }
 
     return Status::OK;

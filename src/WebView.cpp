@@ -3,15 +3,17 @@
 #include "logger.hpp"
 
 WebView::WebView(int port)
-    : m_server(port)
+    : m_pageData()
+    , m_server(port)
     , m_events("/events")
+    , m_newClientCb()
 {
 }
 
 void WebView::load(const String &path)
 {
     RaiiFile webpage(path);
-    m_pageData = webpage.asString();
+    m_pageData = webpage->readString();
 }
 
 void WebView::sendEvent(const char *message,
