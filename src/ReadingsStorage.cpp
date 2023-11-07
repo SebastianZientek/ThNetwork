@@ -25,10 +25,7 @@ void ReadingsStorage::saveReading(MacAddr mac, const String &sensorName, const R
 {
     String path = "/readings/" + utils::epochToFormattedDate(reading.epochTime) + String("/")
                   + sensorName + String(".json");
-
-    logger::logInf(utils::epochToFormattedDate(reading.epochTime));
     RaiiFile dataFile(path, FILE_APPEND, true);
-
     dataFile->print("[");
     dataFile->print("\"" + mac.str() + "\"");
     dataFile->print(",");
@@ -38,4 +35,6 @@ void ReadingsStorage::saveReading(MacAddr mac, const String &sensorName, const R
     dataFile->print(",");
     dataFile->print(reading.humidity);
     dataFile->println("],");
+
+    m_readingsCleaner.cleanIfNeeded();
 }

@@ -3,6 +3,7 @@
 #include <map>
 
 #include "MacAddr.hpp"
+#include "ReadingsCleaner.hpp"
 
 class ReadingsStorage
 {
@@ -23,6 +24,7 @@ public:
 
 private:
     std::map<MacAddr, Reading> m_readings;
+    ReadingsCleaner m_readingsCleaner;
 
     void saveReading(MacAddr mac, const String &sensorName, const Reading &reading);
 };
