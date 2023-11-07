@@ -30,7 +30,7 @@ void ReadingsStorage::saveReading(MacAddr mac, const String &sensorName, const R
     RaiiFile dataFile(path, FILE_APPEND, true);
 
     dataFile->print("[");
-    dataFile->print(mac.str.replace(':', '_'));
+    dataFile->print("\"" + mac.str() + "\"");
     dataFile->print(",");
     dataFile->print(reading.epochTime);
     dataFile->print(",");
