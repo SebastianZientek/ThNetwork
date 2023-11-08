@@ -19,7 +19,8 @@ class App
 
 public:
     App();
-    void run();
+    void init();
+    void update();
 
 private:
     Status systemInit();
@@ -27,6 +28,7 @@ private:
     Status readConfig();
     Status saveExampleConfig();
     Status connectWiFi();
+    void sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime);
 
     WebView m_web{boardsettings::serverPort};
     WiFiUDP m_ntpUDP{};

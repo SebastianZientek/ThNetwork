@@ -1,14 +1,9 @@
 #include <Arduino.h>
-#include "App.hpp"
 
+#include "App.hpp"
 #include "EspNow.hpp"
 
-void setup()
-{
-    static App app;
-    app.run();
-}
+App app;  // NOLINT
+void setup() { app.init(); }
 
-void loop()
-{
-}
+void loop() { app.update(); }

@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 #include <map>
+#include <optional>
 
 class Config
 {
@@ -13,6 +14,7 @@ public:
     String getWifiSsid();
     String getWifiPass();
     std::map<String, String> &getSensorsMap();
+    std::optional<String> getSensorName(const String &mac);
 
 private:
     String m_wifiSsid;

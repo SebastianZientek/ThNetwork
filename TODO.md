@@ -4,6 +4,4 @@
 
 # Sending "updateTime" for sensors during pairing
 
-# Sending web event periodically instead of on event from sensor
-
 # Logging data received with sensor name

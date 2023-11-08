@@ -4,6 +4,8 @@
 #include <ArduinoJson.h>
 #include <FS.h>
 
+#include <optional>
+
 #include "ArduinoJson/Deserialization/DeserializationError.hpp"
 #include "logger.hpp"
 
@@ -91,3 +93,10 @@ String Config::getWifiSsid() { return m_wifiSsid; }
 String Config::getWifiPass() { return m_wifiPass; }
 
 std::map<String, String> &Config::getSensorsMap() { return m_sensorsMap; }
+
+std::optional<String> Config::getSensorName(const String &mac)
+{
+    auto containsMac = m_sensorsMap.find(mac) != m_sensorsMap.end();
+    auto sensorName = containsMac ? std::optional<String>{m_sensorsMap.at(mac)} : std::nullopt;
+    return sensorName;
+}

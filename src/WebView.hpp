@@ -9,6 +9,7 @@ class WebView
 {
     using NewClientCb = std::function<void()>;
 
+
 public:
     WebView(int port);
 
@@ -16,6 +17,7 @@ public:
                    const char *event = nullptr,
                    uint32_t identifier = 0,
                    uint32_t reconnect = 0);
+
     void startServer(const NewClientCb &newClientCb = [] {});
 
 private:

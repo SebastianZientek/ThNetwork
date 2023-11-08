@@ -13,7 +13,7 @@
 
 App::App() {}
 
-void App::run()
+void App::init()
 {
     if (systemInit() != Status::OK)
     {
@@ -24,31 +24,15 @@ void App::run()
         ESP.restart();
     }
 
-    auto &sensorsMap = m_config.getSensorsMap();
-
-    auto getSensorName = [this, sensorsMap](MacAddr mac){
-        auto containsMac = sensorsMap.find(mac) != sensorsMap.end();
-        String sensorName = containsMac ? sensorsMap.at(mac) : mac.str();
-        return sensorName;
-    };
-
-    auto sendEvent = [this, getSensorName](float temp, float hum, MacAddr mac, unsigned long epochTime)
-    {
-        String sensorName = getSensorName(mac);
-        String jsonString = utils::readingsToJsonString(temp, hum, mac, sensorName, epochTime);
-        m_web.sendEvent(jsonString.c_str(), "new_readings", millis());
-    };
-
     m_espNow.init(
-        [this, sendEvent, getSensorName](float temp, float hum, MacAddr mac, unsigned long epochTime)
+        [this](float temp, float hum, MacAddr mac, unsigned long epochTime)
         {
-            String sensorName = getSensorName(mac);
+            auto sensorName = m_config.getSensorName(mac.str()).value_or(mac);
             m_readings.addReading(mac, sensorName, temp, hum, epochTime);
-            sendEvent(temp, hum, mac, epochTime);
         });
 
     m_web.startServer(
-        [this, sendEvent]
+        [this]
         {
             auto &currentReadings = m_readings.getReadings();
             for (const auto &[macAddr, reading] : currentReadings)
@@ -56,6 +40,24 @@ void App::run()
                 sendEvent(reading.temperature, reading.humidity, macAddr, reading.epochTime);
             }
         });
+}
+
+void App::update()
+{
+    constexpr auto msToUpdate = 5000;
+    auto initTimer = [] { return millis() + msToUpdate; };
+    static auto callTimePoint = initTimer();
+
+    if (callTimePoint < millis())
+    {
+        callTimePoint = initTimer();
+
+        auto &currentReadings = m_readings.getReadings();
+        for (const auto &[macAddr, reading] : currentReadings)
+        {
+            sendEvent(reading.temperature, reading.humidity, macAddr, reading.epochTime);
+        }
+    }
 }
 
 App::Status App::systemInit()
@@ -153,4 +155,11 @@ App::Status App::connectWiFi()
                     WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), WiFi.channel());
 
     return Status::OK;
+}
+
+void App::sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime)
+{
+    auto sensorName = m_config.getSensorName(mac.str()).value_or(mac);
+    String jsonString = utils::readingsToJsonString(temp, hum, mac, sensorName, epochTime);
+    m_web.sendEvent(jsonString.c_str(), "new_readings", millis());
 }
