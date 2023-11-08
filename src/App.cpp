@@ -47,8 +47,6 @@ void App::run()
             sendEvent(temp, hum, mac, epochTime);
         });
 
-    m_web.load("/index.html");
-
     m_web.startServer(
         [this, sendEvent]
         {

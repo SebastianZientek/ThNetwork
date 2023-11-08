@@ -2,18 +2,14 @@
 
 #include "logger.hpp"
 
+constexpr auto htmlData =
+#include "index.html"
+
 WebView::WebView(int port)
-    : m_pageData()
-    , m_server(port)
+    : m_server(port)
     , m_events("/events")
     , m_newClientCb()
 {
-}
-
-void WebView::load(const String &path)
-{
-    RaiiFile webpage(path);
-    m_pageData = webpage->readString();
 }
 
 void WebView::sendEvent(const char *message,
@@ -30,7 +26,7 @@ void WebView::startServer(const NewClientCb &newClientCb)
 
     m_server.on("/", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
-                { request->send_P(200, "text/html", m_pageData.c_str()); });
+                { request->send_P(200, "text/html", htmlData); });
 
     m_events.onConnect(
         [this](AsyncEventSourceClient *client)
