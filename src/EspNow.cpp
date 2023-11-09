@@ -46,9 +46,9 @@ void EspNow::onDataRecv(MacAddr mac, const uint8_t *incomingData, int len)
         logger::logErr("PAIR_OK received, but this message should be handled by sensor");
         break;
     case TH_DATA:
-        logger::logInf("TH_DATA received");
-        logger::logInf(m_ntpClient.getFormattedTime());
-        logger::logInfF("T: %.1f, H: %.1f", recvMsg.temperature, recvMsg.humidity);
+        logger::logInfF("[%s %s] T: %.1f, H: %.1f", mac.str().c_str(),
+                        m_ntpClient.getFormattedTime().c_str(), recvMsg.temperature,
+                        recvMsg.humidity);
 
         m_newReadingsCb(recvMsg.temperature, recvMsg.humidity, mac, m_ntpClient.getEpochTime());
         break;
