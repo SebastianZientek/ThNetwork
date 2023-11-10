@@ -71,6 +71,19 @@ bool Config::load(const String &data)
             logger::logInfF("sensor: %s -> %s", key.c_str(), value.c_str());
         }
     }
+    else
+    {
+        return false;
+    }
+
+    if (config.containsKey("sensorUpdatePeriodMins"))
+    {
+        m_sensorUpdatePeriodMins = config["sensorUpdatePeriodMins"];
+    }
+    else
+    {
+        return false;
+    }
 
     return true;
 }
@@ -82,6 +95,7 @@ String Config::getExampleConfig()
         "ssid": "",
         "pass": ""
     },
+    "sensorUpdatePeriodMins": 1,
     "sensors":{
         "44:17:93:0e:46:26": "Some sensor"
     }
@@ -100,3 +114,5 @@ std::optional<String> Config::getSensorName(const String &mac)
     auto sensorName = containsMac ? std::optional<String>{m_sensorsMap.at(mac)} : std::nullopt;
     return sensorName;
 }
+
+uint8_t Config::getSensorUpdatePeriodMins() const { return m_sensorUpdatePeriodMins; }

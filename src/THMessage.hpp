@@ -18,6 +18,8 @@ struct THMessage
     uint8_t mac[6];  // NOLINT
     uint8_t channel;
 
+    uint8_t updatePeriodMins;
+
     float temperature;
     float humidity;
 };

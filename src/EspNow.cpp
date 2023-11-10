@@ -15,10 +15,11 @@ constexpr std::array<uint8_t, 4> msgSignature{'T', 'H', 'D', 'T'};
 
 EspNow::EspNow(NTPClient &ntpClient)
     : m_ntpClient(ntpClient)
+    , m_sensorUpdatePeriodMins(1)
 {
 }
 
-void EspNow::init(const NewReadingsCb &newReadingsCb)
+void EspNow::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriodMins)
 {
     if (esp_now_init() != ESP_OK)
     {
@@ -27,6 +28,7 @@ void EspNow::init(const NewReadingsCb &newReadingsCb)
     }
 
     m_newReadingsCb = newReadingsCb;
+    m_sensorUpdatePeriodMins = sensorUpdatePeriodMins;
     setOnDataRecvCb();
     setOnDataSendCb();
 }
@@ -96,11 +98,12 @@ void EspNow::addPeer(MacAddr mac, uint8_t channel)
     esp_now_add_peer(&peer);
 }
 
-void EspNow::sendPairOK(MacAddr mac)
+void EspNow::sendPairOK(MacAddr mac) const
 {
     THMessage msg{};
     msg.type = PAIR_OK;
     msg.channel = WiFi.channel();
+    msg.updatePeriodMins = m_sensorUpdatePeriodMins;
     WiFi.softAPmacAddress(&msg.mac[0]);
     std::copy(msgSignature.begin(), msgSignature.end(), &msg.signature[0]);
     auto state = esp_now_send(mac, reinterpret_cast<uint8_t *>(&msg), sizeof(msg));  // NOLINT

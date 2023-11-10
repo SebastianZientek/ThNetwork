@@ -29,7 +29,8 @@ void App::init()
         {
             auto sensorName = m_config.getSensorName(mac.str()).value_or(mac);
             m_readings.addReading(mac, sensorName, temp, hum, epochTime);
-        });
+        },
+        m_config.getSensorUpdatePeriodMins());
 
     m_web.startServer(
         [this]
