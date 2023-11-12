@@ -18,5 +18,4 @@ public:
 private:
     constexpr static auto macDigits = 6;
     std::array<uint8_t, macDigits> m_macAddr{};
-    String m_macString;
 };

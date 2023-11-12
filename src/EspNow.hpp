@@ -7,6 +7,7 @@
 #include <functional>
 
 #include "MacAddr.hpp"
+#include "Messages.hpp"
 
 class EspNow
 {
@@ -30,6 +31,7 @@ private:
     void setOnDataSendCb();
     void addPeer(MacAddr mac, uint8_t channel);
     void sendPairOK(MacAddr mac) const;
+    MsgType getMsgType(const uint8_t *buffer, size_t size);
 
     NewReadingsCb m_newReadingsCb;
     NTPClient &m_ntpClient;

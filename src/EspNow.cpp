@@ -4,8 +4,8 @@
 
 #include <array>
 
+#include "Messages.hpp"
 #include "NTPClient.h"
-#include "THMessage.hpp"
 #include "logger.hpp"
 
 constexpr auto macSize = 6;
@@ -35,25 +35,34 @@ void EspNow::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriod
 
 void EspNow::onDataRecv(MacAddr mac, const uint8_t *incomingData, int len)
 {
-    THMessage recvMsg{};
-    memcpy(&recvMsg, incomingData, sizeof(recvMsg));
-    switch (recvMsg.type)
+    auto msgType = getMsgType(incomingData, len);
+
+    switch (msgType)
     {
-    case PAIR_REQ:
+    case MsgType::PAIR_REQ:
+    {
         logger::logInf("PAIR_REQ received");
         addPeer(mac, WiFi.channel());
         sendPairOK(mac);
+    }
+    break;
+    case MsgType::PAIR_RESP:
+        logger::logErr("Received PAIR_RESP, shouldn't be here.");
         break;
-    case PAIR_OK:
-        logger::logErr("PAIR_OK received, but this message should be handled by sensor");
-        break;
-    case TH_DATA:
-        logger::logInfF("[%s %s] T: %.1f, H: %.1f", mac.str().c_str(),
-                        m_ntpClient.getFormattedTime().c_str(), recvMsg.temperature,
-                        recvMsg.humidity);
+    case MsgType::SENSOR_DATA:
+    {
+        SensorDataMsg sDataMsg;
+        sDataMsg.deserialize(incomingData, len);
 
-        m_newReadingsCb(recvMsg.temperature, recvMsg.humidity, mac, m_ntpClient.getEpochTime());
-        break;
+        logger::logInfF("[%s %s] T: %.1f, H: %.1f", mac.str().c_str(),
+                        m_ntpClient.getFormattedTime().c_str(), sDataMsg.temperature,
+                        sDataMsg.humidity);
+
+        m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, mac, m_ntpClient.getEpochTime());
+    }
+    break;
+    case MsgType::UNKNOWN:
+        logger::logErr("Received UNKNOWN message type.");
     }
 }
 
@@ -100,16 +109,28 @@ void EspNow::addPeer(MacAddr mac, uint8_t channel)
 
 void EspNow::sendPairOK(MacAddr mac) const
 {
-    THMessage msg{};
-    msg.type = PAIR_OK;
-    msg.channel = WiFi.channel();
-    msg.updatePeriodMins = m_sensorUpdatePeriodMins;
-    WiFi.softAPmacAddress(&msg.mac[0]);
-    std::copy(msgSignature.begin(), msgSignature.end(), &msg.signature[0]);
-    auto state = esp_now_send(mac, reinterpret_cast<uint8_t *>(&msg), sizeof(msg));  // NOLINT
+    auto pairRespMsg = PairRespMsg::create(
+                            static_cast<uint8_t>(WiFi.channel()),
+                            m_sensorUpdatePeriodMins);
+    WiFi.softAPmacAddress(pairRespMsg.hostMacAddr.data());
+    auto buffer = pairRespMsg.serialize();
+
+    auto state = esp_now_send(mac, buffer.data(), buffer.size());
 
     if (state != ESP_OK)
     {
         logger::logErrF("esp_now_send error, code: %d", state);
     }
+}
+
+MsgType EspNow::getMsgType(const uint8_t *buffer, size_t size)
+{
+    MsgType msgType{MsgType::UNKNOWN};
+
+    if (size >= sizeof(MsgType))
+    {
+        std::memcpy(&msgType, buffer, sizeof(MsgType));
+    }
+
+    return msgType;
 }
