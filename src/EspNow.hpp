@@ -5,6 +5,7 @@
 #include <esp_now.h>
 
 #include <functional>
+#include <memory>
 
 #include "MacAddr.hpp"
 #include "Messages.hpp"
@@ -15,7 +16,7 @@ public:
     using NewReadingsCb
         = std::function<void(float temp, float hum, MacAddr mac, unsigned long epochTime)>;
 
-    EspNow(NTPClient &ntpClient);
+    EspNow(std::shared_ptr<NTPClient> ntpClient);
     ~EspNow() = default;
     EspNow(const EspNow &) = delete;
     EspNow(EspNow &&) = delete;
@@ -34,6 +35,6 @@ private:
     MsgType getMsgType(const uint8_t *buffer, size_t size);
 
     NewReadingsCb m_newReadingsCb;
-    NTPClient &m_ntpClient;
+    std::shared_ptr<NTPClient> m_ntpClient;
     uint8_t m_sensorUpdatePeriodMins;
 };

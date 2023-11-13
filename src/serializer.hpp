@@ -18,14 +18,14 @@ void writeData(Arr &arr, const Val &val)
 }
 
 template <typename Arr, typename Val, typename... Ts>
-void writeData(Arr &arr, const Val &val, const Ts &...t)
+void writeData(Arr &arr, const Val &val, const Ts &...args)
 {
     auto size = (sizeof(Ts) + ... + sizeof(val));
     auto indexForValue = arr.size() - size;
     auto destPtr = std::addressof(arr[indexForValue]);
     std::memcpy(destPtr, &val, sizeof(val));
 
-    writeData(arr, t...);
+    writeData(arr, args...);
 }
 
 template <typename... Ts>

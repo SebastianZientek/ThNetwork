@@ -2,6 +2,7 @@
 
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+#include <memory>
 
 #include "Config.hpp"
 #include "EspNow.hpp"
@@ -18,7 +19,7 @@ class App
     };
 
 public:
-    App();
+    App() = default;
     void init();
     void update();
 
@@ -32,7 +33,7 @@ private:
 
     WebView m_web{boardsettings::serverPort};
     WiFiUDP m_ntpUDP{};
-    NTPClient m_timeClient{m_ntpUDP};
+    std::shared_ptr<NTPClient> m_timeClient{std::make_shared<NTPClient>(m_ntpUDP)};
     EspNow m_espNow{m_timeClient};
     Config m_config{};
     ReadingsStorage m_readings{};

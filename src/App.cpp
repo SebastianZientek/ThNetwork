@@ -11,7 +11,6 @@
 #include "logger.hpp"
 #include "utils.hpp"
 
-App::App() {}
 
 void App::init()
 {
@@ -82,7 +81,7 @@ App::Status App::systemInit()
         return status;
     }
 
-    m_timeClient.update();
+    m_timeClient->update();
 
     return Status::OK;
 }

@@ -9,5 +9,5 @@ public:
 
 private:
     String findOldestReadingsDir();
-    void removeDirectoryRecursively(String path);
+    void removeDirectoryRecursively(const String &path);
 };

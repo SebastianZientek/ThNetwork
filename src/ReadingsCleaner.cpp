@@ -47,7 +47,7 @@ String ReadingsCleaner::findOldestReadingsDir()
     return dirToRemove;
 }
 
-void ReadingsCleaner::removeDirectoryRecursively(String path)
+void ReadingsCleaner::removeDirectoryRecursively(const String &path)
 {
     auto dir = SD.open(path);
     for (auto entry = dir.openNextFile(); entry; entry = dir.openNextFile())

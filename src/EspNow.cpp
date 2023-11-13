@@ -13,7 +13,7 @@ constexpr auto msgSignatureSize = 4;
 constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 constexpr std::array<uint8_t, 4> msgSignature{'T', 'H', 'D', 'T'};
 
-EspNow::EspNow(NTPClient &ntpClient)
+EspNow::EspNow(std::shared_ptr<NTPClient> ntpClient)
     : m_ntpClient(ntpClient)
     , m_sensorUpdatePeriodMins(1)
 {
@@ -55,10 +55,10 @@ void EspNow::onDataRecv(MacAddr mac, const uint8_t *incomingData, int len)
         sDataMsg.deserialize(incomingData, len);
 
         logger::logInfF("[%s %s] T: %.1f, H: %.1f", mac.str().c_str(),
-                        m_ntpClient.getFormattedTime().c_str(), sDataMsg.temperature,
+                        m_ntpClient->getFormattedTime().c_str(), sDataMsg.temperature,
                         sDataMsg.humidity);
 
-        m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, mac, m_ntpClient.getEpochTime());
+        m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, mac, m_ntpClient->getEpochTime());
     }
     break;
     case MsgType::UNKNOWN:
@@ -82,7 +82,7 @@ void EspNow::onDataSend(MacAddr mac, esp_now_send_status_t status)
 void EspNow::setOnDataRecvCb()
 {
     static auto onRecvDataThis = [this](MacAddr mac, const uint8_t *incomingData, int len)
-    { this->onDataRecv(std::move(mac), incomingData, len); };
+    { this->onDataRecv(mac, incomingData, len); };
     auto onDataRecv = [](const uint8_t *macAddr, const uint8_t *incomingData, int len)
     { onRecvDataThis(macAddr, incomingData, len); };
 
@@ -92,7 +92,7 @@ void EspNow::setOnDataRecvCb()
 void EspNow::setOnDataSendCb()
 {
     static auto onDataSendThis = [this](MacAddr mac, esp_now_send_status_t status)
-    { this->onDataSend(std::move(mac), status); };
+    { this->onDataSend(mac, status); };
     auto onDataSend = [](const uint8_t *macAddr, esp_now_send_status_t status)
     { onDataSendThis(macAddr, status); };
 
