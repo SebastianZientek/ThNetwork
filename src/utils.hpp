@@ -6,7 +6,7 @@
 
 namespace utils
 {
-String readingsToJsonString(
-    float temp, float hum, MacAddr mac, const String &sensorName, unsigned long epochTime);
-String epochToFormattedDate(unsigned long epochTime);
+std::string readingsToJsonString(
+    float temp, float hum, MacAddr mac, const std::string &sensorName, unsigned long epochTime);
+std::string epochToFormattedDate(unsigned long epochTime);
 }  // namespace utils

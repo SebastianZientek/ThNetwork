@@ -26,7 +26,7 @@ void App::init()
     m_espNow.init(
         [this](float temp, float hum, MacAddr mac, unsigned long epochTime)
         {
-            auto sensorName = m_config.getSensorName(mac.str()).value_or(mac);
+            auto sensorName = m_config.getSensorName(mac.str()).value_or(mac.str());
             m_readings.addReading(mac, sensorName, temp, hum, epochTime);
         },
         m_config.getSensorUpdatePeriodMins());
@@ -105,7 +105,7 @@ App::Status App::initSD()
 App::Status App::readConfig()
 {
     RaiiFile file("/config.json");
-    String data = file->readString();
+    std::string data = file->readString().c_str();
     if (!m_config.load(data))
     {
         logger::logErr("Reading config error");
@@ -124,7 +124,7 @@ App::Status App::saveExampleConfig()
     {
         logger::logInf("Saving config_example.json");
         RaiiFile file("/config_example.json", FILE_WRITE);
-        file->print(m_config.getExampleConfig());
+        file->print(m_config.getExampleConfig().c_str());
     }
 
     return Status::OK;
@@ -133,7 +133,7 @@ App::Status App::saveExampleConfig()
 App::Status App::connectWiFi()
 {
     WiFi.mode(WIFI_AP_STA);
-    WiFi.begin(m_config.getWifiSsid(), m_config.getWifiPass());
+    WiFi.begin(m_config.getWifiSsid().c_str(), m_config.getWifiPass().c_str());
     logger::logInf("Connecting to WiFi");
 
     uint8_t wifiConnectionTries = 0;
@@ -159,7 +159,7 @@ App::Status App::connectWiFi()
 
 void App::sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime)
 {
-    auto sensorName = m_config.getSensorName(mac.str()).value_or(mac);
-    String jsonString = utils::readingsToJsonString(temp, hum, mac, sensorName, epochTime);
+    auto sensorName = m_config.getSensorName(mac.str()).value_or(mac.str());
+    std::string jsonString = utils::readingsToJsonString(temp, hum, mac, sensorName, epochTime);
     m_web.sendEvent(jsonString.c_str(), "new_readings", millis());
 }

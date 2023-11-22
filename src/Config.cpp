@@ -11,7 +11,7 @@
 
 namespace
 {
-std::pair<DynamicJsonDocument, DeserializationError> jsonFromString(const String &str)
+std::pair<DynamicJsonDocument, DeserializationError> jsonFromString(const std::string &str)
 {
     constexpr size_t initialCapacity = 32;
     size_t capacity = 0;
@@ -31,7 +31,7 @@ std::pair<DynamicJsonDocument, DeserializationError> jsonFromString(const String
 }
 }  // namespace
 
-bool Config::load(const String &data)
+bool Config::load(const std::string &data)
 {
     auto [config, error] = jsonFromString(data);
 
@@ -50,8 +50,8 @@ bool Config::load(const String &data)
             return false;
         }
 
-        m_wifiSsid = String(wifi["ssid"]);
-        m_wifiPass = String(wifi["pass"]);
+        m_wifiSsid = std::string(wifi["ssid"]);
+        m_wifiPass = std::string(wifi["pass"]);
     }
     else
     {
@@ -64,9 +64,9 @@ bool Config::load(const String &data)
         auto sensors = config["sensors"];
         for (JsonPair keyValue : sensors.as<JsonObject>())
         {
-            String key = keyValue.key().c_str();
-            String value = keyValue.value();
-            m_sensorsMap[key] = String(value);
+            std::string key = keyValue.key().c_str();
+            std::string value = keyValue.value();
+            m_sensorsMap[key] = std::string(value);
 
             logger::logInfF("sensor: %s -> %s", key.c_str(), value.c_str());
         }
@@ -88,7 +88,7 @@ bool Config::load(const String &data)
     return true;
 }
 
-String Config::getExampleConfig()
+std::string Config::getExampleConfig()
 {
     return R"rawliteral({
     "wifi": {
@@ -102,16 +102,16 @@ String Config::getExampleConfig()
 })rawliteral";
 }
 
-String Config::getWifiSsid() { return m_wifiSsid; }
+std::string Config::getWifiSsid() { return m_wifiSsid; }
 
-String Config::getWifiPass() { return m_wifiPass; }
+std::string Config::getWifiPass() { return m_wifiPass; }
 
-std::map<String, String> &Config::getSensorsMap() { return m_sensorsMap; }
+std::map<std::string, std::string> &Config::getSensorsMap() { return m_sensorsMap; }
 
-std::optional<String> Config::getSensorName(const String &mac)
+std::optional<std::string> Config::getSensorName(const std::string &mac)
 {
     auto containsMac = m_sensorsMap.find(mac) != m_sensorsMap.end();
-    auto sensorName = containsMac ? std::optional<String>{m_sensorsMap.at(mac)} : std::nullopt;
+    auto sensorName = containsMac ? std::optional<std::string>{m_sensorsMap.at(mac)} : std::nullopt;
     return sensorName;
 }
 

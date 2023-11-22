@@ -16,7 +16,7 @@ class ReadingsStorage
 
 public:
     void addReading(const MacAddr &mac,
-                    const String &sensorName,
+                    const std::string &sensorName,
                     float temperature,
                     float humidity,
                     unsigned long epochTime);
@@ -26,5 +26,5 @@ private:
     std::map<MacAddr, Reading> m_readings;
     ReadingsCleaner m_readingsCleaner;
 
-    void saveReading(MacAddr mac, const String &sensorName, const Reading &reading);
+    void saveReading(MacAddr mac, const std::string &sensorName, const Reading &reading);
 };

@@ -26,15 +26,22 @@ public:
     void init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriodMins);
 
 private:
-    void onDataRecv(MacAddr mac, const uint8_t *incomingData, int len);
-    void onDataSend(MacAddr mac, esp_now_send_status_t status);
-    void setOnDataRecvCb();
-    void setOnDataSendCb();
-    void addPeer(MacAddr mac, uint8_t channel);
-    void sendPairOK(MacAddr mac) const;
-    MsgType getMsgType(const uint8_t *buffer, size_t size);
+    using OnSendCb = std::function<void(const MacAddr &mac, esp_now_send_status_t status)>;
+    using OnRecvCb
+        = std::function<void(const MacAddr &mac, const uint8_t *incomingData, uint8_t len)>;
+
+    static OnSendCb m_onSend;  // NOLINT
+    static OnRecvCb m_onRecv;  // NOLINT
 
     NewReadingsCb m_newReadingsCb;
     std::shared_ptr<NTPClient> m_ntpClient;
     uint8_t m_sensorUpdatePeriodMins;
+
+    void onDataSend(const MacAddr &mac, esp_now_send_status_t status);
+    void onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len);
+    void setOnDataRecvCb();
+    void setOnDataSendCb();
+    void addPeer(const MacAddr &mac, uint8_t channel);
+    void sendPairOK(const MacAddr &mac) const;
+    MsgType getMsgType(const uint8_t *buffer, size_t size);
 };

@@ -2,19 +2,37 @@
 
 #include <cstring>
 
-MacAddr::MacAddr(const uint8_t *mac) { std::memcpy(m_macAddr.data(), mac, macDigits); }
+bool operator<(const MacAddr &lhs, const MacAddr &rhs)
+{
+    return lhs.addrData < rhs.addrData;
+}
 
-MacAddr::operator String()
+bool operator==(const MacAddr &lhs, const MacAddr &rhs)
+{
+    return lhs.addrData == rhs.addrData;
+}
+
+std::array<uint8_t, MacAddr::macAddrDigits> &MacAddr::arr()
+{
+    return addrData;
+}
+
+const uint8_t *MacAddr::data() const
+{
+    return addrData.data();
+}
+
+uint8_t *MacAddr::data()
+{
+    return addrData.data();
+}
+
+std::string MacAddr::str() const
 {
     constexpr auto macStrWithNullSize = 18;
     std::array<char, macStrWithNullSize> macCStr{};
-    snprintf(macCStr.data(), sizeof(macCStr), "%02x:%02x:%02x:%02x:%02x:%02x", m_macAddr[0], m_macAddr[1],
-             m_macAddr[2], m_macAddr[3], m_macAddr[4], m_macAddr[5]);
+    snprintf(macCStr.data(), sizeof(macCStr), "%02x:%02x:%02x:%02x:%02x:%02x",  // NOLINT
+             addrData[0],                                                       // NOLINT
+             addrData[1], addrData[2], addrData[3], addrData[4], addrData[5]);  // NOLINT
     return macCStr.data();
 }
-
-String MacAddr::str() { return operator String(); }
-
-MacAddr::operator uint8_t *() { return m_macAddr.data(); }
-
-bool operator<(const MacAddr &lhs, const MacAddr &rhs) { return lhs.m_macAddr < rhs.m_macAddr; }

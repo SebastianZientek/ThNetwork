@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include "serializer.hpp"
+#include "MacAddr.hpp"
 
 enum class MsgType : uint8_t
 {
@@ -16,7 +17,7 @@ enum class MsgType : uint8_t
 struct PairReqMsg
 {
     MsgType msgType{MsgType::PAIR_REQ};
-    std::array<uint8_t, 6> transmitterMacAddr{};
+    MacAddr transmitterMacAddr;
 
     static auto create()
     {
@@ -43,14 +44,14 @@ struct PairReqMsg
 struct PairRespMsg
 {
     MsgType msgType{MsgType::PAIR_RESP};
-    std::array<uint8_t, 6> hostMacAddr{};
+    MacAddr hostMacAddr{};
     uint8_t channel{};
     uint8_t updatePeriodMins{};
 
     template <typename... Ts>
-    static auto create(Ts... ts)
+    static auto create(Ts... args)
     {
-        return PairRespMsg({MsgType::PAIR_RESP, {}, ts...});
+        return PairRespMsg({MsgType::PAIR_RESP, {}, args...});
     }
 
     [[nodiscard]] auto serialize() const
@@ -74,14 +75,14 @@ struct PairRespMsg
 struct SensorDataMsg
 {
     MsgType msgType{MsgType::SENSOR_DATA};
-    std::array<uint8_t, 6> transmitterMacAddr{};
+    MacAddr transmitterMacAddr{};
     float temperature{};
     float humidity{};
 
     template <typename... Ts>
-    static auto create(Ts... ts)
+    static auto create(Ts... args)
     {
-        return SensorDataMsg({MsgType::SENSOR_DATA, {}, ts...});
+        return SensorDataMsg({MsgType::SENSOR_DATA, {}, args...});
     }
 
     [[nodiscard]] auto serialize() const

@@ -5,9 +5,9 @@
 
 #include "logger.hpp"
 
-RaiiFile::RaiiFile(const String &path, const char *mode, bool create)
+RaiiFile::RaiiFile(const std::string &path, const char *mode, bool create)
 {
-    m_file = SD.open(path, mode, create);
+    m_file = SD.open(path.c_str(), mode, create);
     if (!m_file)
     {
         logger::logErr("Failed to open file for reading");
