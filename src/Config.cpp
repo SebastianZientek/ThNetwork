@@ -102,11 +102,20 @@ std::string Config::getExampleConfig()
 })rawliteral";
 }
 
-std::string Config::getWifiSsid() { return m_wifiSsid; }
+std::string Config::getWifiSsid() const
+{
+    return m_wifiSsid;
+}
 
-std::string Config::getWifiPass() { return m_wifiPass; }
+std::string Config::getWifiPass() const
+{
+    return m_wifiPass;
+}
 
-std::map<std::string, std::string> &Config::getSensorsMap() { return m_sensorsMap; }
+std::map<std::string, std::string> &Config::getSensorsMap()
+{
+    return m_sensorsMap;
+}
 
 std::optional<std::string> Config::getSensorName(const std::string &mac)
 {
@@ -115,4 +124,7 @@ std::optional<std::string> Config::getSensorName(const std::string &mac)
     return sensorName;
 }
 
-uint8_t Config::getSensorUpdatePeriodMins() const { return m_sensorUpdatePeriodMins; }
+uint8_t Config::getSensorUpdatePeriodMins() const
+{
+    return m_sensorUpdatePeriodMins;
+}

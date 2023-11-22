@@ -6,7 +6,8 @@ constexpr auto htmlData =
 #include "index.html"
 
 WebView::WebView(int port)
-    : m_server(port)
+    : m_htmlData{}
+    , m_server(port)
     , m_events("/events")
     , m_newClientCb()
 {

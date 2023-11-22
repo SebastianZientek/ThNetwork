@@ -4,6 +4,12 @@
 #include "EspNow.hpp"
 
 App app;  // NOLINT
-void setup() { app.init(); }
+void setup()
+{
+    app.init();
+}
 
-void loop() { app.update(); }
+void loop()
+{
+    app.update();
+}

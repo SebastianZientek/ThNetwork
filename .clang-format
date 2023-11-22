@@ -3,7 +3,7 @@ BasedOnStyle:  Google
 
 AccessModifierOffset: -4
 PointerAlignment: Right
-AllowShortFunctionsOnASingleLine : true
+AllowShortFunctionsOnASingleLine : false
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: false

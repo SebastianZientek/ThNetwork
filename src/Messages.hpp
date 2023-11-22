@@ -3,8 +3,8 @@
 #include <array>
 #include <cstdint>
 
-#include "serializer.hpp"
 #include "MacAddr.hpp"
+#include "serializer.hpp"
 
 enum class MsgType : uint8_t
 {
