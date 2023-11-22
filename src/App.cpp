@@ -11,7 +11,6 @@
 #include "logger.hpp"
 #include "utils.hpp"
 
-
 void App::init()
 {
     if (systemInit() != Status::OK)

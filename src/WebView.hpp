@@ -9,7 +9,6 @@ class WebView
 {
     using NewClientCb = std::function<void()>;
 
-
 public:
     WebView(int port);
 

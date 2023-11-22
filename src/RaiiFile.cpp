@@ -14,4 +14,7 @@ RaiiFile::RaiiFile(const std::string &path, const char *mode, bool create)
     }
 }
 
-RaiiFile::~RaiiFile() { m_file.close(); }
+RaiiFile::~RaiiFile() // NOLINT
+{
+    m_file.close();
+}

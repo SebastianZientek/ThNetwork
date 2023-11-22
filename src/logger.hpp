@@ -24,7 +24,8 @@ void logInfF(F &&fmt, T &&...values)
     if constexpr (boardsettings::enableLogger)
     {
         Serial.print("INF: ");
-        Serial.printf(std::forward<decltype(fmt)>(fmt), std::forward<decltype(values)>(values)...); // NOLINT
+        Serial.printf(std::forward<decltype(fmt)>(fmt),
+                      std::forward<decltype(values)>(values)...);  // NOLINT
         Serial.println();
     }
 }
@@ -45,7 +46,8 @@ void logErrF(F &&fmt, T &&...values)
     if constexpr (boardsettings::enableLogger)
     {
         Serial.print("ERR: ");
-        Serial.printf(std::forward<decltype(fmt)>(fmt), std::forward<decltype(values)>(values)...); // NOLINT
+        Serial.printf(std::forward<decltype(fmt)>(fmt),
+                      std::forward<decltype(values)>(values)...);  // NOLINT
         Serial.println();
     }
 }
