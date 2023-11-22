@@ -1,21 +1,22 @@
 #pragma once
 
-#include <Arduino.h>
-
 #include <array>
+#include <cassert>
 #include <cstdint>
+#include <string>
+#include <type_traits>
 
-class MacAddr
+struct MacAddr
 {
-public:
-    MacAddr(const uint8_t *mac);
-    String str();
-    operator String();
-    operator uint8_t *();
+    constexpr static auto macAddrDigits = 6;
+    std::array<uint8_t, macAddrDigits> addrData;
+    std::array<uint8_t, macAddrDigits> &arr();
+    [[nodiscard]] const uint8_t *data() const;
+    [[nodiscard]] uint8_t *data();
+    [[nodiscard]] std::string str() const;
 
     friend bool operator<(const MacAddr &lhs, const MacAddr &rhs);
-
-private:
-    constexpr static auto macDigits = 6;
-    std::array<uint8_t, macDigits> m_macAddr{};
+    friend bool operator==(const MacAddr &lhs, const MacAddr &rhs);
 };
+
+static_assert(std::is_trivial_v<MacAddr>);

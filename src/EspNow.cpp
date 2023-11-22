@@ -12,6 +12,8 @@ constexpr auto macSize = 6;
 constexpr auto msgSignatureSize = 4;
 constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 constexpr std::array<uint8_t, 4> msgSignature{'T', 'H', 'D', 'T'};
+EspNow::OnSendCb EspNow::m_onSend;  // NOLINT
+EspNow::OnRecvCb EspNow::m_onRecv;  // NOLINT
 
 EspNow::EspNow(std::shared_ptr<NTPClient> ntpClient)
     : m_ntpClient(ntpClient)
@@ -33,7 +35,7 @@ void EspNow::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriod
     setOnDataSendCb();
 }
 
-void EspNow::onDataRecv(MacAddr mac, const uint8_t *incomingData, int len)
+void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
 {
     auto msgType = getMsgType(incomingData, len);
 
@@ -66,12 +68,12 @@ void EspNow::onDataRecv(MacAddr mac, const uint8_t *incomingData, int len)
     }
 }
 
-void EspNow::onDataSend(MacAddr mac, esp_now_send_status_t status)
+void EspNow::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
 {
     logger::logInf("Last Packet Send Status: ");
     if (status == 0)
     {
-        logger::logInfF("Delivery success: %s", String(mac).c_str());
+        logger::logInfF("Delivery success: %s", mac.str().c_str());
     }
     else
     {
@@ -79,43 +81,52 @@ void EspNow::onDataSend(MacAddr mac, esp_now_send_status_t status)
     }
 }
 
-void EspNow::setOnDataRecvCb()
-{
-    static auto onRecvDataThis = [this](MacAddr mac, const uint8_t *incomingData, int len)
-    { this->onDataRecv(mac, incomingData, len); };
-    auto onDataRecv = [](const uint8_t *macAddr, const uint8_t *incomingData, int len)
-    { onRecvDataThis(macAddr, incomingData, len); };
-
-    esp_now_register_recv_cb(onDataRecv);
-}
-
 void EspNow::setOnDataSendCb()
 {
-    static auto onDataSendThis = [this](MacAddr mac, esp_now_send_status_t status)
+    m_onSend = [this](const MacAddr &mac, esp_now_send_status_t status)
     { this->onDataSend(mac, status); };
-    auto onDataSend = [](const uint8_t *macAddr, esp_now_send_status_t status)
-    { onDataSendThis(macAddr, status); };
+    auto onDataSend = [](const uint8_t *rawMac, esp_now_send_status_t status)
+    {
+        MacAddr macAddr{};
+        std::memcpy(macAddr.data(), rawMac, MacAddr::macAddrDigits);
+
+        m_onSend(macAddr, status);
+    };
 
     esp_now_register_send_cb(onDataSend);
 }
 
-void EspNow::addPeer(MacAddr mac, uint8_t channel)
+void EspNow::setOnDataRecvCb()
+{
+    m_onRecv = [this](MacAddr mac, const uint8_t *incomingData, int len)
+    { this->onDataRecv(mac, incomingData, len); };
+    auto onDataRecv = [](const uint8_t *rawMac, const uint8_t *incomingData, int len)
+    {
+        MacAddr macAddr{};
+        std::memcpy(macAddr.data(), rawMac, MacAddr::macAddrDigits);
+
+        m_onRecv(macAddr, incomingData, len);
+    };
+
+    esp_now_register_recv_cb(onDataRecv);
+}
+
+void EspNow::addPeer(const MacAddr &mac, uint8_t channel)
 {
     esp_now_peer_info_t peer = {};
-    memcpy(&peer.peer_addr[0], mac, ESP_NOW_ETH_ALEN);
+    memcpy(&peer.peer_addr[0], mac.data(), ESP_NOW_ETH_ALEN);
     peer.channel = channel;
     esp_now_add_peer(&peer);
 }
 
-void EspNow::sendPairOK(MacAddr mac) const
+void EspNow::sendPairOK(const MacAddr &mac) const
 {
-    auto pairRespMsg = PairRespMsg::create(
-                            static_cast<uint8_t>(WiFi.channel()),
-                            m_sensorUpdatePeriodMins);
+    auto pairRespMsg
+        = PairRespMsg::create(static_cast<uint8_t>(WiFi.channel()), m_sensorUpdatePeriodMins);
     WiFi.softAPmacAddress(pairRespMsg.hostMacAddr.data());
     auto buffer = pairRespMsg.serialize();
 
-    auto state = esp_now_send(mac, buffer.data(), buffer.size());
+    auto state = esp_now_send(mac.data(), buffer.data(), buffer.size());
 
     if (state != ESP_OK)
     {

@@ -6,7 +6,7 @@
 class RaiiFile
 {
 public:
-    explicit RaiiFile(const String &path, const char *mode = FILE_READ, bool create = false);
+    explicit RaiiFile(const std::string &path, const char *mode = FILE_READ, bool create = false);
     RaiiFile(const RaiiFile &) = delete;
     RaiiFile(RaiiFile &&) = default;
     RaiiFile &operator=(const RaiiFile &) = delete;

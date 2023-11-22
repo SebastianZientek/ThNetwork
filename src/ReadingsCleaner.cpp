@@ -23,7 +23,7 @@ void ReadingsCleaner::cleanIfNeeded()
     }
 }
 
-String ReadingsCleaner::findOldestReadingsDir()
+std::string ReadingsCleaner::findOldestReadingsDir()
 {
     auto dir = SD.open("/readings");
     auto entry = dir.openNextFile();
@@ -32,12 +32,12 @@ String ReadingsCleaner::findOldestReadingsDir()
         return "";
     }
 
-    String dirToRemove = entry.name();
+    std::string dirToRemove = entry.name();
     for (; entry; entry = dir.openNextFile())
     {
         if (entry.isDirectory())
         {
-            if (String(entry.name()) < dirToRemove)
+            if (std::string(entry.name()) < dirToRemove)
             {
                 dirToRemove = entry.name();
             }
@@ -47,9 +47,9 @@ String ReadingsCleaner::findOldestReadingsDir()
     return dirToRemove;
 }
 
-void ReadingsCleaner::removeDirectoryRecursively(const String &path)
+void ReadingsCleaner::removeDirectoryRecursively(const std::string &path)
 {
-    auto dir = SD.open(path);
+    auto dir = SD.open(path.c_str());
     for (auto entry = dir.openNextFile(); entry; entry = dir.openNextFile())
     {
         if (entry.isDirectory())

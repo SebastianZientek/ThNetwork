@@ -21,7 +21,7 @@ public:
     void startServer(const NewClientCb &newClientCb = [] {});
 
 private:
-    String m_htmlData;
+    std::string m_htmlData;
     AsyncWebServer m_server;
     AsyncEventSource m_events;
     NewClientCb m_newClientCb;

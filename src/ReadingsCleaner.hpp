@@ -8,6 +8,6 @@ public:
     void cleanIfNeeded();
 
 private:
-    String findOldestReadingsDir();
-    void removeDirectoryRecursively(const String &path);
+    std::string findOldestReadingsDir();
+    void removeDirectoryRecursively(const std::string &path);
 };

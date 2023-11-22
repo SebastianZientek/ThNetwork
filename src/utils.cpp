@@ -9,7 +9,7 @@
 
 namespace
 {
-String floatToOneDecimalStr(float val)
+std::string floatToOneDecimalStr(float val)
 {
     constexpr auto initialBufferSize = 10;
     std::array<char, initialBufferSize> buf{};
@@ -22,8 +22,8 @@ namespace utils
 {
 constexpr auto readingsJsonSize = 120;
 
-String readingsToJsonString(
-    float temp, float hum, MacAddr mac, const String &sensorName, unsigned long epochTime)
+std::string readingsToJsonString(
+    float temp, float hum, MacAddr mac, const std::string &sensorName, unsigned long epochTime)
 {
     constexpr auto initialBufferSize = 5;
 
@@ -33,13 +33,13 @@ String readingsToJsonString(
     readings["humidity"] = floatToOneDecimalStr(hum);
     readings["id"] = mac.str();
     readings["name"] = sensorName;
-    String jsonString{};
+    std::string jsonString{};
     serializeJson(readings, jsonString);
 
     return jsonString;
 }
 
-String epochToFormattedDate(unsigned long epochTime)
+std::string epochToFormattedDate(unsigned long epochTime)
 {
     auto epoch = static_cast<time_t>(epochTime);
     constexpr auto bufSize = 15;
