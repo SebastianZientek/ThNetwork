@@ -37,7 +37,7 @@ TransmitterConfig readFromEEPROM()
 
 void saveToRTC(TransmitterConfig configuration)
 {
-    if(system_rtc_mem_write(RTCMemAddr, &configuration, sizeof(configuration)))
+    if (system_rtc_mem_write(RTCMemAddr, &configuration, sizeof(configuration)))
     {
         logger::logInfF("Saved to RTC %d bytes", sizeof(configuration));
     }

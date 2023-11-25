@@ -9,7 +9,7 @@
 namespace config
 {
 // 4 byte alignment is required by RTC memory
-struct alignas(4) TransmitterConfig  
+struct alignas(4) TransmitterConfig
 {
     MacAddr targetMac{};
     uint8_t channel = 0;

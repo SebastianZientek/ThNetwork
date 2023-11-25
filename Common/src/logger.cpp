@@ -9,7 +9,7 @@ namespace logger
 void init()
 {
 #ifdef ENABLE_LOGGER
-        Serial.begin(115200);
+    Serial.begin(115200);
 #endif
-}  // namespace logger
 }
+}  // namespace logger

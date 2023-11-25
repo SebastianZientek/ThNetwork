@@ -29,7 +29,8 @@ private:
     config::TransmitterConfig m_transmitterConfig{};
 
     using OnSendCb = std::function<void(const MacAddr &mac, uint8_t status)>;
-    using OnRecvCb = std::function<void(const MacAddr &mac, const uint8_t *incomingData, uint8_t len)>;
+    using OnRecvCb
+        = std::function<void(const MacAddr &mac, const uint8_t *incomingData, uint8_t len)>;
 
     static OnSendCb m_onSend;  // NOLINT
     static OnRecvCb m_onRecv;  // NOLINT

@@ -4,8 +4,8 @@
 #include <cassert>
 #include <cstdint>
 #include <cstring>
-#include <optional>
 #include <functional>
+#include <optional>
 
 namespace serializer
 {
