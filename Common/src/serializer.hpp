@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <cstring>
 #include <optional>
+#include <functional>
 
 namespace serializer
 {
