@@ -1,0 +1,17 @@
+{
+    "name": "Common",
+    "version": "1.0.0",
+    "description": "Common part for ThNetwork",
+    "authors":
+    [
+      {
+        "name": "Sebastian Zientek",
+        "email": "sebastian.zientek1@gmail.com"
+      }
+    ],
+    "exclude": [
+        "unittests"
+      ],
+    "frameworks": "*",
+    "platforms": "*"
+  }
