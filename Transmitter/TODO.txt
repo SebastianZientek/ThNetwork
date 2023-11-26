@@ -1,2 +1,0 @@
-TODO:
-* Refactoring of src
