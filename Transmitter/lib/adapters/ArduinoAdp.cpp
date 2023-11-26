@@ -2,6 +2,9 @@
 
 #include <Arduino.h>
 
+const uint8_t ArduinoAdp::HI = HIGH;
+const uint8_t ArduinoAdp::LO = LOW;
+
 uint8_t ArduinoAdp::digitalRead(uint8_t pin) {
     return ::digitalRead(pin);
 }

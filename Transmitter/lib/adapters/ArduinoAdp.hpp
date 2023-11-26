@@ -7,6 +7,6 @@ struct ArduinoAdp {
     static void digitalWrite(uint8_t pin, uint8_t val);
     static uint8_t getLedBuiltin();
 
-    constexpr static uint8_t HIGH = 1;
-    constexpr static uint8_t LOW = 0;
+    static const uint8_t HI;
+    static const uint8_t LO;
 };
