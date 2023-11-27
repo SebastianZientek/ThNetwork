@@ -2,11 +2,11 @@
 
 #include <optional>
 
-#include "adapters/EspAdp.hpp"
 #include "EspNowAdp.hpp"
+#include "WiFiAdp.hpp"
+#include "adapters/EspAdp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
-#include "WiFiAdp.hpp"
 #include "common/logger.hpp"
 #include "utils.hpp"
 
@@ -50,8 +50,7 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         m_transmitterConfig.channel = pairRespMsg.channel;
         m_transmitterConfig.targetMac = pairRespMsg.hostMacAddr;
 
-        logger::logInf("Paired %s, ch: %d\n", pairRespMsg.hostMacAddr.str().c_str(),
-                        pairRespMsg.channel);
+        logger::logInf("Paired %s, ch: %d\n", pairRespMsg.hostMacAddr.str(), pairRespMsg.channel);
     }
     break;
     case MsgType::SENSOR_DATA:
@@ -68,7 +67,7 @@ void EspNow::onDataSend(const MacAddr &mac, uint8_t status)
 {
     if (status == 0)
     {
-        logger::logInf("Delivery success: %s", mac.str().c_str());
+        logger::logInf("Delivery success: %s", mac.str());
     }
     else
     {
@@ -128,7 +127,7 @@ std::optional<config::TransmitterConfig> EspNow::pair()
 
 void EspNow::sendDataToHost(MacAddr mac, float temperature, float humidity)
 {
-    logger::logInf("Send data to %s", mac.str().c_str());
+    logger::logInf("Send data to %s", mac.str());
 
     auto sDataMsg = SensorDataMsg::create(temperature, humidity);
     WiFiAdp::macAddress(sDataMsg.transmitterMacAddr.data());

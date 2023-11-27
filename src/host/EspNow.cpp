@@ -4,8 +4,8 @@
 
 #include <array>
 
-#include "common/Messages.hpp"
 #include "NTPClient.h"
+#include "common/Messages.hpp"
 #include "common/logger.hpp"
 
 constexpr auto macSize = 6;
@@ -56,9 +56,8 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         SensorDataMsg sDataMsg;
         sDataMsg.deserialize(incomingData, len);
 
-        logger::logInf("[%s %s] T: %.1f, H: %.1f", mac.str().c_str(),
-                        m_ntpClient->getFormattedTime().c_str(), sDataMsg.temperature,
-                        sDataMsg.humidity);
+        logger::logInf("[%s %s] T: %.1f, H: %.1f", mac.str(), m_ntpClient->getFormattedTime(),
+                       sDataMsg.temperature, sDataMsg.humidity);
 
         m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, mac, m_ntpClient->getEpochTime());
     }
@@ -73,7 +72,7 @@ void EspNow::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
     logger::logInf("Last Packet Send Status: ");
     if (status == 0)
     {
-        logger::logInf("Delivery success: %s", mac.str().c_str());
+        logger::logInf("Delivery success: %s", mac.str());
     }
     else
     {

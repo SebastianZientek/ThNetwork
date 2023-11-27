@@ -151,7 +151,7 @@ App::Status App::connectWiFi()
     }
 
     logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", WiFi.SSID(),
-                    WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), WiFi.channel());
+                    WiFi.localIP().toString(), WiFi.macAddress(), WiFi.channel());
 
     return Status::OK;
 }

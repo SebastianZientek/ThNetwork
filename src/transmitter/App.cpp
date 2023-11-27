@@ -46,13 +46,13 @@ void App::setup()
     }
 
     logger::logInf("Initialized, sensor update period: %d",
-                    m_currentConfiguration.sensorUpdatePeriodMins);
+                   m_currentConfiguration.sensorUpdatePeriodMins);
 }
 
 void App::loop()
 {
-    logger::logInf("Current config mac: %s, ch: %d",
-                    m_currentConfiguration.targetMac.str().c_str(), m_currentConfiguration.channel);
+    logger::logInf("Current config mac: %s, ch: %d", m_currentConfiguration.targetMac.str(),
+                   m_currentConfiguration.channel);
 
     auto [temp, hum] = m_sensor.getTempHum();
     logger::logInf("Temp: %f, hum: %f", temp, hum);
