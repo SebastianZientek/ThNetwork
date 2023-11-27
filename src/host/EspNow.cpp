@@ -43,13 +43,13 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     {
     case MsgType::PAIR_REQ:
     {
-        logger::logInf("PAIR_REQ received");
+        logger::logWrn("PAIR_REQ received");
         addPeer(mac, WiFi.channel());
         sendPairOK(mac);
     }
     break;
     case MsgType::PAIR_RESP:
-        logger::logErr("Received PAIR_RESP, shouldn't be here.");
+        logger::logWrn("Received PAIR_RESP, shouldn't be here.");
         break;
     case MsgType::SENSOR_DATA:
     {
@@ -64,7 +64,7 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     }
     break;
     case MsgType::UNKNOWN:
-        logger::logErr("Received UNKNOWN message type.");
+        logger::logWrn("Received UNKNOWN message type.");
     }
 }
 
@@ -77,7 +77,7 @@ void EspNow::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
     }
     else
     {
-        logger::logErr("Delivery fail");
+        logger::logWrn("Delivery fail");
     }
 }
 
@@ -130,7 +130,7 @@ void EspNow::sendPairOK(const MacAddr &mac) const
 
     if (state != ESP_OK)
     {
-        logger::logErr("esp_now_send error, code: %d", state);
+        logger::logWrn("esp_now_send error, code: %d", state);
     }
 }
 

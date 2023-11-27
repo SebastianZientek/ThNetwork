@@ -38,7 +38,7 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     switch (msgType)
     {
     case MsgType::PAIR_REQ:
-        logger::logErr("PAIR_REQ is unsupported by transmitter");
+        logger::logWrn("PAIR_REQ is unsupported by transmitter");
         break;
     case MsgType::PAIR_RESP:
     {
@@ -55,12 +55,12 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     }
     break;
     case MsgType::SENSOR_DATA:
-        logger::logErr("SENSOR_DATA is unsupported by transmitter");
+        logger::logWrn("SENSOR_DATA is unsupported by transmitter");
         break;
     case MsgType::UNKNOWN:
         [[fallthrough]];
     default:
-        logger::logErr("Wrong message type");
+        logger::logWrn("Wrong message type");
     }
 }
 
@@ -72,7 +72,7 @@ void EspNow::onDataSend(const MacAddr &mac, uint8_t status)
     }
     else
     {
-        logger::logErr("Delivery fail");
+        logger::logWrn("Delivery fail");
     }
 }
 
@@ -136,7 +136,7 @@ void EspNow::sendDataToHost(MacAddr mac, float temperature, float humidity)
 
     if (auto errCode = EspNowAdp::send(mac.data(), buffer.data(), buffer.size()); errCode)
     {
-        logger::logErr("esp_now_send error, code: %d", errCode);
+        logger::logWrn("esp_now_send error, code: %d", errCode);
     }
     delay(1);  // Give board time to invoke onDataSent callback
 }

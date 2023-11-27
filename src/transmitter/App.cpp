@@ -41,7 +41,7 @@ void App::setup()
         }
         else
         {
-            logger::logErr("Can't pair!");
+            logger::logWrn("Can't pair!");
         }
     }
 
