@@ -16,7 +16,7 @@ void App::init()
     if (systemInit() != Status::OK)
     {
         constexpr auto msInSecond = 1000;
-        logger::logErrF("System will be rebooted in %ds",
+        logger::logErr("System will be rebooted in %ds",
                         boardsettings::failRebootDelay / msInSecond);
         delay(boardsettings::failRebootDelay);
         ESP.restart();
@@ -150,7 +150,7 @@ App::Status App::connectWiFi()
         }
     }
 
-    logger::logInfF("Connected to %s IP: %s MAC: %s, channel %d", WiFi.SSID(),
+    logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", WiFi.SSID(),
                     WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), WiFi.channel());
 
     return Status::OK;

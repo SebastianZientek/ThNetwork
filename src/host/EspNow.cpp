@@ -56,7 +56,7 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         SensorDataMsg sDataMsg;
         sDataMsg.deserialize(incomingData, len);
 
-        logger::logInfF("[%s %s] T: %.1f, H: %.1f", mac.str().c_str(),
+        logger::logInf("[%s %s] T: %.1f, H: %.1f", mac.str().c_str(),
                         m_ntpClient->getFormattedTime().c_str(), sDataMsg.temperature,
                         sDataMsg.humidity);
 
@@ -73,7 +73,7 @@ void EspNow::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
     logger::logInf("Last Packet Send Status: ");
     if (status == 0)
     {
-        logger::logInfF("Delivery success: %s", mac.str().c_str());
+        logger::logInf("Delivery success: %s", mac.str().c_str());
     }
     else
     {
@@ -130,7 +130,7 @@ void EspNow::sendPairOK(const MacAddr &mac) const
 
     if (state != ESP_OK)
     {
-        logger::logErrF("esp_now_send error, code: %d", state);
+        logger::logErr("esp_now_send error, code: %d", state);
     }
 }
 

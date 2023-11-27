@@ -35,7 +35,7 @@ void WebView::startServer(const NewClientCb &newClientCb)
             logger::logInf("Client connected");
             if (client->lastId())
             {
-                logger::logInfF("Client reconnected, last ID: %u\n", client->lastId());
+                logger::logInf("Client reconnected, last ID: %u\n", client->lastId());
             }
             client->send("init", NULL, millis(), 10000);
             m_newClientCb();

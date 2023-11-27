@@ -45,17 +45,17 @@ void App::setup()
         }
     }
 
-    logger::logInfF("Initialized, sensor update period: %d",
+    logger::logInf("Initialized, sensor update period: %d",
                     m_currentConfiguration.sensorUpdatePeriodMins);
 }
 
 void App::loop()
 {
-    logger::logInfF("Current config mac: %s, ch: %d",
+    logger::logInf("Current config mac: %s, ch: %d",
                     m_currentConfiguration.targetMac.str().c_str(), m_currentConfiguration.channel);
 
     auto [temp, hum] = m_sensor.getTempHum();
-    logger::logInfF("Temp: %f, hum: %f", temp, hum);
+    logger::logInf("Temp: %f, hum: %f", temp, hum);
     m_espNow.sendDataToHost(m_currentConfiguration.targetMac, temp, hum);
 
     ESP.deepSleep(m_currentConfiguration.sensorUpdatePeriodMins * m_usInMin);

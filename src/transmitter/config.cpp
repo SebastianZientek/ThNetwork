@@ -39,7 +39,7 @@ void saveToRTC(TransmitterConfig configuration)
 {
     if (system_rtc_mem_write(RTCMemAddr, &configuration, sizeof(configuration)))
     {
-        logger::logInfF("Saved to RTC %d bytes", sizeof(configuration));
+        logger::logInf("Saved to RTC %d bytes", sizeof(configuration));
     }
     else
     {
@@ -52,7 +52,7 @@ TransmitterConfig readFromRTC()
     TransmitterConfig configuration;
     if (system_rtc_mem_read(RTCMemAddr, &configuration, sizeof(configuration)))
     {
-        logger::logInfF("Loaded from RTC %d bytes", sizeof(configuration));
+        logger::logInf("Loaded from RTC %d bytes", sizeof(configuration));
     }
     else
     {

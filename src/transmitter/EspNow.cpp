@@ -50,7 +50,7 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         m_transmitterConfig.channel = pairRespMsg.channel;
         m_transmitterConfig.targetMac = pairRespMsg.hostMacAddr;
 
-        logger::logInfF("Paired %s, ch: %d\n", pairRespMsg.hostMacAddr.str().c_str(),
+        logger::logInf("Paired %s, ch: %d\n", pairRespMsg.hostMacAddr.str().c_str(),
                         pairRespMsg.channel);
     }
     break;
@@ -68,7 +68,7 @@ void EspNow::onDataSend(const MacAddr &mac, uint8_t status)
 {
     if (status == 0)
     {
-        logger::logInfF("Delivery success: %s", mac.str().c_str());
+        logger::logInf("Delivery success: %s", mac.str().c_str());
     }
     else
     {
@@ -112,7 +112,7 @@ std::optional<config::TransmitterConfig> EspNow::pair()
 
     for (int channel = 0; channel <= maxChannels; ++channel)
     {
-        logger::logInfF("Pairing, try channel: %d", channel);
+        logger::logInf("Pairing, try channel: %d", channel);
         WiFiAdp::setChannel(channel);
         sendPairMsg();
         EspAdp::wait(timeout);
@@ -128,7 +128,7 @@ std::optional<config::TransmitterConfig> EspNow::pair()
 
 void EspNow::sendDataToHost(MacAddr mac, float temperature, float humidity)
 {
-    logger::logInfF("Send data to %s", mac.str().c_str());
+    logger::logInf("Send data to %s", mac.str().c_str());
 
     auto sDataMsg = SensorDataMsg::create(temperature, humidity);
     WiFiAdp::macAddress(sDataMsg.transmitterMacAddr.data());
@@ -136,7 +136,7 @@ void EspNow::sendDataToHost(MacAddr mac, float temperature, float humidity)
 
     if (auto errCode = EspNowAdp::send(mac.data(), buffer.data(), buffer.size()); errCode)
     {
-        logger::logErrF("esp_now_send error, code: %d", errCode);
+        logger::logErr("esp_now_send error, code: %d", errCode);
     }
     delay(1);  // Give board time to invoke onDataSent callback
 }
@@ -155,7 +155,7 @@ void EspNow::sendPairMsg()
     std::array<uint8_t, 6> broadcastAddr{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};  // NOLINT
     if (auto errCode = EspNowAdp::send(broadcastAddr.data(), buffer.data(), buffer.size()); errCode)
     {
-        logger::logErrF("esp_now_send error, code: %d", errCode);
+        logger::logErr("esp_now_send error, code: %d", errCode);
     }
 }
 
