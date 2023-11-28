@@ -2,6 +2,7 @@
 
 #include "adapters/EspAdp.hpp"
 #include "adapters/WiFiAdp.hpp"
+#include "adapters/ArduinoAdp.hpp"
 #include "boardsettings.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
@@ -12,10 +13,11 @@ void App::setup()
 {
     logger::init();
     logger::logInf(WiFiAdp::macAddress().c_str());
-    pinMode(boardsettings::pairButton, INPUT_PULLUP);
 
+    pinMode(boardsettings::pairButton, INPUT_PULLUP);
     pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH);
+
+    utils::switchOffLed();
 
     if (EspAdp::isResetReasonDeepSleepAwake())
     {

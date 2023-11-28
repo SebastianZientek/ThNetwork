@@ -4,10 +4,17 @@
 
 namespace utils
 {
-void toggleLed()
+
+void switchOnLed()
 {
     auto ledPin = ArduinoAdp::getLedBuiltin();
-    auto ledState = ArduinoAdp::digitalRead(ledPin);
-    ArduinoAdp::digitalWrite(ledPin, ledState == ArduinoAdp::LVL_HI ? ArduinoAdp::LVL_LO : ArduinoAdp::LVL_HI);
+    ArduinoAdp::digitalWrite(ledPin, ArduinoAdp::LVL_LO);
 }
+
+void switchOffLed()
+{
+    auto ledPin = ArduinoAdp::getLedBuiltin();
+    ArduinoAdp::digitalWrite(ledPin, ArduinoAdp::LVL_HI);
+}
+
 }  // namespace utils

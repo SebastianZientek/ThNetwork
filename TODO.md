@@ -1,3 +1,2 @@
-- Check testability of each module
-- Change behavior of led blinking during pairing
 - Add chart with temperatures from last days (check if it's achievable)
+- Repair pairing

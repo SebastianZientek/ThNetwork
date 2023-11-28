@@ -105,8 +105,9 @@ void EspNow::setOnDataSendCb()
 
 std::optional<config::TransmitterConfig> EspNow::pair()
 {
+    utils::switchOnLed();
     constexpr auto maxChannels = 12;
-    constexpr auto timeout = 200;
+    constexpr auto timeout = 500;
     m_paired = false;
 
     for (int channel = 0; channel <= maxChannels; ++channel)
@@ -114,13 +115,15 @@ std::optional<config::TransmitterConfig> EspNow::pair()
         logger::logInf("Pairing, try channel: %d", channel);
         WiFiAdp::setChannel(channel);
         sendPairMsg();
-        EspAdp::wait(timeout);
+        delay(timeout);
+        ESP.wdtFeed();
 
         if (m_paired)
         {
             return m_transmitterConfig;
         }
     }
+    utils::switchOffLed();
 
     return std::nullopt;
 }

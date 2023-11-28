@@ -4,5 +4,6 @@
 
 namespace utils
 {
-void toggleLed();
+void switchOnLed();
+void switchOffLed();
 }
