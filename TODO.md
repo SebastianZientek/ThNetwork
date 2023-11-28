@@ -1,1 +1,0 @@
-1. Check and cleanup board settings

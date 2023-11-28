@@ -9,7 +9,6 @@
 #include "EspNow.hpp"
 #include "ReadingsStorage.hpp"
 #include "WebView.hpp"
-#include "boardsettings.hpp"
 
 class App
 {
@@ -32,10 +31,10 @@ private:
     Status connectWiFi();
     void sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime);
 
-    WebView m_web{boardsettings::serverPort};
+    std::unique_ptr<WebView> m_web{};
     WiFiUDP m_ntpUDP{};
     std::shared_ptr<NTPClient> m_timeClient{std::make_shared<NTPClient>(m_ntpUDP)};
-    EspNow m_espNow{m_timeClient};
+    std::unique_ptr<EspNow> m_espNow{};
     Config m_config{};
     ReadingsStorage m_readings{};
 };

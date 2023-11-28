@@ -59,6 +59,12 @@ bool Config::load(const std::string &data)
         return false;
     }
 
+    if (config.containsKey("serverPort"))
+    {
+        m_serverPort = config["serverPort"].as<int>();
+        logger::logInf("Server port: %d", m_serverPort);
+    }
+
     if (config.containsKey("sensors"))
     {
         auto sensors = config["sensors"];
@@ -95,6 +101,7 @@ std::string Config::getExampleConfig()
         "ssid": "",
         "pass": ""
     },
+    "serverPort": 80,
     "sensorUpdatePeriodMins": 1,
     "sensors":{
         "44:17:93:0e:46:26": "Some sensor"
@@ -127,4 +134,9 @@ std::optional<std::string> Config::getSensorName(const std::string &mac)
 uint8_t Config::getSensorUpdatePeriodMins() const
 {
     return m_sensorUpdatePeriodMins;
+}
+
+int Config::getServerPort() const
+{
+    return m_serverPort;
 }

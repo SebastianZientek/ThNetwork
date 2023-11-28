@@ -5,10 +5,10 @@
 
 #include "ArduinoJson/Document/StaticJsonDocument.hpp"
 #include "ArduinoJson/Json/JsonSerializer.hpp"
-#include "common/MacAddr.hpp"
 #include "RaiiFile.hpp"
-#include "boardsettings.hpp"
+#include "common/MacAddr.hpp"
 #include "common/logger.hpp"
+#include "host/WebView.hpp"
 #include "utils.hpp"
 
 void App::init()
@@ -16,13 +16,14 @@ void App::init()
     if (systemInit() != Status::OK)
     {
         constexpr auto msInSecond = 1000;
-        logger::logErr("System will be rebooted in %ds",
-                        boardsettings::failRebootDelay / msInSecond);
-        delay(boardsettings::failRebootDelay);
+        constexpr auto waitBeforeRebootSec = 5;
+
+        logger::logErr("System will be rebooted in %ds", waitBeforeRebootSec);
+        delay(waitBeforeRebootSec * msInSecond);
         ESP.restart();
     }
 
-    m_espNow.init(
+    m_espNow->init(
         [this](float temp, float hum, MacAddr mac, unsigned long epochTime)
         {
             auto sensorName = m_config.getSensorName(mac.str()).value_or(mac.str());
@@ -30,7 +31,7 @@ void App::init()
         },
         m_config.getSensorUpdatePeriodMins());
 
-    m_web.startServer(
+    m_web->startServer(
         [this]
         {
             auto &currentReadings = m_readings.getReadings();
@@ -61,7 +62,10 @@ void App::update()
 
 App::Status App::systemInit()
 {
-    delay(boardsettings::initDelay);
+    // Let the board be electrically ready before initialization
+    constexpr auto waitBeforeInitializationMs = 1000;
+    delay(waitBeforeInitializationMs);
+
     logger::init();
     if (auto status = initSD(); status != Status::OK)
     {
@@ -80,7 +84,12 @@ App::Status App::systemInit()
         return status;
     }
 
+    m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
+    m_timeClient->begin();
     m_timeClient->update();
+
+    m_espNow = std::make_unique<EspNow>(m_timeClient);
+    m_web = std::make_unique<WebView>(m_config.getServerPort());
 
     return Status::OK;
 }
@@ -131,27 +140,32 @@ App::Status App::saveExampleConfig()
 
 App::Status App::connectWiFi()
 {
+    logger::logInf("Connecting to WiFi");
+
+    constexpr auto connectionRetriesBeforeRebootMs = 10;
+    constexpr auto delayBetweenConnectionTiresMs = 1000;
+    constexpr auto waitBeforeRebootMs = 1000;
+
     WiFi.mode(WIFI_AP_STA);
     WiFi.begin(m_config.getWifiSsid().c_str(), m_config.getWifiPass().c_str());
-    logger::logInf("Connecting to WiFi");
 
     uint8_t wifiConnectionTries = 0;
     while (WiFi.status() != WL_CONNECTED)
     {
         wifiConnectionTries++;
-        delay(boardsettings::wifiConnectDelay);
+        delay(delayBetweenConnectionTiresMs);
         logger::logInf(".");
 
-        if (wifiConnectionTries >= boardsettings::wifiConnectionRetriesBeforeReboot)
+        if (wifiConnectionTries >= connectionRetriesBeforeRebootMs)
         {
             logger::logErr("WiFi connection issue, reboot.");
-            delay(boardsettings::wifiConnectionIssueRebootDelay);
+            delay(waitBeforeRebootMs);
             ESP.restart();
         }
     }
 
     logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", WiFi.SSID(),
-                    WiFi.localIP().toString(), WiFi.macAddress(), WiFi.channel());
+                   WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), WiFi.channel());
 
     return Status::OK;
 }
@@ -160,5 +174,5 @@ void App::sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime)
 {
     auto sensorName = m_config.getSensorName(mac.str()).value_or(mac.str());
     std::string jsonString = utils::readingsToJsonString(temp, hum, mac, sensorName, epochTime);
-    m_web.sendEvent(jsonString.c_str(), "new_readings", millis());
+    m_web->sendEvent(jsonString.c_str(), "new_readings", millis());
 }
