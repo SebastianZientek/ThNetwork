@@ -13,12 +13,11 @@ void ReadingsCleaner::cleanIfNeeded()
 
     findOldestReadingsDir();
 
-    // logger::logInfF("Memcard space left: %lluMB", spaceLeft / MBFactor);
     if (spaceLeft < minimalAvailableSpace)
     {
         auto dirToRemove = findOldestReadingsDir();
-        logger::logInf("Minimal space exceed, removing the oldest readings!");
-        logger::logInfF("Directory to remove: %s", dirToRemove);
+        logger::logWrn("Minimal space exceed, removing the oldest readings!");
+        logger::logWrn("Directory to remove: %s", dirToRemove);
         removeDirectoryRecursively("/readings/" + dirToRemove);
     }
 }
@@ -54,13 +53,11 @@ void ReadingsCleaner::removeDirectoryRecursively(const std::string &path)
     {
         if (entry.isDirectory())
         {
-            logger::logInfF("Path %s", entry.path());
             removeDirectoryRecursively(entry.path());
             SD.rmdir(entry.path());
         }
         else
         {
-            logger::logInfF("Path %s", entry.path());
             SD.remove(entry.path());
         }
     }

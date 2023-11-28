@@ -2,47 +2,62 @@
 
 #include <Arduino.h>
 
+#include <string>
+
 namespace logger
 {
 void init();
 
+enum LogLevel
+{
+    INF = 0,
+    WRN = 1,
+    ERR = 2
+};
+
+constexpr std::array<const char *, 3> logCString = {"INF: ", "WRN: ", "ERR: "};
+
 template <typename T>
-void logInf(T &&value)
+decltype(auto) stdStrToCStr(const T &arg)
+{
+    return arg;
+}
+
+template <typename T>
+void log(const LogLevel logLevel, const T &value)
 {
 #ifdef ENABLE_LOGGER
-    Serial.print("INF: ");
-    Serial.println(std::forward<decltype(value)>(value));
+    Serial.print(logCString[logLevel]);  // NOLINT
+    Serial.println(stdStrToCStr(value));
 #endif
 }
 
 template <typename F, typename... T>
-void logInfF(F &&fmt, T &&...values)
+void log(const LogLevel logLevel, const F &fmt, const T &...values)
 {
 #ifdef ENABLE_LOGGER
-    Serial.print("INF: ");
-    Serial.printf(std::forward<decltype(fmt)>(fmt),            // NOLINT
-                  std::forward<decltype(values)>(values)...);  // NOLINT
+    Serial.print(logCString[logLevel]);  // NOLINT
+    Serial.printf(fmt, stdStrToCStr(values)...);       // NOLINT
     Serial.println();
 #endif
 }
 
-template <typename T>
-void logErr(T &&value)
+template <typename... Ts>
+void logErr(const Ts &...args)
 {
-#ifdef ENABLE_LOGGER
-    Serial.print("ERR: ");
-    Serial.println(std::forward<decltype(value)>(value));
-#endif
+    log(logger::ERR, args...);
 }
 
-template <typename F, typename... T>
-void logErrF(F &&fmt, T &&...values)
+template <typename... Ts>
+void logWrn(const Ts &...args)
 {
-#ifdef ENABLE_LOGGER
-    Serial.print("ERR: ");
-    Serial.printf(std::forward<decltype(fmt)>(fmt),            // NOLINT
-                  std::forward<decltype(values)>(values)...);  // NOLINT
-    Serial.println();
-#endif
+    log(logger::WRN, args...);
 }
+
+template <typename... Ts>
+void logInf(const Ts &...args)
+{
+    log(logger::INF, args...);
+}
+
 }  // namespace logger

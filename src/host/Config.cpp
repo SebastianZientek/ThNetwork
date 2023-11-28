@@ -68,7 +68,7 @@ bool Config::load(const std::string &data)
             std::string value = keyValue.value();
             m_sensorsMap[key] = std::string(value);
 
-            logger::logInfF("sensor: %s -> %s", key.c_str(), value.c_str());
+            logger::logInf("sensor: %s -> %s", key, value);
         }
     }
     else

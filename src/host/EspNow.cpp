@@ -4,8 +4,8 @@
 
 #include <array>
 
-#include "common/Messages.hpp"
 #include "NTPClient.h"
+#include "common/Messages.hpp"
 #include "common/logger.hpp"
 
 constexpr auto macSize = 6;
@@ -43,28 +43,27 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     {
     case MsgType::PAIR_REQ:
     {
-        logger::logInf("PAIR_REQ received");
+        logger::logWrn("PAIR_REQ received");
         addPeer(mac, WiFi.channel());
         sendPairOK(mac);
     }
     break;
     case MsgType::PAIR_RESP:
-        logger::logErr("Received PAIR_RESP, shouldn't be here.");
+        logger::logWrn("Received PAIR_RESP, shouldn't be here.");
         break;
     case MsgType::SENSOR_DATA:
     {
         SensorDataMsg sDataMsg;
         sDataMsg.deserialize(incomingData, len);
 
-        logger::logInfF("[%s %s] T: %.1f, H: %.1f", mac.str().c_str(),
-                        m_ntpClient->getFormattedTime().c_str(), sDataMsg.temperature,
-                        sDataMsg.humidity);
+        logger::logInf("[%s %s] T: %.1f, H: %.1f", mac.str(), m_ntpClient->getFormattedTime(),
+                       sDataMsg.temperature, sDataMsg.humidity);
 
         m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, mac, m_ntpClient->getEpochTime());
     }
     break;
     case MsgType::UNKNOWN:
-        logger::logErr("Received UNKNOWN message type.");
+        logger::logWrn("Received UNKNOWN message type.");
     }
 }
 
@@ -73,11 +72,11 @@ void EspNow::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
     logger::logInf("Last Packet Send Status: ");
     if (status == 0)
     {
-        logger::logInfF("Delivery success: %s", mac.str().c_str());
+        logger::logInf("Delivery success: %s", mac.str());
     }
     else
     {
-        logger::logErr("Delivery fail");
+        logger::logWrn("Delivery fail");
     }
 }
 
@@ -130,7 +129,7 @@ void EspNow::sendPairOK(const MacAddr &mac) const
 
     if (state != ESP_OK)
     {
-        logger::logErrF("esp_now_send error, code: %d", state);
+        logger::logWrn("esp_now_send error, code: %d", state);
     }
 }
 
