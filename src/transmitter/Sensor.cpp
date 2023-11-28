@@ -36,5 +36,5 @@ std::pair<float, float> Sensor::getTempHum()
     sensors_event_t humidity{};     // NOLINT
     sensors_event_t temperature{};  // NOLINT
     m_impl->aht.getEvent(&humidity, &temperature);
-    return {temperature.temperature, humidity.relative_humidity};
+    return {temperature.temperature, humidity.relative_humidity};  // NOLINT
 }

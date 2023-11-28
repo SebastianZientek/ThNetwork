@@ -8,6 +8,6 @@ void toggleLed()
 {
     auto ledPin = ArduinoAdp::getLedBuiltin();
     auto ledState = ArduinoAdp::digitalRead(ledPin);
-    ArduinoAdp::digitalWrite(ledPin, ledState == ArduinoAdp::HI ? ArduinoAdp::LO : ArduinoAdp::HI);
+    ArduinoAdp::digitalWrite(ledPin, ledState == ArduinoAdp::LVL_HI ? ArduinoAdp::LVL_LO : ArduinoAdp::LVL_HI);
 }
 }  // namespace utils

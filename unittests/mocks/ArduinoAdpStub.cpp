@@ -3,8 +3,8 @@
 
 #include "ArduinoAdp.hpp"
 
-const uint8_t ArduinoAdp::HI = 1;
-const uint8_t ArduinoAdp::LO = 0;
+const uint8_t ArduinoAdp::LVL_HI = 1;
+const uint8_t ArduinoAdp::LVL_LO = 0;
 
 uint8_t ArduinoAdp::digitalRead([[maybe_unused]] uint8_t pin)
 {
