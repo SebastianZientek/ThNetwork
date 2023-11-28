@@ -3,6 +3,7 @@
 #include <Arduino.h>
 
 #include <string>
+#include <type_traits>
 
 namespace logger
 {
@@ -20,7 +21,14 @@ constexpr std::array<const char *, 3> logCString = {"INF: ", "WRN: ", "ERR: "};
 template <typename T>
 decltype(auto) stdStrToCStr(const T &arg)
 {
-    return arg;
+    if constexpr (std::is_same_v<std::decay_t<T>, std::string>)
+    {
+        return arg.c_str();
+    }
+    else
+    {
+        return arg;
+    }
 }
 
 template <typename T>
@@ -36,8 +44,8 @@ template <typename F, typename... T>
 void log(const LogLevel logLevel, const F &fmt, const T &...values)
 {
 #ifdef ENABLE_LOGGER
-    Serial.print(logCString[logLevel]);  // NOLINT
-    Serial.printf(fmt, stdStrToCStr(values)...);       // NOLINT
+    Serial.print(logCString[logLevel]);           // NOLINT
+    Serial.printf(fmt, stdStrToCStr(values)...);  // NOLINT
     Serial.println();
 #endif
 }

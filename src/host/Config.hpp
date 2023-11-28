@@ -17,10 +17,12 @@ public:
     std::map<std::string, std::string> &getSensorsMap();
     std::optional<std::string> getSensorName(const std::string &mac);
     [[nodiscard]] uint8_t getSensorUpdatePeriodMins() const;
+    [[nodiscard]] int getServerPort() const;
 
 private:
     std::string m_wifiSsid{};
     std::string m_wifiPass{};
     std::map<std::string, std::string> m_sensorsMap{};
     uint8_t m_sensorUpdatePeriodMins{};
+    int m_serverPort{80};  // NOLINT
 };
