@@ -19,7 +19,10 @@ TEST_GROUP(TestUtils)  // NOLINT
 TEST(TestUtils, shouldToggleLedPinFromHighToLow)  // NOLINT
 {
     mock().expectOneCall("ArduinoAdp::getLedBuiltin").andReturnValue(LED_BUILTIN);
-    mock().expectNCalls(1, "ArduinoAdp::digitalRead").withParameter("pin", LED_BUILTIN).andReturnValue(ArduinoAdp::HI);
+    mock()
+        .expectNCalls(1, "ArduinoAdp::digitalRead")
+        .withParameter("pin", LED_BUILTIN)
+        .andReturnValue(ArduinoAdp::HI);
     mock()
         .expectNCalls(1, "ArduinoAdp::digitalWrite")
         .withParameter("pin", LED_BUILTIN)
@@ -31,7 +34,10 @@ TEST(TestUtils, shouldToggleLedPinFromHighToLow)  // NOLINT
 TEST(TestUtils, shouldToggleLedPinFromLowToHigh)  // NOLINT
 {
     mock().expectOneCall("ArduinoAdp::getLedBuiltin").andReturnValue(LED_BUILTIN);
-    mock().expectNCalls(1, "ArduinoAdp::digitalRead").withParameter("pin", LED_BUILTIN).andReturnValue(ArduinoAdp::LO);
+    mock()
+        .expectNCalls(1, "ArduinoAdp::digitalRead")
+        .withParameter("pin", LED_BUILTIN)
+        .andReturnValue(ArduinoAdp::LO);
     mock()
         .expectNCalls(1, "ArduinoAdp::digitalWrite")
         .withParameter("pin", LED_BUILTIN)

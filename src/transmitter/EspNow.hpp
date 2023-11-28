@@ -5,8 +5,8 @@
 
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
-#include "config.hpp"
 #include "common/serializer.hpp"
+#include "config.hpp"
 
 class EspNow
 {

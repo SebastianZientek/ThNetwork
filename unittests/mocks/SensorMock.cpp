@@ -1,7 +1,7 @@
-#include "Sensor.hpp"
-
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
+
+#include "Sensor.hpp"
 
 void Sensor::init()
 {

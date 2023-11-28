@@ -2,8 +2,8 @@
 
 #include <map>
 
-#include "common/MacAddr.hpp"
 #include "ReadingsCleaner.hpp"
+#include "common/MacAddr.hpp"
 
 class ReadingsStorage
 {

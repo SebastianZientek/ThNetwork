@@ -1,7 +1,7 @@
 #include "EspAdp.hpp"
 
-#include <Esp.h>
 #include <ESP8266WiFi.h>
+#include <Esp.h>
 
 void EspAdp::feedWatchdog()
 {

@@ -18,7 +18,7 @@ struct EspNowAdp
     static SendCB getSendCB();
 
 private:
-    static SendCB m_sendCb; // NOLINT
-    static RecvCB m_recvCb; // NOLINT
+    static SendCB m_sendCb;  // NOLINT
+    static RecvCB m_recvCb;  // NOLINT
 #endif
 };

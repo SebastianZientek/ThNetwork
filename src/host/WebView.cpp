@@ -1,9 +1,7 @@
 #include "WebView.hpp"
 
 #include "common/logger.hpp"
-
-constexpr auto htmlData =
-#include "index.html"
+#include "index.hpp"
 
 WebView::WebView(int port)
     : m_htmlData{}

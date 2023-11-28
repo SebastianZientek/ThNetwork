@@ -122,7 +122,7 @@ TEST(TestEspNow, ShouldSetupAfterPairMsg)  // NOLINT
     mock().expectOneCall("millis").andReturnValue(0);
     mock().expectOneCall("millis").andReturnValue(waitTime);
 
-    CHECK_TRUE(espNow.pair()); // NOLINT
+    CHECK_TRUE(espNow.pair());  // NOLINT
 }
 
 TEST(TestEspNow, ShouldSendDataToHost)  // NOLINT

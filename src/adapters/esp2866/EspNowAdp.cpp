@@ -23,7 +23,7 @@ int EspNowAdp::registerSendCB(SendCB callback)
     return esp_now_register_send_cb(callback);
 }
 
-int EspNowAdp::send(uint8_t *addr, uint8_t *data, int len) // NOLINT
+int EspNowAdp::send(uint8_t *addr, uint8_t *data, int len)  // NOLINT
 {
     return esp_now_send(addr, data, len);
 }

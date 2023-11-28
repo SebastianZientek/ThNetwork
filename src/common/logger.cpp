@@ -2,14 +2,13 @@
 
 #include <Arduino.h>
 
-// #include "boardsettings.hpp"
-
 namespace logger
 {
 void init()
 {
 #ifdef ENABLE_LOGGER
-    Serial.begin(115200);
+    constexpr auto serialBaudRate = 115200;
+    Serial.begin(serialBaudRate);
 #endif
 }
 }  // namespace logger

@@ -1,6 +1,7 @@
 #pragma once
 
-struct Pins{
+struct Pins
+{
     static int getSDA();
     static int getSCL();
 };
