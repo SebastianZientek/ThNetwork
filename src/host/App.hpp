@@ -33,7 +33,7 @@ private:
 
     std::unique_ptr<WebView> m_web{};
     WiFiUDP m_ntpUDP{};
-    std::shared_ptr<NTPClient> m_timeClient{std::make_shared<NTPClient>(m_ntpUDP)};
+    std::shared_ptr<NTPClient> m_timeClient{};
     std::unique_ptr<EspNow> m_espNow{};
     Config m_config{};
     ReadingsStorage m_readings{};
