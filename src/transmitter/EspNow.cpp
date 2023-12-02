@@ -33,7 +33,21 @@ void EspNow::init(uint8_t channel)
 
 void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
 {
-    auto msgType = getMsgType(incomingData, len);
+    auto msgAndSignature = serializer::partialDeserialize<MsgType, Signature>(incomingData, len);
+
+    if (!msgAndSignature)
+    {
+        logger::logWrn("Can't deserialize received message");
+        return;
+    }
+
+    auto [msgType, signature] = msgAndSignature.value();
+
+    if (signature != signatureTemplate)
+    {
+        logger::logWrn("Received message with wrong signature");
+        return;
+    }
 
     switch (msgType)
     {
@@ -115,8 +129,8 @@ std::optional<config::TransmitterConfig> EspNow::pair()
         logger::logInf("Pairing, try channel: %d", channel);
         WiFiAdp::setChannel(channel);
         sendPairMsg();
-        delay(timeout);
-        ESP.wdtFeed();
+        EspAdp::wait(timeout);
+        EspAdp::feedWatchdog();
 
         if (m_paired)
         {

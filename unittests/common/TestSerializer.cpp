@@ -93,3 +93,22 @@ TEST(TestSerializer, shouldReturnNulloptWhenWrongSizeOfDeserializedData)  // NOL
     auto deserialized = serializer::deserialize<int, short>(serialized.data(), serialized.size());
     CHECK_FALSE(deserialized);  // NOLINT
 }
+
+TEST(TestSerializer, shouldDeserializePartialData)  // NOLINT
+{
+    const int inIntVal = 123;
+    const char inCharVal = 'c';
+    const short inShortVal = 321;
+
+    auto serialized = serializer::serialize(inIntVal, inCharVal, inShortVal);
+    CHECK_EQUAL(serialized.size(),                                           // NOLINT
+                sizeof(inIntVal) + sizeof(inCharVal) + sizeof(inShortVal));  // NOLINT
+
+    auto deserialized
+        = serializer::partialDeserialize<int, char>(serialized.data(), serialized.size());
+    CHECK_TRUE(deserialized);  // NOLINT
+
+    auto [outIntVal, outCharVal] = deserialized.value();
+    CHECK_EQUAL(inIntVal, outIntVal);      // NOLINT
+    CHECK_EQUAL(inCharVal, outCharVal);    // NOLINT
+}

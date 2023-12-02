@@ -1,6 +1,7 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
+#include "ArduinoAdp.hpp"
 #include "EspAdp.hpp"
 #include "EspNow.hpp"
 #include "EspNowAdp.hpp"
@@ -98,6 +99,9 @@ TEST(TestEspNow, ShouldReturnNulloptIfCantPair)  // NOLINT
 
     for (int i = 0; i <= maxChannelNum; ++i)
     {
+        mock().expectOneCall("ArduinoAdp::getLedBuiltin").andReturnValue(LED_BUILTIN);
+        mock().expectOneCall("ArduinoAdp::digitalWrite").ignoreOtherParameters();
+        mock().expectOneCall("delay").ignoreOtherParameters();
         mock().expectOneCall("WiFiAdp::setChannel").withParameter("channel", i);
         mock().expectOneCall("EspNowAdp::send").andReturnValue(0);
         mock().expectOneCall("millis").andReturnValue(0);
@@ -107,8 +111,6 @@ TEST(TestEspNow, ShouldReturnNulloptIfCantPair)  // NOLINT
     CHECK_FALSE(espNow.pair());  // NOLINT
 }
 
-#include <iostream>
-
 TEST(TestEspNow, ShouldSetupAfterPairMsg)  // NOLINT
 {
     EspNow espNow;
@@ -117,10 +119,10 @@ TEST(TestEspNow, ShouldSetupAfterPairMsg)  // NOLINT
     auto onWaitCb = EspAdp::createAndInjectOnWaitCb([this, &espNow] { acceptPairRespMsg(espNow); });
     constexpr auto waitTime = 1000;
 
+    mock().expectOneCall("ArduinoAdp::getLedBuiltin").andReturnValue(LED_BUILTIN);
+    mock().expectOneCall("ArduinoAdp::digitalWrite").ignoreOtherParameters();
     mock().expectOneCall("WiFiAdp::setChannel").withParameter("channel", 0);
     mock().expectOneCall("EspNowAdp::send").andReturnValue(0);
-    mock().expectOneCall("millis").andReturnValue(0);
-    mock().expectOneCall("millis").andReturnValue(waitTime);
 
     CHECK_TRUE(espNow.pair());  // NOLINT
 }

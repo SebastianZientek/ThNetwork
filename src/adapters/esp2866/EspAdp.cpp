@@ -15,11 +15,7 @@ void EspAdp::yield()
 
 void EspAdp::wait(unsigned long timeout)
 {
-    auto startTime = millis();
-    while (startTime + timeout > millis())
-    {
-        ESP.wdtFeed();
-    }
+    delay(timeout);
 }
 
 bool EspAdp::isResetReasonDeepSleepAwake()

@@ -68,7 +68,22 @@ std::optional<std::tuple<Ts...>> deserialize(const uint8_t *buffer, size_t bsize
     }
 
     std::tuple<Ts...> values;
-    readValue<decltype(values), 0, Ts...>(values, buffer, bsize);
+    readValue<decltype(values), 0, Ts...>(values, buffer, argsSize);
+
+    return std::optional{values};
+}
+
+template <typename... Ts>
+std::optional<std::tuple<Ts...>> partialDeserialize(const uint8_t *buffer, size_t bsize)
+{
+    constexpr auto argsSize = (sizeof(Ts) + ... + 0);
+    if (argsSize > bsize)
+    {
+        return std::nullopt;
+    }
+
+    std::tuple<Ts...> values;
+    readValue<decltype(values), 0, Ts...>(values, buffer, argsSize);
 
     return std::optional{values};
 }

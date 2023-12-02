@@ -7,11 +7,12 @@
 #include "NTPClient.h"
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
+#include "common/serializer.hpp"
 
 constexpr auto macSize = 6;
 constexpr auto msgSignatureSize = 4;
 constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
-constexpr std::array<uint8_t, 4> msgSignature{'T', 'H', 'D', 'T'};
+
 EspNow::OnSendCb EspNow::m_onSend;  // NOLINT
 EspNow::OnRecvCb EspNow::m_onRecv;  // NOLINT
 
@@ -37,7 +38,25 @@ void EspNow::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriod
 
 void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
 {
-    auto msgType = getMsgType(incomingData, len);
+    auto msgAndSignature = serializer::partialDeserialize<MsgType, Signature>(incomingData, len);
+
+    if (!msgAndSignature)
+    {
+        logger::logWrn("Can't deserialize received message");
+        return;
+    }
+
+    auto [msgType, signature] = msgAndSignature.value();
+
+
+    if (signature != signatureTemplate)
+    {
+        std::string str(signature.begin(), signature.end());
+        std::string tstr(signatureTemplate.begin(), signatureTemplate.end());
+        logger::logWrn("Received message with wrong signature");
+        logger::logWrn("%s - %s", str, tstr);
+        return;
+    }
 
     switch (msgType)
     {
@@ -131,16 +150,4 @@ void EspNow::sendPairOK(const MacAddr &mac) const
     {
         logger::logWrn("esp_now_send error, code: %d", state);
     }
-}
-
-MsgType EspNow::getMsgType(const uint8_t *buffer, size_t size)
-{
-    MsgType msgType{MsgType::UNKNOWN};
-
-    if (size >= sizeof(MsgType))
-    {
-        std::memcpy(&msgType, buffer, sizeof(MsgType));
-    }
-
-    return msgType;
 }
