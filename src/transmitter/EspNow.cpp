@@ -129,8 +129,8 @@ std::optional<config::TransmitterConfig> EspNow::pair()
         logger::logInf("Pairing, try channel: %d", channel);
         WiFiAdp::setChannel(channel);
         sendPairMsg();
-        delay(timeout);
-        ESP.wdtFeed();
+        EspAdp::wait(timeout);
+        EspAdp::feedWatchdog();
 
         if (m_paired)
         {
