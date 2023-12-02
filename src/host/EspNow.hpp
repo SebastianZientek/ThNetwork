@@ -43,5 +43,4 @@ private:
     void setOnDataSendCb();
     void addPeer(const MacAddr &mac, uint8_t channel);
     void sendPairOK(const MacAddr &mac) const;
-    MsgType getMsgType(const uint8_t *buffer, size_t size);
 };
