@@ -33,6 +33,7 @@ set(INCLS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/adapters
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common
     ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks
 )
 
@@ -50,6 +51,12 @@ set(TR_TESTS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestUtils.cpp
 )
 
+set(HS_TESTS
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRingBuffer.cpp
+)
+
 set(CM_TESTS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
 
@@ -59,6 +66,7 @@ set(CM_TESTS
 
 
 buildTests(TransmitterUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${TR_TESTS}")
+buildTests(HostUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${HS_TESTS}")
 buildTests(CommonUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${CM_TESTS}")
 
 # add_executable(UnitTests ${SRCS} ${MOCKS} ${TESTS})

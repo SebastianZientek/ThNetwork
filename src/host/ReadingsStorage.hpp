@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "ReadingsCleaner.hpp"
+#include "RingBuffer.hpp"
 #include "common/MacAddr.hpp"
 
 class ReadingsStorage
@@ -14,17 +14,17 @@ class ReadingsStorage
         unsigned long epochTime;
     };
 
+    constexpr static uint16_t maxReadingsPerSensor = 800;
+    using ReadingsRingBuffer = RingBuffer<Reading, maxReadingsPerSensor>;
+
 public:
     void addReading(const MacAddr &mac,
                     const std::string &sensorName,
                     float temperature,
                     float humidity,
                     unsigned long epochTime);
-    std::map<MacAddr, Reading> &getReadings();
+    std::map<MacAddr, ReadingsRingBuffer> &getReadingBuffers();
 
 private:
-    std::map<MacAddr, Reading> m_readings;
-    ReadingsCleaner m_readingsCleaner;
-
-    void saveReading(MacAddr mac, const std::string &sensorName, const Reading &reading);
+    std::map<MacAddr, ReadingsRingBuffer> m_readingBuffers;
 };
