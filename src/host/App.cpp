@@ -50,6 +50,8 @@ void App::update()
 
     if (callTimePoint < millis())
     {
+        logger::logInf("Free heap size: %d ", esp_get_free_heap_size());
+
         callTimePoint = initTimer();
 
         auto &currentReadings = m_readings.getReadings();

@@ -1,4 +1,3 @@
-R"htmldata(
 <!DOCTYPE HTML>
 <html>
 
@@ -95,8 +94,7 @@ R"htmldata(
     </div>
 
     <script>
-        function addSensorRow(id, name)
-        {
+        function addSensorRow(id, name) {
             console.log("addSensorRow");
             var table = document.getElementById("sensorsTable");
             var row = table.insertRow();
@@ -110,11 +108,9 @@ R"htmldata(
             return row;
         }
 
-        function setSensorValue(id, name, temperature, humidity)
-        {
+        function setSensorValue(id, name, temperature, humidity) {
             var sensorRow = document.getElementById(id);
-            if (!sensorRow)
-            {
+            if (!sensorRow) {
                 row = addSensorRow(id, name);
             }
             var cells = row.cells;
@@ -156,4 +152,3 @@ R"htmldata(
 </body>
 
 </html>
-)htmldata";
