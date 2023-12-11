@@ -1,7 +1,10 @@
 #include "WebView.hpp"
 
 #include "common/logger.hpp"
-#include "index.hpp"
+
+#include <incbin.h>
+INCTXT(IndexHtml, "src/host/html/index.html");
+INCTXT(MicroChart, "src/host/html/microChart.js");
 
 WebView::WebView(int port)
     : m_htmlData{}
@@ -25,7 +28,11 @@ void WebView::startServer(const NewClientCb &newClientCb)
 
     m_server.on("/", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
-                { request->send_P(200, "text/html", htmlData); });
+                { request->send_P(200, "text/html", gIndexHtmlData); });
+
+    m_server.on("/microChart.js", HTTP_GET,
+                [this](AsyncWebServerRequest *request)
+                { request->send_P(200, "application/javascript", gMicroChartData); });
 
     m_events.onConnect(
         [this](AsyncEventSourceClient *client)
