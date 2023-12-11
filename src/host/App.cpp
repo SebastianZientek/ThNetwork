@@ -34,9 +34,10 @@ void App::init()
     m_web->startServer(
         [this]
         {
-            auto &currentReadings = m_readings.getReadings();
-            for (const auto &[macAddr, reading] : currentReadings)
+            auto &currentReadings = m_readings.getReadingBuffers();
+            for (const auto &[macAddr, readingsBuffer] : currentReadings)
             {
+                auto reading = readingsBuffer.getLast();
                 sendEvent(reading.temperature, reading.humidity, macAddr, reading.epochTime);
             }
         });
@@ -54,9 +55,10 @@ void App::update()
 
         callTimePoint = initTimer();
 
-        auto &currentReadings = m_readings.getReadings();
-        for (const auto &[macAddr, reading] : currentReadings)
+        auto &currentReadings = m_readings.getReadingBuffers();
+        for (const auto &[macAddr, readingsBuffer] : currentReadings)
         {
+            auto reading = readingsBuffer.getLast();
             sendEvent(reading.temperature, reading.humidity, macAddr, reading.epochTime);
         }
     }
