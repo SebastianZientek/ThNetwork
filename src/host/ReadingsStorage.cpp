@@ -14,8 +14,7 @@ void ReadingsStorage::addReading(const MacAddr &mac,
                                  unsigned long epochTime)
 {
     std::string jsonArr = readingToStr(temperature, humidity, epochTime);
-    Reading reading = {temperature, humidity, epochTime, jsonArr};
-    m_readingBuffers[mac].put(reading);
+    m_readingBuffers[mac].put(jsonArr);
 }
 
 std::map<MacAddr, ReadingsStorage::ReadingsRingBuffer> &ReadingsStorage::getReadingBuffers()
@@ -35,12 +34,12 @@ std::string ReadingsStorage::getReadingsAsJsonArr(const MacAddr &macAddr,
     {
         if (first)
         {
-            jsonStr += '[' + reading.reading + ']';
+            jsonStr += '[' + reading + ']';
             first = false;
         }
         else
         {
-            jsonStr += ",[" + reading.reading + "]";
+            jsonStr += ",[" + reading + "]";
         }
     }
 
@@ -52,7 +51,7 @@ std::string ReadingsStorage::getReadingsAsJsonArr(const MacAddr &macAddr,
 std::string ReadingsStorage::lastReading(const MacAddr &macAddr, const std::string &sensorName)
 {
     ReadingsRingBuffer &readingsBuffer = m_readingBuffers[macAddr];
-    const auto &readingStr = readingsBuffer.getLast().reading;
+    const auto &readingStr = readingsBuffer.getLast();
 
     return R"([")" + sensorName + R"(",)" + readingStr + "]";
 }

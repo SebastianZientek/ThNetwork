@@ -29,8 +29,6 @@ void App::init()
             auto sensorName = m_config.getSensorName(mac.str()).value_or(mac.str());
             m_readings.addReading(mac, sensorName, temp, hum, epochTime);
 
-            // TODO: mac to sensor name
-            // send sensor data
             auto currentReading = m_readings.lastReading(mac, sensorName);
             m_web->sendEvent(currentReading.c_str(), "newReading", millis());
         },
@@ -40,17 +38,19 @@ void App::init()
         [this]
         {
             auto &currentReadings = m_readings.getReadingBuffers();
-            for (const auto &[macAddr, readingsBuffer] : currentReadings)
-            {
-                auto reading = readingsBuffer.getLast();
-                sendEvent(reading.temperature, reading.humidity, macAddr, reading.epochTime);
-            }
 
             for (const auto &[macAddr, readingsBuffer] : currentReadings)
             {
                 auto sensorName = m_config.getSensorName(macAddr.str()).value_or(macAddr.str());
                 auto readingsJson = m_readings.getReadingsAsJsonArr(macAddr, sensorName);
                 m_web->sendEvent(readingsJson.c_str(), "readingsCollection", millis());
+            }
+
+            for (const auto &[macAddr, readingsBuffer] : currentReadings)
+            {
+                auto sensorName = m_config.getSensorName(macAddr.str()).value_or(macAddr.str());
+                auto currentReading = m_readings.lastReading(macAddr, sensorName);
+                m_web->sendEvent(currentReading.c_str(), "newReading", millis());
             }
         });
 }

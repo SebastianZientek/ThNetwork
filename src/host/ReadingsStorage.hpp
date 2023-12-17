@@ -1,20 +1,14 @@
 #pragma once
 
 #include <map>
+#include <string_view>
 
 #include "RingBuffer.hpp"
 #include "common/MacAddr.hpp"
 
 class ReadingsStorage
 {
-    struct Reading
-    {
-        float temperature;
-        float humidity;
-        unsigned long epochTime;
-        std::string reading;
-    };
-
+    using Reading = std::string;
     constexpr static uint16_t maxReadingsPerSensor = 220;
     using ReadingsRingBuffer = RingBuffer<Reading, maxReadingsPerSensor>;
 
