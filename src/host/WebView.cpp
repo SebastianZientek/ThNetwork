@@ -1,8 +1,9 @@
 #include "WebView.hpp"
 
+#include <incbin.h>
+
 #include "common/logger.hpp"
 
-#include <incbin.h>
 INCTXT(IndexHtml, "src/host/html/index.html");
 INCTXT(MicroChart, "src/host/html/microChart.js");
 

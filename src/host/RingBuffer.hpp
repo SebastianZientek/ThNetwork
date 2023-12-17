@@ -15,7 +15,6 @@ class RingBuffer
 
     static_assert(size > 0);
     static_assert(size <= maxSize);
-    static_assert(std::is_trivial<T>::value);
 
     using BufferType = std::array<T, bufferLenght>;
 

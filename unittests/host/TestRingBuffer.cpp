@@ -90,7 +90,6 @@ TEST(RingBufferTest, RangeForLoop)  // NOLINT
     CHECK_EQUAL(5, values[2]);
 }
 
-
 TEST(RingBufferTest, RangeForLoopLongerOverride)  // NOLINT
 {
     RingBuffer<int, 3> rb;
@@ -116,4 +115,52 @@ TEST(RingBufferTest, RangeForLoopLongerOverride)  // NOLINT
     CHECK_EQUAL(7, values[0]);
     CHECK_EQUAL(8, values[1]);
     CHECK_EQUAL(9, values[2]);
+}
+
+TEST(RingBufferTest, NumberOfIterationThroughBufferNotFullBuff)  // NOLINT
+{
+    RingBuffer<int, 3> rb;
+    rb.put(1);
+    rb.put(2);
+
+    size_t itNum = 0;
+    for (const auto &r : rb)
+    {
+        itNum++;
+    }
+
+    CHECK_EQUAL(2, itNum);
+}
+
+TEST(RingBufferTest, NumberOfIterationThroughBufferFullBuff)  // NOLINT
+{
+    RingBuffer<int, 3> rb;
+    rb.put(1);
+    rb.put(2);
+    rb.put(3);
+
+    size_t itNum = 0;
+    for (const auto &r : rb)
+    {
+        itNum++;
+    }
+
+    CHECK_EQUAL(3, itNum);
+}
+
+TEST(RingBufferTest, NumberOfIterationThroughBufferAfterOverride)  // NOLINT
+{
+    RingBuffer<int, 3> rb;
+    rb.put(1);
+    rb.put(2);
+    rb.put(3);
+    rb.put(4);
+
+    size_t itNum = 0;
+    for (const auto &r : rb)
+    {
+        itNum++;
+    }
+
+    CHECK_EQUAL(3, itNum);
 }

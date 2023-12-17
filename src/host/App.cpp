@@ -28,6 +28,9 @@ void App::init()
         {
             auto sensorName = m_config.getSensorName(mac.str()).value_or(mac.str());
             m_readings.addReading(mac, sensorName, temp, hum, epochTime);
+
+            auto currentReading = m_readings.lastReading(mac, sensorName);
+            m_web->sendEvent(currentReading.c_str(), "newReading", millis());
         },
         m_config.getSensorUpdatePeriodMins());
 
@@ -35,33 +38,25 @@ void App::init()
         [this]
         {
             auto &currentReadings = m_readings.getReadingBuffers();
+
             for (const auto &[macAddr, readingsBuffer] : currentReadings)
             {
-                auto reading = readingsBuffer.getLast();
-                sendEvent(reading.temperature, reading.humidity, macAddr, reading.epochTime);
+                auto sensorName = m_config.getSensorName(macAddr.str()).value_or(macAddr.str());
+                auto readingsJson = m_readings.getReadingsAsJsonArr(macAddr, sensorName);
+                m_web->sendEvent(readingsJson.c_str(), "readingsCollection", millis());
+            }
+
+            for (const auto &[macAddr, readingsBuffer] : currentReadings)
+            {
+                auto sensorName = m_config.getSensorName(macAddr.str()).value_or(macAddr.str());
+                auto currentReading = m_readings.lastReading(macAddr, sensorName);
+                m_web->sendEvent(currentReading.c_str(), "newReading", millis());
             }
         });
 }
 
 void App::update()
 {
-    constexpr auto msToUpdate = 5000;
-    auto initTimer = [] { return millis() + msToUpdate; };
-    static auto callTimePoint = initTimer();
-
-    if (callTimePoint < millis())
-    {
-        logger::logInf("Free heap size: %d ", esp_get_free_heap_size());
-
-        callTimePoint = initTimer();
-
-        auto &currentReadings = m_readings.getReadingBuffers();
-        for (const auto &[macAddr, readingsBuffer] : currentReadings)
-        {
-            auto reading = readingsBuffer.getLast();
-            sendEvent(reading.temperature, reading.humidity, macAddr, reading.epochTime);
-        }
-    }
 }
 
 App::Status App::systemInit()
