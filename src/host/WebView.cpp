@@ -1,8 +1,9 @@
 #include "WebView.hpp"
 
-#include "common/logger.hpp"
-
 #include <incbin.h>
+
+#include "common/logger.hpp"
+#include "esp32-hal.h"
 INCTXT(IndexHtml, "src/host/html/index.html");
 INCTXT(MicroChart, "src/host/html/microChart.js");
 
@@ -14,6 +15,7 @@ WebView::WebView(int port)
 {
 }
 
+
 void WebView::sendEvent(const char *message,
                         const char *event,
                         uint32_t identifier,
@@ -21,6 +23,8 @@ void WebView::sendEvent(const char *message,
 {
     m_events.send(message, event, identifier, reconnect);
 }
+
+
 
 void WebView::startServer(const NewClientCb &newClientCb)
 {

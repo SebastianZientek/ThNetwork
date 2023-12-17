@@ -137,15 +137,19 @@
                 console.log("message", e.data);
             }, false);
 
-            source.addEventListener('new_readings', function (e) {
-                console.log("new_readings", e.data);
-                var readings = JSON.parse(e.data);
+            source.addEventListener('newReading', function (e) {
+                console.log("newReading", e.data);
+                var reading = JSON.parse(e.data);
 
-                var id = readings.id;
-                var name = readings.name;
-                var temperature = parseFloat(readings.temperature).toFixed(1);
-                var humidity = parseFloat(readings.humidity).toFixed(1);
+                const [name, epoch, temperature, humidity] = reading;
+                const id = name; // TODO: instead of name, there should be unique ID implemented
+
                 setSensorValue(id, name, temperature, humidity);
+            }, false);
+
+
+            source.addEventListener('readingsCollection', function (e) {
+                console.log("readingsCollection", JSON.parse(e.data));
             }, false);
         }
     </script>
