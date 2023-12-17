@@ -57,23 +57,6 @@ void App::init()
 
 void App::update()
 {
-    // constexpr auto msToUpdate = 5000;
-    // auto initTimer = [] { return millis() + msToUpdate; };
-    // static auto callTimePoint = initTimer();
-
-    // if (callTimePoint < millis())
-    // {
-    //     logger::logInf("Free heap size: %d ", esp_get_free_heap_size());
-
-    //     callTimePoint = initTimer();
-
-    //     auto &currentReadings = m_readings.getReadingBuffers();
-    //     for (const auto &[macAddr, readingsBuffer] : currentReadings)
-    //     {
-    //         auto reading = readingsBuffer.getLast();
-    //         sendEvent(reading.temperature, reading.humidity, macAddr, reading.epochTime);
-    //     }
-    // }
 }
 
 App::Status App::systemInit()

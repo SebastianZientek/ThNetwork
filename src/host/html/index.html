@@ -147,7 +147,6 @@
                 setSensorValue(id, name, temperature, humidity);
             }, false);
 
-
             source.addEventListener('readingsCollection', function (e) {
                 console.log("readingsCollection", JSON.parse(e.data));
             }, false);
