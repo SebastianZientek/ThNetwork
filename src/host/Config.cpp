@@ -72,7 +72,8 @@ bool Config::load(const std::string &data)
         {
             std::string key = keyValue.key().c_str();
             std::string value = keyValue.value();
-            m_sensorsMap[key] = std::string(value);
+            // HACK
+            if (key == "44:17:93:0e:46:26") m_sensorsMap[key] = std::string(value);
 
             logger::logInf("sensor: %s -> %s", key, value);
         }
@@ -129,6 +130,17 @@ std::optional<std::string> Config::getSensorName(const std::string &mac)
     auto containsMac = m_sensorsMap.find(mac) != m_sensorsMap.end();
     auto sensorName = containsMac ? std::optional<std::string>{m_sensorsMap.at(mac)} : std::nullopt;
     return sensorName;
+}
+
+std::optional<std::string> Config::getSensorMac(const std::string &sensorName)
+{
+    auto result
+        = std::find_if(m_sensorsMap.begin(), m_sensorsMap.end(),
+                       [&sensorName](const auto &item) { return item.second == sensorName; });
+
+    if (result != m_sensorsMap.end()) return result->first;
+
+    return std::nullopt;
 }
 
 uint8_t Config::getSensorUpdatePeriodMins() const

@@ -3,6 +3,9 @@
 #include <ArduinoJson.h>
 #include <SD.h>
 
+#include <algorithm>
+#include <numeric>
+
 #include "ArduinoJson/Document/StaticJsonDocument.hpp"
 #include "ArduinoJson/Json/JsonSerializer.hpp"
 #include "RaiiFile.hpp"
@@ -34,6 +37,52 @@ void App::init()
         },
         m_config.getSensorUpdatePeriodMins());
 
+    auto getSensorNames = [this]
+    {
+        auto &readings = m_readings.getReadingBuffers();
+        std::string sensors = "[";
+
+        bool first = true;
+        for (const auto &[macAddr, readingsBuffer] : readings)
+        {
+            auto sensorName = m_config.getSensorName(macAddr.str()).value_or(macAddr.str());
+
+            if (first)
+            {
+                sensors += "\"" + sensorName + "\"";
+            }
+            else
+            {
+                sensors += ",\"" + sensorName + "\"";
+            }
+        }
+        sensors += ']';
+
+        return sensors;
+    };
+
+    auto getSensorData = [this](const std::string &sensorName)
+    {
+        auto strmac = m_config.getSensorMac(sensorName);
+        if (!strmac)
+        {
+            return std::string{"[]"};
+        }
+
+        auto macAddr = MacAddr::strToMac(strmac.value());
+        auto readingsJson = m_readings.getReadingsAsJsonArr(macAddr, sensorName);
+
+        logger::logInf("Sensor to download: %s, %s, %s", sensorName, strmac.value(), macAddr.str());
+        auto &currentReadings = m_readings.getReadingBuffers();
+        for (const auto &[macAddr, readingsBuffer] : currentReadings)
+        {
+            auto sensName = m_config.getSensorName(macAddr.str()).value_or("dupa");
+            logger::logInf("XXXXX: %s, %s, %s", sensName, macAddr.str(), m_readings.getReadingsAsJsonArr(macAddr, sensName));
+        }
+
+        return readingsJson;
+    };
+
     m_web->startServer(
         [this]
         {
@@ -45,7 +94,8 @@ void App::init()
                 auto readingsJson = m_readings.getReadingsAsJsonArr(macAddr, sensorName);
                 m_web->sendEvent(readingsJson.c_str(), "readingsCollection", millis());
             }
-        });
+        },
+        getSensorNames, getSensorData);
 }
 
 void App::update()

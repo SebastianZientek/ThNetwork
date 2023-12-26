@@ -17,6 +17,15 @@ std::array<uint8_t, MacAddr::macAddrDigits> &MacAddr::arr()
     return addrData;
 }
 
+MacAddr MacAddr::strToMac(const std::string &str)
+{
+    MacAddr mac;
+    std::sscanf(str.c_str(), "%x:%x:%x:%x:%x:%x", &mac.data()[0], &mac.data()[1], &mac.data()[2],
+                &mac.data()[3], &mac.data()[4], &mac.data()[5]);
+
+    return mac;
+}
+
 const uint8_t *MacAddr::data() const
 {
     return addrData.data();
