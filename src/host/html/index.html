@@ -25,100 +25,63 @@
 
         .content {
             margin: auto;
-            width: 60%;
+            width: 80%;
             padding: 10px;
         }
 
-        .sensors_tb {
-            border-collapse: collapse;
-            border-color: #93a1a1;
-            border-spacing: 0;
-            width: 100%;
-        }
-
-        .sensors_tb td {
-            background-color: #fdf6e3;
-            border-color: #93a1a1;
-            border-style: solid;
-            border-width: 0px;
-            color: #002b36;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            overflow: hidden;
-            padding: 10px 5px;
-            word-break: normal;
-        }
-
-        .sensors_tb th {
-            background-color: #263453;
-            border-color: #2e3a55;
-            border-style: solid;
-            border-width: 0px;
-            color: #fdf6e3;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            font-weight: normal;
-            overflow: hidden;
-            padding: 10px 5px;
-            word-break: normal;
-        }
-
-        .sensors_tb .sensors_tb-0pky {
-            border-color: inherit;
-            text-align: left;
-            vertical-align: top
-        }
-
-        .sensors_tb tr {
-            border-bottom: 1px solid #93a1a1
+        .chart {
+            border: 1px #333 solid;
         }
     </style>
+    <script type="text/javascript" src="microChart.js"> </script>
 </head>
 
 <body>
 
     <div class="main_bar">T/H monitor</div>
     <div class="content">
-
-        <table id="sensorsTable" class="sensors_tb">
-            <thead>
-                <tr>
-                    <th class="sensors_tb-0lax">Sensor</th>
-                    <th class="sensors_tb-0lax">Temperature</th>
-                    <th class="sensors_tb-0lax">Humidity</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table>
+        <div height="400px">
+            <canvas class="chart" id="temperatureCanvas" width="100%" height="400px"></canvas>
+        </div>
+        <div height="400px">
+            <canvas class="chart" id="humidityCanvas" width="100%" height="400px"></canvas>
+        </div>
     </div>
 
-    <script>
-        function addSensorRow(id, name) {
-            console.log("addSensorRow");
-            var table = document.getElementById("sensorsTable");
-            var row = table.insertRow();
-            var cellSensor = row.insertCell(0);
-            var cellTemperature = row.insertCell(1);
-            var cellHumidity = row.insertCell(2);
+    <script type="application/javascript">
+        const MAX_ARR_ELEMS = 220; // Should be send as configuration by server
+        var gData = {}
 
-            row.id = id;
-            cellSensor.innerHTML = name;
+        const temperatureCanvas = document.getElementById("temperatureCanvas");
+        const temperatureChart = new MicroChart(temperatureCanvas, "Temperature");
 
-            return row;
+        const humidityCanvas = document.getElementById("humidityCanvas");
+        const humidityChart = new MicroChart(humidityCanvas, "Humidity");
+
+        window.addEventListener('load', function () {
+            drawData(gData, temperatureChart, 0, 1);
+            drawData(gData, humidityChart, 0, 2);
+        })
+
+        window.addEventListener('resize', function () {
+            drawData(gData, temperatureChart, 0, 1);
+            drawData(gData, humidityChart, 0, 2);
+        })
+
+        function setSensorData(data) {
+            const sensor = data["sensor"];
+            const values = data["data"];
+
+            gData[sensor] = gData[sensor] || [];
+            gData[sensor] = values;
         }
 
-        function setSensorValue(id, name, temperature, humidity) {
-            var sensorRow = document.getElementById(id);
-            if (!sensorRow) {
-                row = addSensorRow(id, name);
-            }
-            var cells = row.cells;
-            var cellTemperature = cells[1];
-            var cellHumidity = cells[2];
+        function addSensorData(data) {
+            const sensor = data[0];
+            const values = data.slice(1);
 
-            cellTemperature.innerHTML = temperature;
-            cellHumidity.innerHTML = humidity;
+            gData[sensor] = gData[sensor] || [];
+            gData[sensor].push(values);
         }
 
         if (!!window.EventSource) {
@@ -127,28 +90,76 @@
             source.addEventListener('open', function (e) {
                 console.log("Connected");
             }, false);
+
             source.addEventListener('error', function (e) {
                 if (e.target.readyState != EventSource.OPEN) {
                     console.log("Disconnected");
                 }
             }, false);
 
-            source.addEventListener('message', function (e) {
-                console.log("message", e.data);
-            }, false);
+            function cleanupData(data) {
+                for (const [sensor, values] of Object.entries(data)) {
+                    values.sort((a, b) => a[0] - b[0]);
+                    let elemsToRemove = values.length - MAX_ARR_ELEMS;
+                    if (elemsToRemove > 0)
+                    {
+                        data[sensor] = values.slice(elemsToRemove);
+                    }
+                    
+                    const secInDay = 24 * 60 * 60;
+                    const currentEpoch = Math.round(Date.now() / 1000);
+                    const dayBeforeEpoch = currentEpoch - secInDay;
+
+                    data[sensor] = data[sensor].filter((val) => val[0] > dayBeforeEpoch);
+                }
+            }
+
+            function drawData(data, chart, xValIndex, yValIndex) {
+                const secInDay = 24 * 60 * 60;
+                const thirtyMinutes = 30 * 60;
+
+                const currentEpoch = Math.round(Date.now() / 1000);
+                const dayBeforeEpoch = currentEpoch - secInDay;
+                const thirtyMinBefore = currentEpoch - thirtyMinutes
+
+                // function minMax(data, index) {
+                //     const dt = data.map((node) => node[index]);
+                //     return {
+                //         "min": Math.min(...dt),
+                //         "max": Math.max(...dt),
+                //     }
+                // }
+
+                // function clamp(val, min, max) {
+                //     return Math.min(Math.max(val, min), max);
+                // }
+
+                // const dataTimeRange = minMax(data, 0);
+                // const beginEpoch = clamp(dataTimeRange.min, dayBeforeEpoch, thirtyMinBefore);
+                const beginEpoch = currentEpoch - secInDay / 12;
+                const endEpoch = currentEpoch;
+
+                chart.draw(data, yValIndex);
+            }
 
             source.addEventListener('newReading', function (e) {
                 console.log("newReading", e.data);
-                var reading = JSON.parse(e.data);
+                const reading = JSON.parse(e.data);
 
-                const [name, epoch, temperature, humidity] = reading;
-                const id = name; // TODO: instead of name, there should be unique ID implemented
-
-                setSensorValue(id, name, temperature, humidity);
+                addSensorData(reading);
+                cleanupData(gData);
+                drawData(gData, temperatureChart, 0, 1);
+                drawData(gData, humidityChart, 0, 2);
             }, false);
 
             source.addEventListener('readingsCollection', function (e) {
-                console.log("readingsCollection", JSON.parse(e.data));
+                const readings = JSON.parse(e.data);
+                console.log("readingsCollection", readings);
+
+                setSensorData(readings);
+                cleanupData(gData);
+                drawData(gData, temperatureChart, 0, 1);
+                drawData(gData, humidityChart, 0, 2);
             }, false);
         }
     </script>

@@ -20,6 +20,7 @@ void WebView::sendEvent(const char *message,
                         uint32_t identifier,
                         uint32_t reconnect)
 {
+    logger::logInf("Send event %s, %lu", event, identifier);
     m_events.send(message, event, identifier, reconnect);
 }
 
@@ -35,17 +36,30 @@ void WebView::startServer(const NewClientCb &newClientCb)
                 [this](AsyncWebServerRequest *request)
                 { request->send_P(200, "application/javascript", gMicroChartData); });
 
-    m_events.onConnect(
-        [this](AsyncEventSourceClient *client)
-        {
-            logger::logInf("Client connected");
-            if (client->lastId())
+    m_server
+        .on("/sensorNames", HTTP_GET,
+            [this](AsyncWebServerRequest *request)
             {
-                logger::logInf("Client reconnected, last ID: %u\n", client->lastId());
-            }
-            client->send("init", NULL, millis(), 10000);
-            m_newClientCb();
-        });
+                int params = request->params();
+                for (int i = 0; i < params; i++)
+                {
+                    AsyncWebParameter *p = request->getParam(i);
+                    logger::logInf("GET[%s]: %s\n", p->name().c_str(), p->value().c_str());
+                }
+                request->send_P(200, "application/json", "{}");
+            });
+
+            m_events.onConnect(
+                [this](AsyncEventSourceClient *client)
+                {
+                    logger::logInf("Client connected");
+                    if (client->lastId())
+                    {
+                        logger::logInf("Client reconnected, last ID: %u\n", client->lastId());
+                    }
+                    client->send("init", NULL, millis(), 10000);
+                    m_newClientCb();
+                });
     m_server.addHandler(&m_events);
     m_server.begin();
 }

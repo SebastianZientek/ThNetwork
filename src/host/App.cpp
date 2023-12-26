@@ -45,13 +45,6 @@ void App::init()
                 auto readingsJson = m_readings.getReadingsAsJsonArr(macAddr, sensorName);
                 m_web->sendEvent(readingsJson.c_str(), "readingsCollection", millis());
             }
-
-            for (const auto &[macAddr, readingsBuffer] : currentReadings)
-            {
-                auto sensorName = m_config.getSensorName(macAddr.str()).value_or(macAddr.str());
-                auto currentReading = m_readings.lastReading(macAddr, sensorName);
-                m_web->sendEvent(currentReading.c_str(), "newReading", millis());
-            }
         });
 }
 
