@@ -72,8 +72,7 @@ bool Config::load(const std::string &data)
         {
             std::string key = keyValue.key().c_str();
             std::string value = keyValue.value();
-            // HACK
-            if (key == "44:17:93:0e:46:26") m_sensorsMap[key] = std::string(value);
+            m_sensorsMap[key] = std::string(value);
 
             logger::logInf("sensor: %s -> %s", key, value);
         }

@@ -101,11 +101,10 @@
                 for (const [sensor, values] of Object.entries(data)) {
                     values.sort((a, b) => a[0] - b[0]);
                     let elemsToRemove = values.length - MAX_ARR_ELEMS;
-                    if (elemsToRemove > 0)
-                    {
+                    if (elemsToRemove > 0) {
                         data[sensor] = values.slice(elemsToRemove);
                     }
-                    
+
                     const secInDay = 24 * 60 * 60;
                     const currentEpoch = Math.round(Date.now() / 1000);
                     const dayBeforeEpoch = currentEpoch - secInDay;
@@ -152,16 +151,38 @@
                 drawData(gData, humidityChart, 0, 2);
             }, false);
 
-            source.addEventListener('readingsCollection', function (e) {
-                const readings = JSON.parse(e.data);
-                console.log("readingsCollection", readings);
+            // source.addEventListener('readingsCollection', function (e) {
+            //     const readings = JSON.parse(e.data);
+            //     console.log("readingsCollection", readings);
 
-                setSensorData(readings);
+            //     setSensorData(readings);
+            //     cleanupData(gData);
+            //     drawData(gData, temperatureChart, 0, 1);
+            //     drawData(gData, humidityChart, 0, 2);
+            // }, false);
+        }
+
+        async function initialFetchSensorsData() {
+            const response = await fetch("sensorNames");
+            const sensors = await response.json();
+
+            for (const sensor of sensors) {
+                const dataResponse = await fetch('sensorData?' + new URLSearchParams({
+                    sensor: sensor
+                }))
+
+                const data = await dataResponse.json()
+                console.log("Data: ", data);
+
+                setSensorData(data);
                 cleanupData(gData);
                 drawData(gData, temperatureChart, 0, 1);
                 drawData(gData, humidityChart, 0, 2);
-            }, false);
+            }
         }
+
+        initialFetchSensorsData();
+
     </script>
 </body>
 
