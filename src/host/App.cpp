@@ -76,7 +76,7 @@ void App::init()
         auto &currentReadings = m_readings.getReadingBuffers();
         for (const auto &[macAddr, readingsBuffer] : currentReadings)
         {
-            auto sensName = m_config.getSensorName(macAddr.str()).value_or("dupa");
+            auto sensName = m_config.getSensorName(macAddr.str()).value_or("Unnamed");
         }
 
         return readingsJson;
