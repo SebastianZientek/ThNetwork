@@ -7,9 +7,8 @@
 
 class WebView
 {
-    using NewClientCb = std::function<void()>;
     using GetSensorNamesCb = std::function<std::string()>;
-    using GetSensorDataCb = std::function<std::string(const std::string&)>;
+    using GetSensorDataCb = std::function<std::string(const std::string &)>;
 
 public:
     WebView(int port);
@@ -20,15 +19,13 @@ public:
                    uint32_t reconnect = 0);
 
     void startServer(
-        const NewClientCb &newClientCb = [] {},
         const GetSensorNamesCb &getSensorNamesCb = [] { return ""; },
-        const GetSensorDataCb &getSensorDataCb = [](const std::string&) { return ""; });
+        const GetSensorDataCb &getSensorDataCb = [](const std::string &) { return ""; });
 
 private:
     std::string m_htmlData;
     AsyncWebServer m_server;
     AsyncEventSource m_events;
-    NewClientCb m_newClientCb;
     GetSensorNamesCb m_getSensorNamesCb;
     GetSensorDataCb m_getSensorDataCb;
 };

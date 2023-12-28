@@ -77,25 +77,12 @@ void App::init()
         for (const auto &[macAddr, readingsBuffer] : currentReadings)
         {
             auto sensName = m_config.getSensorName(macAddr.str()).value_or("dupa");
-            logger::logInf("XXXXX: %s, %s, %s", sensName, macAddr.str(), m_readings.getReadingsAsJsonArr(macAddr, sensName));
         }
 
         return readingsJson;
     };
 
-    m_web->startServer(
-        [this]
-        {
-            auto &currentReadings = m_readings.getReadingBuffers();
-
-            for (const auto &[macAddr, readingsBuffer] : currentReadings)
-            {
-                auto sensorName = m_config.getSensorName(macAddr.str()).value_or(macAddr.str());
-                auto readingsJson = m_readings.getReadingsAsJsonArr(macAddr, sensorName);
-                m_web->sendEvent(readingsJson.c_str(), "readingsCollection", millis());
-            }
-        },
-        getSensorNames, getSensorData);
+    m_web->startServer(getSensorNames, getSensorData);
 }
 
 void App::update()

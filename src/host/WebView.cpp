@@ -11,7 +11,6 @@ WebView::WebView(int port)
     : m_htmlData{}
     , m_server(port)
     , m_events("/events")
-    , m_newClientCb()
 {
 }
 
@@ -24,11 +23,9 @@ void WebView::sendEvent(const char *message,
     m_events.send(message, event, identifier, reconnect);
 }
 
-void WebView::startServer(const NewClientCb &newClientCb,
-                          const GetSensorNamesCb &getSensorNamesCb,
+void WebView::startServer(const GetSensorNamesCb &getSensorNamesCb,
                           const GetSensorDataCb &getSensorDataCb)
 {
-    m_newClientCb = newClientCb;
     m_getSensorNamesCb = getSensorNamesCb;
     m_getSensorDataCb = getSensorDataCb;
 
@@ -73,7 +70,6 @@ void WebView::startServer(const NewClientCb &newClientCb,
                 logger::logInf("Client reconnected, last ID: %u\n", client->lastId());
             }
             client->send("init", NULL, millis(), 10000);
-            m_newClientCb();
         });
     m_server.addHandler(&m_events);
     m_server.begin();
