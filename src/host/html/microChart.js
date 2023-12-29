@@ -1,43 +1,139 @@
-class DayChart {
-    axeWidth = 2;
-    axeColor = "#222";
+class MicroChart {
+    axeWidth = 1;
+    axeColor = "#999";
     gridWidth = 0.3;
-    gridColor = "#555";
-    lineWidth = 1;
+    gridColor = "#999";
+    lineWidth = 2;
+    legendTxtColor = "#DDD"
 
-    #leftMargin = 80;
-    #rightMargin = 10
-    #topMargin = 15;
-    #bottomMargin = 100;
-
-    #bottom = 0;
-    #right = 0;
+    #leftMargin;
+    #rightMargin;
+    #topMargin;
+    #bottomMargin;
+    #bottom;
+    #right;
 
     #canvas;
     #ctx;
+    #title;
 
-    constructor(canvas) {
+    constructor(canvas, title = "unnamed") {
         this.#canvas = canvas;
         this.#ctx = canvas.getContext("2d");
+        this.#title = title;
 
+        this.#setSizes();
+    }
+
+    #setSizes() {
+        this.#ctx = this.#canvas.getContext("2d");
+
+        this.#leftMargin = 80;
+        this.#rightMargin = 180;
+        this.#topMargin = 70;
+        this.#bottomMargin = 50;
         this.#bottom = this.#canvas.height - this.#bottomMargin
         this.#right = this.#canvas.width - this.#rightMargin;
     }
 
-    draw(data, begin, end, valueIndex) {
+    draw(data, yValuesIndex) {
+        const xValuesIndex = 0;
+        this.#canvas.style.width = '100%';
+        this.#canvas.width = this.#canvas.clientWidth;
+
+        this.#canvas.style.height = '100%';
+        this.#canvas.height = this.#canvas.clientHeight;
+
+        this.#setSizes();
         this.#clearChart();
         this.#drawFrame();
 
-        let valRange = this.#minMaxExpanded(data, valueIndex, 0.1);
-        this.#plotData(data, begin, end, valueIndex, valRange);
-        this.#drawLegendY(data, valueIndex, valRange);
-        this.#drawLegendX(begin, end);
+        let yMinMax = this.#calcCommonMinMax(data, yValuesIndex);
+        let yRange = this.#expandRange(yMinMax, 0.2);
+        let xRange = this.#calcCommonMinMax(data, xValuesIndex);
+
+        xRange.min = Math.min(xRange.max - 1200, xRange.min); // Minimum is 20min range
+
+        for (const [sensor, values] of Object.entries(data)) {
+            this.#plotData(values, xRange, yRange, yValuesIndex, this.#toRGB(sensor));
+        }
+
+        this.#drawLegendY(yRange);
+        this.#drawLegendX(xRange);
+        this.#drawLegendNames(data, yValuesIndex);
+        this.#drawTitle()
+    }
+
+    #calcCommonMinMax(data, index) {
+        let mins = [];
+        let maxes = [];
+        for (const [sensor, values] of Object.entries(data)) {
+            let [min, max] = this.#minMax(values, index);
+            mins.push(min);
+            maxes.push(max);
+        }
+
+        return { "min": Math.min(...mins), "max": Math.max(...maxes) };
+    }
+
+    #toRGB(str) {
+        var hash = 0;
+        if (str.length === 0) return hash;
+        for (var i = 0; i < str.length; i++) {
+            hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            hash = hash & hash;
+        }
+        var rgb = [0, 0, 0];
+        for (var i = 0; i < 3; i++) {
+            var value = (hash >> (i * 8)) & 150;
+            rgb[i] = value;
+        }
+        return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+    }
+
+    #expandRange(range, expandFactor) {
+        let exRange = {
+            ...range
+        }
+        const valuesSpan = range.max - range.min;
+        exRange.min -= valuesSpan * expandFactor;
+        exRange.max += valuesSpan * expandFactor;
+
+        exRange.min = Math.floor(exRange.min) - 1; // HACK
+        exRange.max = Math.ceil( exRange.max) + 1; // HACK
+
+        return exRange;
+    }
+
+    #drawLegendNames(data, valuesIndex) {
+        let step = 0;
+        for (const [sensor, values] of Object.entries(data)) {
+            const top = this.#topMargin + 10;
+            const y = top + (15 * step)
+
+            let sensorName = sensor;
+            if (sensorName.length > 15) {
+                sensorName = sensorName.slice(0, 15) + "...";
+            }
+
+            let lastVal = values[values.length - 1][valuesIndex];
+            let text = "[" + lastVal + "] " + sensorName;
+
+            this.#ctx.fillStyle = this.#toRGB(sensor);
+            this.#ctx.fillRect(this.#right + 10, y - 5, 10, 10);
+            this.#drawText(text, this.#right + 25, y, this.legendTxtColor, "left")
+            step++;
+        }
+    }
+
+    #drawTitle() {
+        this.#drawText(this.#title, this.#canvas.width / 2, 30, this.legendTxtColor, "center", "12pt sans");
     }
 
     #clearChart() {
-        this.#ctx.fillStyle = "#999"
-        this.#ctx.clearRect(0, 0, canvas.width, canvas.height);
-        this.#ctx.fillRect(0, 0, canvas.width, canvas.height);
+        this.#ctx.fillStyle = "#171a1e"
+        this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+        this.#ctx.fillRect(0, 0, this.#canvas.width, this.#canvas.height);
     }
 
     #mapValueToTarget(value, srcMin, srcMax, tarMin, tarMax) {
@@ -54,16 +150,17 @@ class DayChart {
         return this.#mapValueToTarget(value, min, max, this.#bottom, this.#topMargin);
     }
 
-    #plotData(data, begin, end, valueIndex, valRange) {
-        this.#ctx.strokeStyle = "red";
+    #plotData(data, xRange, valRange, yValuesIndex, color) {
+        const xValuesIndex = 0;
+        this.#ctx.strokeStyle = color;
         this.#ctx.lineWidth = this.lineWidth;
         this.#ctx.beginPath();
 
         for (const [i, entry] of data.entries()) {
-            let epoch = entry[1];
-            let value = entry[valueIndex];
+            let epoch = entry[xValuesIndex];
+            let value = entry[yValuesIndex];
 
-            let x = this.#mapToAxisX(epoch, begin, end);
+            let x = this.#mapToAxisX(epoch, xRange.min, xRange.max);
             let y = this.#mapToAxisY(value, valRange.min, valRange.max);
             if (i == 0) {
                 this.#ctx.moveTo(x, y);
@@ -98,7 +195,7 @@ class DayChart {
         const posX = this.#leftMargin - 30;
 
         this.#drawHLineOnChart(posY, this.gridColor, this.gridWidth);
-        this.#drawText(value.toFixed(2), posX, posY);
+        this.#drawText(value.toFixed(2), posX, posY, this.legendTxtColor);
     }
 
     #drawFrame() {
@@ -108,18 +205,22 @@ class DayChart {
         this.#drawHLineOnChart(this.#topMargin, this.axeColor, this.axeWidth);
     }
 
-    #drawText(text, x, y, style = "#000") {
+    #drawText(text, x, y, style = "#000", textAlign = "center", font = "9pt sans") {
         this.#ctx.fillStyle = style;
-        this.#ctx.textAlign = "center";
+        this.#ctx.textAlign = textAlign;
         this.#ctx.textBaseline = "middle"
-        this.#ctx.font = "9pt sans";
+        this.#ctx.font = font;
         this.#ctx.fillText(text, x, y);
     }
 
-    #drawLegendY(data, valueIndex, valRange) {
-        const rangeCenter = (valRange.min + valRange.max) / 2;
-        const valuesSpan = valRange.max - valRange.min;
+    #drawLegendY(valRange) {
+        let rangeCenter = (valRange.min + valRange.max) / 2;
+        rangeCenter = Math.round(rangeCenter);
+
+        let valuesSpan = valRange.max - valRange.min;
         let pivot = 0;
+
+        if (valuesSpan == 0) valuesSpan = 1;
 
         if (valRange.min < 0 && valRange.max > 0) {
             pivot = 0;
@@ -128,10 +229,22 @@ class DayChart {
             pivot = rangeCenter;
         }
 
-        // this.#drawHLineWithValue(valRange.max, valRange);
+        this.#drawHLineWithValue(valRange.max, valRange);
         this.#drawHLineWithValue(pivot, valRange);
+        this.#drawHLineWithValue(valRange.min, valRange);
 
         let step = valuesSpan / 8;
+        let rounding = 0.5
+        step = Math.round(step / rounding) * rounding;
+        for (; step == 0; rounding /= 2) {
+            step = Math.round(step / rounding) * rounding;
+        }
+
+        if (step == 0) {
+            console.log("Too small step, set to 0.5");
+            step = 0.5;
+        }
+
         let currentValue = pivot;
         while (currentValue + step < valRange.max) {
             currentValue += step;
@@ -154,41 +267,28 @@ class DayChart {
         return h + ":" + m;
     }
 
-    #drawLegendX(begin, end) {
+    #drawLegendX(xRange) {
         const minPixelsPerTimestamp = 50;
         const fiveMinutesInSec = 300;
-        const minTimeToPresent = this.#mapValueToTarget(this.#leftMargin + minPixelsPerTimestamp, this.#leftMargin, this.#right, begin, end) - begin;
+        const minTimeToPresent = this.#mapValueToTarget(this.#leftMargin + minPixelsPerTimestamp, this.#leftMargin, this.#right, xRange.min, xRange.max) - xRange.min;
 
         const stepFactor = Math.ceil(minTimeToPresent / fiveMinutesInSec);
         const step = stepFactor * fiveMinutesInSec;
 
-        const epochFactor = Math.ceil(begin / fiveMinutesInSec);
+        const epochFactor = Math.ceil(xRange.min / fiveMinutesInSec);
         const startEpoch = epochFactor * fiveMinutesInSec;
 
         const posY = this.#bottom + 15;
-        for (let epoch = startEpoch; epoch < end; epoch += step) {
-            const x = this.#mapToAxisX(epoch, begin, end);
+        for (let epoch = startEpoch; epoch < xRange.max; epoch += step) {
+            const x = this.#mapToAxisX(epoch, xRange.min, xRange.max);
             const timeString = this.#epochToString(epoch);
-            this.#drawText(timeString, x, posY, "black");
+            this.#drawText(timeString, x, posY, this.legendTxtColor);
             this.#drawVLineOnChart(x, this.gridColor, this.gridWidth);
         }
     }
 
     #minMax(data, index) {
         const dt = data.map((node) => node[index]);
-        return {
-            "min": Math.min(...dt),
-            "max": Math.max(...dt),
-        }
-    }
-
-    #minMaxExpanded(data, valueIndex, expandFactor = 0.1) {
-        const minMax = this.#minMax(data, valueIndex);
-        const valuesSpan = minMax.max - minMax.min;
-        let expanMinMax = minMax;
-        expanMinMax.min -= valuesSpan * expandFactor;
-        expanMinMax.max += valuesSpan * expandFactor;
-
-        return expanMinMax;
+        return [Math.min(...dt), Math.max(...dt)]
     }
 };

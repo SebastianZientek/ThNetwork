@@ -5,6 +5,7 @@
 #include <map>
 #include <optional>
 #include <string>
+#include "common/MacAddr.hpp"
 
 class Config
 {
@@ -16,6 +17,7 @@ public:
     [[nodiscard]] std::string getWifiPass() const;
     std::map<std::string, std::string> &getSensorsMap();
     std::optional<std::string> getSensorName(const std::string &mac);
+    std::optional<std::string> getSensorMac(const std::string& sensorName);
     [[nodiscard]] uint8_t getSensorUpdatePeriodMins() const;
     [[nodiscard]] int getServerPort() const;
 

@@ -131,6 +131,17 @@ std::optional<std::string> Config::getSensorName(const std::string &mac)
     return sensorName;
 }
 
+std::optional<std::string> Config::getSensorMac(const std::string &sensorName)
+{
+    auto result
+        = std::find_if(m_sensorsMap.begin(), m_sensorsMap.end(),
+                       [&sensorName](const auto &item) { return item.second == sensorName; });
+
+    if (result != m_sensorsMap.end()) return result->first;
+
+    return std::nullopt;
+}
+
 uint8_t Config::getSensorUpdatePeriodMins() const
 {
     return m_sensorUpdatePeriodMins;

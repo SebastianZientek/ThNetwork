@@ -1,6 +1,7 @@
 #include "MacAddr.hpp"
 
 #include <cstring>
+#include <functional>
 
 bool operator<(const MacAddr &lhs, const MacAddr &rhs)
 {
@@ -15,6 +16,15 @@ bool operator==(const MacAddr &lhs, const MacAddr &rhs)
 std::array<uint8_t, MacAddr::macAddrDigits> &MacAddr::arr()
 {
     return addrData;
+}
+
+MacAddr MacAddr::strToMac(const std::string &str)
+{
+    MacAddr mac;
+    std::sscanf(str.c_str(), "%x:%x:%x:%x:%x:%x", &mac.data()[0], &mac.data()[1], &mac.data()[2],
+                &mac.data()[3], &mac.data()[4], &mac.data()[5]);
+
+    return mac;
 }
 
 const uint8_t *MacAddr::data() const
@@ -35,4 +45,9 @@ std::string MacAddr::str() const
              addrData[0],                                                       // NOLINT
              addrData[1], addrData[2], addrData[3], addrData[4], addrData[5]);  // NOLINT
     return macCStr.data();
+}
+
+size_t MacAddr::uuid() const
+{
+    return std::hash<std::string>{}(str());
 }
