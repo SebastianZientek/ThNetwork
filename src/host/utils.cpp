@@ -3,7 +3,7 @@
 #include <ArduinoJson.h>
 
 #include <ctime>
-
+#include <Crypto.h>
 #include "ArduinoJson/Document/StaticJsonDocument.hpp"
 #include "ArduinoJson/Json/JsonSerializer.hpp"
 
@@ -48,4 +48,25 @@ std::string epochToFormattedDate(unsigned long epochTime)
 
     return buf.data();
 }
+
+std::string getSHA256(std::string data)
+{
+    SHA256 hasher;
+    hasher.doUpdate(data.c_str());
+    std::array<byte, SHA256_SIZE> hash;
+    hasher.doFinal(hash.data());
+
+    std::string shaString(SHA256_SIZE * 2, '-');
+    constexpr char hexes[]
+        = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+    for (size_t i = 0; i < hash.size(); ++i)
+    {
+        shaString[2 * i] = hexes[(hash[i] & 0xF0) >> 4];
+        shaString[2 * i + 1] = hexes[hash[i] & 0x0F];
+    }
+
+    return shaString;
+}
+
 }  // namespace utils

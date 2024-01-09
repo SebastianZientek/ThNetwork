@@ -9,6 +9,7 @@
 #include "EspNow.hpp"
 #include "ReadingsStorage.hpp"
 #include "WebView.hpp"
+#include "ConfStorage.hpp"
 
 class App
 {
@@ -31,6 +32,7 @@ private:
     Status connectWiFi();
     void sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime);
 
+    std::shared_ptr<ConfStorage> m_confStorage{};
     std::unique_ptr<WebView> m_web{};
     WiFiUDP m_ntpUDP{};
     std::shared_ptr<NTPClient> m_timeClient{};

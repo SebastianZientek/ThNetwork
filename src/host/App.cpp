@@ -4,14 +4,16 @@
 #include <SD.h>
 
 #include <algorithm>
+#include <memory>
 #include <numeric>
 
 #include "ArduinoJson/Document/StaticJsonDocument.hpp"
 #include "ArduinoJson/Json/JsonSerializer.hpp"
+#include "ConfStorage.hpp"
 #include "RaiiFile.hpp"
+#include "WebView.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
-#include "host/WebView.hpp"
 #include "utils.hpp"
 
 void App::init()
@@ -34,6 +36,8 @@ void App::init()
 
             auto currentReading = m_readings.lastReading(mac, sensorName);
             m_web->sendEvent(currentReading.c_str(), "newReading", millis());
+        },
+        [this](MacAddr macAddr) {
         },
         m_config.getSensorUpdatePeriodMins());
 
@@ -118,7 +122,7 @@ App::Status App::systemInit()
     m_timeClient->update();
 
     m_espNow = std::make_unique<EspNow>(m_timeClient);
-    m_web = std::make_unique<WebView>(m_config.getServerPort());
+    m_web = std::make_unique<WebView>(m_config.getServerPort(), m_confStorage);
 
     return Status::OK;
 }
@@ -141,12 +145,25 @@ App::Status App::initSD()
 
 App::Status App::readConfig()
 {
-    RaiiFile file("/config.json");
-    std::string data = file->readString().c_str();
-    if (!m_config.load(data))
     {
-        logger::logErr("Reading config error");
-        return Status::FAIL;
+        m_confStorage = std::make_shared<ConfStorage>();
+        auto state = m_confStorage->load();
+        // m_confStorage->save();
+        // if (state != ConfStorage::State::OK)
+        // {
+        //     return Status::FAIL;
+        // }
+    }
+
+    // TODO: Obsolete, will be removed while wifimanager will be in use
+    {
+        RaiiFile file(SD, "/config.json");
+        std::string data = file->readString().c_str();
+        if (!m_config.load(data))
+        {
+            logger::logErr("Reading config error");
+            return Status::FAIL;
+        }
     }
     return Status::OK;
 }
@@ -160,7 +177,7 @@ App::Status App::saveExampleConfig()
     else
     {
         logger::logInf("Saving config_example.json");
-        RaiiFile file("/config_example.json", FILE_WRITE);
+        RaiiFile file(SD, "/config_example.json", FILE_WRITE);
         file->print(m_config.getExampleConfig().c_str());
     }
 

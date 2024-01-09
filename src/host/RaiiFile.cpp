@@ -1,13 +1,10 @@
 #include "RaiiFile.hpp"
 
-#include <SD.h>
-#include <SPI.h>
-
 #include "common/logger.hpp"
 
-RaiiFile::RaiiFile(const std::string &path, const char *mode, bool create)
+RaiiFile::RaiiFile(fs::FS filesystem, const std::string &path, const char *mode, bool create)
 {
-    m_file = SD.open(path.c_str(), mode, create);
+    m_file = filesystem.open(path.c_str(), mode, create);
     if (!m_file)
     {
         logger::logErr("Failed to open file for reading");

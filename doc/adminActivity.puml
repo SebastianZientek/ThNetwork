@@ -1,0 +1,87 @@
+@startuml
+partition LoadAdminPage {
+    start
+    :__Browser__: request REST data (sensors info + sensors update time);
+    :__WebView__: get sensors info from ConfStorage;
+    note right: DON'T FORGET ABOUT AUTHORIZATION
+    :__WebView__: sends sensor info to Browser;
+    :__Browser__: show table with mapping of sensor mac -> name;
+    note right: Should be possible to modify name and send by clicking button
+    end
+}
+
+partition ChangeSensorName {
+    start
+    :LoadAdminPage;
+    :__Browser__: Fill new names for sensors;
+    :__Browser__: Click button send;
+    :__Browser__: Send data over POST;
+    :__WebView__: handle request and pass sensors data to ConfStorage;
+    note right: DON'T FORGET ABOUT AUTHORIZATION
+    :__ConfStorage__: save data in SPIFFS;
+    end
+}
+
+partition Pairing {
+    start
+    :__Sensor__: sends pair message;
+
+    if (__Sensor__ is paired) then (yes)
+        :__EspNow__: pair again;
+        :__EspNow__: send config to sensor;
+        end
+    endif
+
+
+    if (Max sensors already paired) then (yes)
+        :__EspNow__: reject pairing;
+        :__EspNow__: blink led to inform that something is wrong;
+    else (no)
+        :__EspNow__: Pair with __Sensor__;
+        :__EspNow__: set new sensor in ConfStorage;
+        :__EspNow__: send config to sensor;
+        :__ConfStorage__: If sensor have no name, it should be named Sensor <NUMBER>;
+    endif
+    end
+}
+
+partition Unpairing {
+    start
+    :LoadAdminPage;
+    :__Browser__: Click button for sensor removal;
+    :__Browser__: send POST with info which sensor is to remove;
+    :__WebView__: handle POST data;
+    note right: DON'T FORGET ABOUT AUTHORIZATION
+    :__WebView__: remove sensor on ConfStorage;
+    :__ConfStorage__: remove sensor and save new data;
+    :__EspNow__: Unpair sensor;
+    note right
+        Is sensor can be repaired from EspNow
+        immediately after pairing? This kind of pairing
+        is used only to send data once to sensor.
+    endnote
+    end
+}
+
+partition ResetToDefaults {
+    start
+    :Push button for 10s:
+    :Release button:
+    :__ConfStorage__: set to defaults;
+    :__EspNow__: Unpair all;
+    :Host: reboot;
+    end
+}
+
+partition PasswdChange {
+    start
+    :LoadAdminPage;
+    :__Browser__: Input old and new passwd + username;
+    :__Browser__: Click send button;
+    :__WebView__: Handle request;
+    note right: DON'T FORGET ABOUT AUTHORIZATION
+    :__ConfStorage__: save new credentials;
+    end
+}
+
+@enduml
