@@ -148,11 +148,6 @@ App::Status App::readConfig()
     {
         m_confStorage = std::make_shared<ConfStorage>();
         auto state = m_confStorage->load();
-        // m_confStorage->save();
-        // if (state != ConfStorage::State::OK)
-        // {
-        //     return Status::FAIL;
-        // }
     }
 
     // TODO: Obsolete, will be removed while wifimanager will be in use
