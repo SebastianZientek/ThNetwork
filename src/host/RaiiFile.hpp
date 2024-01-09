@@ -6,7 +6,7 @@
 class RaiiFile
 {
 public:
-    explicit RaiiFile(const std::string &path, const char *mode = FILE_READ, bool create = false);
+    explicit RaiiFile(fs::FS filesystem, const std::string &path, const char *mode = FILE_READ, bool create = false);
     RaiiFile(const RaiiFile &) = delete;
     RaiiFile(RaiiFile &&) = default;
     RaiiFile &operator=(const RaiiFile &) = delete;
@@ -17,7 +17,7 @@ public:
     {
         return &m_file;
     }
-
 private:
+
     File m_file{};
 };

@@ -15,6 +15,7 @@ class EspNow
 public:
     using NewReadingsCb
         = std::function<void(float temp, float hum, MacAddr mac, unsigned long epochTime)>;
+    using NewPeerCb = std::function<void(MacAddr macAddr)>;
 
     EspNow(std::shared_ptr<NTPClient> ntpClient);
     ~EspNow() = default;
@@ -23,7 +24,7 @@ public:
     EspNow &operator=(const EspNow &) = delete;
     EspNow &operator=(EspNow &&) = delete;
 
-    void init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriodMins);
+    void init(const NewReadingsCb &newReadingsCb, const NewPeerCb &newPeerCb, uint8_t sensorUpdatePeriodMins);
 
 private:
     using OnSendCb = std::function<void(const MacAddr &mac, esp_now_send_status_t status)>;
@@ -34,6 +35,7 @@ private:
     static OnRecvCb m_onRecv;  // NOLINT
 
     NewReadingsCb m_newReadingsCb;
+    NewPeerCb m_newPeerCb;
     std::shared_ptr<NTPClient> m_ntpClient;
     uint8_t m_sensorUpdatePeriodMins;
 

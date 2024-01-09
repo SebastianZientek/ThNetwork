@@ -8,6 +8,7 @@
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
 #include "common/serializer.hpp"
+#include "esp_now.h"
 
 constexpr auto macSize = 6;
 constexpr auto msgSignatureSize = 4;
@@ -22,7 +23,7 @@ EspNow::EspNow(std::shared_ptr<NTPClient> ntpClient)
 {
 }
 
-void EspNow::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriodMins)
+void EspNow::init(const NewReadingsCb &newReadingsCb, const NewPeerCb &newPeerCb, uint8_t sensorUpdatePeriodMins)
 {
     if (esp_now_init() != ESP_OK)
     {
@@ -31,6 +32,7 @@ void EspNow::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriod
     }
 
     m_newReadingsCb = newReadingsCb;
+    m_newPeerCb = newPeerCb;
     m_sensorUpdatePeriodMins = sensorUpdatePeriodMins;
     setOnDataRecvCb();
     setOnDataSendCb();
@@ -51,10 +53,10 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
 
     if (signature != signatureTemplate)
     {
-        std::string str(signature.begin(), signature.end());
-        std::string tstr(signatureTemplate.begin(), signatureTemplate.end());
+        std::string sigStr(signature.begin(), signature.end());
+        std::string templateSigStr(signatureTemplate.begin(), signatureTemplate.end());
         logger::logWrn("Received message with wrong signature");
-        logger::logWrn("%s - %s", str, tstr);
+        logger::logWrn("%s - %s", sigStr, templateSigStr);
         return;
     }
 
@@ -65,6 +67,7 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         logger::logWrn("PAIR_REQ received");
         addPeer(mac, WiFi.channel());
         sendPairOK(mac);
+        esp_now_del_peer(mac.data());
     }
     break;
     case MsgType::PAIR_RESP:
