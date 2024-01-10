@@ -15,3 +15,8 @@ RaiiFile::~RaiiFile()  // NOLINT
 {
     m_file.close();
 }
+
+File *RaiiFile::operator->()
+{
+    return &m_file;
+}

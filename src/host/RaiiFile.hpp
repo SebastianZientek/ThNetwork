@@ -13,10 +13,7 @@ public:
     RaiiFile &operator=(RaiiFile &&) = default;
 
     ~RaiiFile();
-    File *operator->()
-    {
-        return &m_file;
-    }
+    File *operator->();
 private:
 
     File m_file{};
