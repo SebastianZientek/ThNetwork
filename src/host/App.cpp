@@ -122,7 +122,7 @@ App::Status App::systemInit()
     m_timeClient->update();
 
     m_espNow = std::make_unique<EspNow>(m_timeClient);
-    m_web = std::make_unique<WebView>(m_config.getServerPort(), m_confStorage);
+    m_web = std::make_unique<WebView<ConfStorage>>(m_config.getServerPort(), m_confStorage);
 
     return Status::OK;
 }
