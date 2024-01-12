@@ -33,7 +33,7 @@ private:
     void sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime);
 
     std::shared_ptr<ConfStorage> m_confStorage{};
-    std::unique_ptr<WebView> m_web{};
+    std::unique_ptr<WebView<ConfStorage>> m_web{};
     WiFiUDP m_ntpUDP{};
     std::shared_ptr<NTPClient> m_timeClient{};
     std::unique_ptr<EspNow> m_espNow{};
