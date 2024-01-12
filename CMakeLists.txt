@@ -38,7 +38,7 @@ set(INCLS
 )
 
 set(MOCKS
-${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/Arduino.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/Arduino.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpStub.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspAdpStub.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspNowAdpMock.cpp

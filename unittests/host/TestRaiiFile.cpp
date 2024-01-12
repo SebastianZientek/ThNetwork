@@ -11,7 +11,7 @@ mock().clear();
 }
 ;
 
-TEST(RaiiFileTest, XXXXXXXXXXXXXXXXXX)  // NOLINT
+TEST(RaiiFileTest, ShouldCloseFileAfterGoingOutOfTheScope)  // NOLINT
 {
     mock().expectOneCall("FileMock::close");
     auto fileSystem = FileSystemStub{};
