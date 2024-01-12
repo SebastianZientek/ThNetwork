@@ -30,6 +30,7 @@ WebView -[#red]down-> ConfStorage: Gets cred / sensors / config etc.
 
 EspNow -[#red]up-> ReadingsStorage: Stores readings
 EspNow -[#red]up-> ConfStorage: Sets paired devices / checks if can pair
+EspNow -[#red]-> WebView: Notify about new readings
 
 
 note as N1
