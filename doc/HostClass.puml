@@ -1,0 +1,42 @@
+@startuml
+class App
+class ConfStorage
+class EspNow
+class RaiiFile
+class ReadingsStorage
+class RingBuffer
+class WebView
+class WifiManager
+note left
+Provides wifi configuration
+page on AP if there is no wifi
+available.
+<color:red>Possibility to change</color>
+<color:red>network is needed (button to restart</color>
+<color:red>settings or sth).</color>
+end note
+
+App *-down- ConfStorage
+App *-down- ReadingsStorage
+App *-down- EspNow
+App *-down- WebView
+App *-down- WifiManager
+
+ReadingsStorage *-down- RingBuffer
+ConfStorage *-- RaiiFile
+
+WebView -[#red]down-> ReadingsStorage: Gets readings data as JSON
+WebView -[#red]down-> ConfStorage: Gets cred / sensors / config etc.
+
+EspNow -[#red]up-> ReadingsStorage: Stores readings
+EspNow -[#red]up-> ConfStorage: Sets paired devices / checks if can pair
+
+
+note as N1
+Host is not using MacAddr to
+identify transmitters. Instead
+uses only ID of transmitter
+that is std::hash over MacAddr
+(calculated on transmitter side)
+end note
+@enduml
