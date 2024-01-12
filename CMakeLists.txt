@@ -38,6 +38,7 @@ set(INCLS
 )
 
 set(MOCKS
+${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/Arduino.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpStub.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspAdpStub.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspNowAdpMock.cpp
@@ -55,6 +56,7 @@ set(HS_TESTS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRingBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRaiiFile.cpp
 )
 
 set(CM_TESTS
