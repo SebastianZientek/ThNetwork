@@ -22,14 +22,7 @@ public:
     }
 };
 
-SerialStub Serial;  // NOLINT
+extern SerialStub Serial;  // NOLINT
 
-void delay(int time)
-{
-    mock().actualCall("delay").withParameter("time", time);
-}
-
-int millis()
-{
-    return mock().actualCall("millis").returnIntValue();
-}
+void delay(int time);
+int millis();
