@@ -4,12 +4,15 @@
 #include "FileSystemStub.hpp"
 #include "RaiiFile.hpp"
 
+// clang-format off
 TEST_GROUP(RaiiFileTest)  // NOLINT
-{void teardown() override{mock().checkExpectations();
-mock().clear();
-}
-}
-;
+{   
+    void teardown() override{
+        mock().checkExpectations();
+        mock().clear();
+    }
+};
+// clang-format on
 
 TEST(RaiiFileTest, ShouldCloseFileAfterGoingOutOfTheScope)  // NOLINT
 {
