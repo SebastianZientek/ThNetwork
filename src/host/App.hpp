@@ -40,5 +40,5 @@ private:
     std::shared_ptr<NTPClient> m_timeClient{};
     std::unique_ptr<EspNow> m_espNow{};
     Config m_config{};
-    ReadingsStorage m_readings{};
+    ReadingsStorage m_readingsStorage{};
 };
