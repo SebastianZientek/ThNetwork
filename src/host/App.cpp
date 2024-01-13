@@ -37,9 +37,7 @@ void App::init()
             auto currentReading = m_readings.lastReading(mac, sensorName);
             m_web->sendEvent(currentReading.c_str(), "newReading", millis());
         },
-        [this](MacAddr macAddr) {
-        },
-        m_config.getSensorUpdatePeriodMins());
+        [this](MacAddr macAddr) {}, m_config.getSensorUpdatePeriodMins());
 
     auto getSensorNames = [this]
     {
@@ -122,7 +120,8 @@ App::Status App::systemInit()
     m_timeClient->update();
 
     m_espNow = std::make_unique<EspNow>(m_timeClient);
-    m_web = std::make_unique<WebView<ConfStorage>>(m_config.getServerPort(), m_confStorage);
+    m_web = std::make_unique<WebViewType>(
+        m_config.getServerPort(), m_confStorage);
 
     return Status::OK;
 }
