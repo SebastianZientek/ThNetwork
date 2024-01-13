@@ -17,7 +17,7 @@ extern "C"
     extern const unsigned int gFaviconSize;
 }
 
-template <typename ConfStorageType>
+template <typename ConfStorageType, typename AsyncWebServerType, typename AsyncEventSourceType>
 class WebView
 {
     using GetSensorNamesCb = std::function<std::string()>;
@@ -40,28 +40,26 @@ public:
                      const GetSensorDataCb &getSensorDataCb);
 
 private:
-    AsyncWebServer m_server;
-    AsyncEventSource m_events;
+    AsyncWebServerType m_server;
+    AsyncEventSourceType m_events;
     std::shared_ptr<ConfStorageType> m_confStorage;
 
     GetSensorNamesCb m_getSensorNamesCb;
     GetSensorDataCb m_getSensorDataCb;
 };
 
-template <typename ConfStorageType>
-void WebView<ConfStorageType>::sendEvent(const char *message,
-                                         const char *event,
-                                         uint32_t identifier,
-                                         uint32_t reconnect)
+template <typename ConfStorageType, typename AsyncWebServerType, typename AsyncEventSourceType>
+void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::sendEvent(
+    const char *message, const char *event, uint32_t identifier, uint32_t reconnect)
 
 {
     logger::logInf("Send event %s, %lu", event, identifier);
     m_events.send(message, event, identifier, reconnect);
 }
 
-template <typename ConfStorageType>
-void WebView<ConfStorageType>::startServer(const GetSensorNamesCb &getSensorNamesCb,
-                                           const GetSensorDataCb &getSensorDataCb)
+template <typename ConfStorageType, typename AsyncWebServerType, typename AsyncEventSourceType>
+void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startServer(
+    const GetSensorNamesCb &getSensorNamesCb, const GetSensorDataCb &getSensorDataCb)
 {
     m_getSensorNamesCb = getSensorNamesCb;
     m_getSensorDataCb = getSensorDataCb;

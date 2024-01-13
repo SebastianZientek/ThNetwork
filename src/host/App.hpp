@@ -5,11 +5,11 @@
 
 #include <memory>
 
+#include "ConfStorage.hpp"
 #include "Config.hpp"
 #include "EspNow.hpp"
 #include "ReadingsStorage.hpp"
 #include "WebView.hpp"
-#include "ConfStorage.hpp"
 
 class App
 {
@@ -18,6 +18,8 @@ class App
         OK,
         FAIL
     };
+
+    using WebViewType = WebView<ConfStorage, AsyncWebServer, AsyncEventSource>;
 
 public:
     App() = default;
@@ -33,7 +35,7 @@ private:
     void sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime);
 
     std::shared_ptr<ConfStorage> m_confStorage{};
-    std::unique_ptr<WebView<ConfStorage>> m_web{};
+    std::unique_ptr<WebViewType> m_web{};
     WiFiUDP m_ntpUDP{};
     std::shared_ptr<NTPClient> m_timeClient{};
     std::unique_ptr<EspNow> m_espNow{};
