@@ -147,11 +147,11 @@ std::optional<config::TransmitterConfig> EspNow::pair()
     return std::nullopt;
 }
 
-void EspNow::sendDataToHost(MacAddr mac, float temperature, float humidity)
+void EspNow::sendDataToHost(std::size_t ID, MacAddr mac, float temperature, float humidity)
 {
     logger::logInf("Send data to %s", mac.str());
 
-    auto sDataMsg = SensorDataMsg::create(mac.toUniqueID(), temperature, humidity);
+    auto sDataMsg = SensorDataMsg::create(ID, temperature, humidity);
     WiFiAdp::macAddress(sDataMsg.transmitterMacAddr.data());
     auto buffer = sDataMsg.serialize();
 

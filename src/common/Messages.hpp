@@ -6,6 +6,8 @@
 #include "MacAddr.hpp"
 #include "serializer.hpp"
 
+using IDType = std::size_t;
+
 enum class MsgType : uint8_t
 {
     PAIR_REQ,
@@ -22,7 +24,7 @@ struct PairReqMsg
     MsgType msgType;
     Signature signature;
     MacAddr transmitterMacAddr;
-    size_t ID;
+    IDType ID;
 
     static auto create()
     {
@@ -85,7 +87,7 @@ struct SensorDataMsg
     MsgType msgType;
     Signature signature;
     MacAddr transmitterMacAddr;  // TODO: Should be send only ID
-    std::size_t ID;
+    IDType ID;
     float temperature;
     float humidity;
 
