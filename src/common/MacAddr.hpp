@@ -15,7 +15,7 @@ struct MacAddr
     [[nodiscard]] const uint8_t *data() const;
     [[nodiscard]] uint8_t *data();
     [[nodiscard]] std::string str() const;
-    [[nodiscard]] size_t uuid() const;
+    [[nodiscard]] size_t toUniqueID() const;
 
     static MacAddr strToMac(const std::string &str);
 

@@ -60,9 +60,14 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         pairRespMsg.deserialize(incomingData, len);
 
         m_paired = true;
+
+        auto myMac = MacAddr{};
+        WiFiAdp::macAddress(myMac.data());
+
         m_transmitterConfig.sensorUpdatePeriodMins = pairRespMsg.updatePeriodMins;
         m_transmitterConfig.channel = pairRespMsg.channel;
         m_transmitterConfig.targetMac = pairRespMsg.hostMacAddr;
+        m_transmitterConfig.ID = myMac.toUniqueID();
 
         logger::logInf("Paired %s, ch: %d\n", pairRespMsg.hostMacAddr.str(), pairRespMsg.channel);
     }
@@ -146,7 +151,7 @@ void EspNow::sendDataToHost(MacAddr mac, float temperature, float humidity)
 {
     logger::logInf("Send data to %s", mac.str());
 
-    auto sDataMsg = SensorDataMsg::create(temperature, humidity);
+    auto sDataMsg = SensorDataMsg::create(mac.toUniqueID(), temperature, humidity);
     WiFiAdp::macAddress(sDataMsg.transmitterMacAddr.data());
     auto buffer = sDataMsg.serialize();
 
@@ -166,6 +171,7 @@ void EspNow::sendPairMsg()
 {
     auto pairReqMsg = PairReqMsg::create();
     WiFiAdp::macAddress(pairReqMsg.transmitterMacAddr.data());
+    pairReqMsg.ID = pairReqMsg.transmitterMacAddr.toUniqueID();
     auto buffer = pairReqMsg.serialize();
 
     std::array<uint8_t, 6> broadcastAddr{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};  // NOLINT

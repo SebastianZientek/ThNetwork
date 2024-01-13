@@ -47,7 +47,7 @@ std::string MacAddr::str() const
     return macCStr.data();
 }
 
-size_t MacAddr::uuid() const
+size_t MacAddr::toUniqueID() const
 {
     return std::hash<std::string>{}(str());
 }
