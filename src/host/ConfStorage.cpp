@@ -70,6 +70,11 @@ std::pair<std::string, std::string> ConfStorage::getCredentials()
     return {m_jsonData["user"], m_jsonData["passwd"]};
 }
 
+std::string ConfStorage::getSensorName(IDType identifier)
+{
+    return m_jsonData["sensors"][identifier];
+}
+
 nlohmann::json ConfStorage::getConfigWithoutCredentials()
 {
     nlohmann::json dataWithoutCred = m_jsonData;
@@ -88,6 +93,5 @@ void ConfStorage::setDefaultData()
     m_jsonData["sensorUpdatePeriodMins"] = 1;
 
     // TODO: STUB, remove after implementation ready
-    m_jsonData["sensors"]
-        = {{"11:22:33:44:55:66", "Some sensor name"}, {"11:22:33:44:55:77", "Another sensor name"}};
+    m_jsonData["sensors"] = {{2506682365, "Some sensor name"}};
 }

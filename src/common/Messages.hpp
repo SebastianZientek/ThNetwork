@@ -85,7 +85,6 @@ struct SensorDataMsg
 {
     MsgType msgType;
     Signature signature;
-    MacAddr transmitterMacAddr;  // TODO: Should be send only ID
     IDType ID;
     float temperature;
     float humidity;
@@ -93,26 +92,23 @@ struct SensorDataMsg
     template <typename... Ts>
     static auto create(Ts... args)
     {
-        return SensorDataMsg({MsgType::SENSOR_DATA, signatureTemplate, {}, args...});
+        return SensorDataMsg({MsgType::SENSOR_DATA, signatureTemplate, args...});
     }
 
     [[nodiscard]] auto serialize() const
     {
-        return serializer::serialize(msgType, signature, transmitterMacAddr, ID, temperature,
-                                     humidity);
+        return serializer::serialize(msgType, signature, ID, temperature, humidity);
     }
 
     void deserialize(const uint8_t *buffer, size_t size)
     {
         auto valuesOpt
-            = serializer::deserialize<decltype(msgType), decltype(signature),
-                                      decltype(transmitterMacAddr), decltype(ID),
+            = serializer::deserialize<decltype(msgType), decltype(signature), decltype(ID),
                                       decltype(temperature), decltype(humidity)>(buffer, size);
 
         if (valuesOpt)
         {
-            std::tie(msgType, signature, transmitterMacAddr, ID, temperature, humidity)
-                = valuesOpt.value();
+            std::tie(msgType, signature, ID, temperature, humidity) = valuesOpt.value();
         }
     }
 };
