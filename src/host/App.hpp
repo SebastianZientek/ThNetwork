@@ -32,7 +32,6 @@ private:
     Status readConfig();
     Status saveExampleConfig();
     Status connectWiFi();
-    void sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime);
 
     std::shared_ptr<ConfStorage> m_confStorage{};
     std::unique_ptr<WebViewType> m_web{};

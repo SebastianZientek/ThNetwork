@@ -5,6 +5,7 @@
 
 #include "MacAddr.hpp"
 #include "serializer.hpp"
+#include "types.hpp"
 
 enum class MsgType : uint8_t
 {
@@ -22,6 +23,7 @@ struct PairReqMsg
     MsgType msgType;
     Signature signature;
     MacAddr transmitterMacAddr;
+    IDType ID;
 
     static auto create()
     {
@@ -30,17 +32,18 @@ struct PairReqMsg
 
     [[nodiscard]] auto serialize() const
     {
-        return serializer::serialize(msgType, signature, transmitterMacAddr);
+        return serializer::serialize(msgType, signature, transmitterMacAddr, ID);
     }
 
     void deserialize(const uint8_t *buffer, size_t size)
     {
-        auto valuesOpt = serializer::deserialize<decltype(msgType), decltype(signature),
-                                                 decltype(transmitterMacAddr)>(buffer, size);
+        auto valuesOpt
+            = serializer::deserialize<decltype(msgType), decltype(signature),
+                                      decltype(transmitterMacAddr), decltype(ID)>(buffer, size);
 
         if (valuesOpt)
         {
-            std::tie(msgType, signature, transmitterMacAddr) = valuesOpt.value();
+            std::tie(msgType, signature, transmitterMacAddr, ID) = valuesOpt.value();
         }
     }
 };
@@ -82,7 +85,8 @@ struct SensorDataMsg
 {
     MsgType msgType;
     Signature signature;
-    MacAddr transmitterMacAddr;
+    MacAddr transmitterMacAddr;  // TODO: Should be send only ID
+    IDType ID;
     float temperature;
     float humidity;
 
@@ -94,19 +98,20 @@ struct SensorDataMsg
 
     [[nodiscard]] auto serialize() const
     {
-        return serializer::serialize(msgType, signature, transmitterMacAddr, temperature, humidity);
+        return serializer::serialize(msgType, signature, transmitterMacAddr, ID, temperature,
+                                     humidity);
     }
 
     void deserialize(const uint8_t *buffer, size_t size)
     {
         auto valuesOpt
             = serializer::deserialize<decltype(msgType), decltype(signature),
-                                      decltype(transmitterMacAddr), decltype(temperature),
-                                      decltype(humidity)>(buffer, size);
+                                      decltype(transmitterMacAddr), decltype(ID),
+                                      decltype(temperature), decltype(humidity)>(buffer, size);
 
         if (valuesOpt)
         {
-            std::tie(msgType, signature, transmitterMacAddr, temperature, humidity)
+            std::tie(msgType, signature, transmitterMacAddr, ID, temperature, humidity)
                 = valuesOpt.value();
         }
     }

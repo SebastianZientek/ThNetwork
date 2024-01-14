@@ -12,6 +12,7 @@ namespace config
 struct alignas(4) TransmitterConfig
 {
     MacAddr targetMac{};
+    std::size_t ID = 0;
     uint8_t channel = 0;
     uint8_t sensorUpdatePeriodMins = 0;
 };

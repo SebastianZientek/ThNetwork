@@ -65,11 +65,6 @@ ConfStorage::State ConfStorage::reset()
     return save();
 }
 
-void addNewSensor(const MacAddr &macAddr)
-{
-    // if (m_)
-}
-
 std::pair<std::string, std::string> ConfStorage::getCredentials()
 {
     return {m_jsonData["user"], m_jsonData["passwd"]};
@@ -82,10 +77,6 @@ nlohmann::json ConfStorage::getConfigWithoutCredentials()
     dataWithoutCred.erase("passwd");
 
     return dataWithoutCred;
-}
-
-void ConfStorage::setSensorName(const MacAddr &mac, std::string_view name)
-{
 }
 
 void ConfStorage::setDefaultData()

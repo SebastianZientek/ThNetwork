@@ -4,7 +4,7 @@
 #include <string_view>
 
 #include "RingBuffer.hpp"
-#include "common/MacAddr.hpp"
+#include "common/types.hpp"
 
 class ReadingsStorage
 {
@@ -13,17 +13,17 @@ class ReadingsStorage
     using ReadingsRingBuffer = RingBuffer<Reading, maxReadingsPerSensor>;
 
 public:
-    void addReading(const MacAddr &mac,
+    void addReading(IDType ID,
                     const std::string &sensorName,
                     float temperature,
                     float humidity,
                     unsigned long epochTime);
-    std::map<MacAddr, ReadingsRingBuffer> &getReadingBuffers();
-    std::string getReadingsAsJsonArr(const MacAddr &macAddr, const std::string &sensorName);
-    std::string lastReading(const MacAddr &macAddr, const std::string &sensorName);
+    std::map<IDType, ReadingsRingBuffer> &getReadingBuffers();
+    std::string getReadingsAsJsonArr(IDType ID, const std::string &sensorName);
+    std::string lastReading(IDType ID, const std::string &sensorName);
 
 private:
-    std::map<MacAddr, ReadingsRingBuffer> m_readingBuffers;
+    std::map<IDType, ReadingsRingBuffer> m_readingBuffers;
 
     std::string readingToStr(float temperature, float humidity, unsigned long epochTime);
 };

@@ -4,8 +4,6 @@
 
 #include <ctime>
 #include <Crypto.h>
-#include "ArduinoJson/Document/StaticJsonDocument.hpp"
-#include "ArduinoJson/Json/JsonSerializer.hpp"
 
 namespace
 {
@@ -21,23 +19,6 @@ std::string floatToOneDecimalStr(float val)
 namespace utils
 {
 constexpr auto readingsJsonSize = 120;
-
-std::string readingsToJsonString(
-    float temp, float hum, MacAddr mac, const std::string &sensorName, unsigned long epochTime)
-{
-    constexpr auto initialBufferSize = 5;
-
-    StaticJsonDocument<readingsJsonSize> readings{};  // NOLINT
-    readings["epochTime"] = epochTime;
-    readings["temperature"] = floatToOneDecimalStr(temp);
-    readings["humidity"] = floatToOneDecimalStr(hum);
-    readings["id"] = mac.str();
-    readings["name"] = sensorName;
-    std::string jsonString{};
-    serializeJson(readings, jsonString);
-
-    return jsonString;
-}
 
 std::string epochToFormattedDate(unsigned long epochTime)
 {

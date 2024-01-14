@@ -5,8 +5,10 @@
 #include <FS.h>
 
 #include <optional>
+#include <string>
 
 #include "ArduinoJson/Deserialization/DeserializationError.hpp"
+#include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 
 namespace
@@ -124,20 +126,33 @@ std::map<std::string, std::string> &Config::getSensorsMap()
     return m_sensorsMap;
 }
 
-std::optional<std::string> Config::getSensorName(const std::string &mac)
+std::optional<std::string> Config::getSensorName(IDType id)
 {
-    auto containsMac = m_sensorsMap.find(mac) != m_sensorsMap.end();
-    auto sensorName = containsMac ? std::optional<std::string>{m_sensorsMap.at(mac)} : std::nullopt;
-    return sensorName;
+    auto item = std::find_if(m_sensorsMap.begin(), m_sensorsMap.end(),
+                             [id](auto &item)
+                             {
+                                 auto mac = MacAddr::strToMac(item.first);
+                                 return mac.toUniqueID() == id;
+                             });
+
+    if (item != m_sensorsMap.end())
+    {
+        return item->second;
+    }
+    return std::nullopt;
 }
 
-std::optional<std::string> Config::getSensorMac(const std::string &sensorName)
+std::optional<IDType> Config::getSensorID(const std::string &sensorName)
 {
     auto result
         = std::find_if(m_sensorsMap.begin(), m_sensorsMap.end(),
                        [&sensorName](const auto &item) { return item.second == sensorName; });
 
-    if (result != m_sensorsMap.end()) return result->first;
+    if (result != m_sensorsMap.end())
+    {
+        auto mac = MacAddr::strToMac(result->first);
+        return mac.toUniqueID();
+    }
 
     return std::nullopt;
 }
