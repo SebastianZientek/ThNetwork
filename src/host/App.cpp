@@ -31,23 +31,24 @@ void App::init()
     m_espNow->init(
         [this](float temp, float hum, MacAddr mac, unsigned long epochTime)
         {
-            auto sensorName = m_config.getSensorName(mac.str()).value_or(mac.str());
-            m_readingsStorage.addReading(mac, sensorName, temp, hum, epochTime);
+            auto sensorName = m_config.getSensorName(mac.toUniqueID()).value_or("Unnamed");
+            m_readingsStorage.addReading(mac.toUniqueID(), sensorName, temp, hum, epochTime);
 
-            auto currentReading = m_readingsStorage.lastReading(mac, sensorName);
+            auto currentReading = m_readingsStorage.lastReading(mac.toUniqueID(), sensorName);
             m_web->sendEvent(currentReading.c_str(), "newReading", millis());
         },
         [this](MacAddr macAddr) {}, m_config.getSensorUpdatePeriodMins());
 
     auto getSensorNames = [this]
     {
+        logger::logInf("getSensorNames");
         auto &readings = m_readingsStorage.getReadingBuffers();
         std::string sensors = "[";
 
         bool first = true;
-        for (const auto &[macAddr, readingsBuffer] : readings)
+        for (const auto &[ID, readingsBuffer] : readings)
         {
-            auto sensorName = m_config.getSensorName(macAddr.str()).value_or(macAddr.str());
+            auto sensorName = m_config.getSensorName(ID).value_or("Unnamed");
 
             if (first)
             {
@@ -65,20 +66,20 @@ void App::init()
 
     auto getSensorData = [this](const std::string &sensorName)
     {
-        auto strmac = m_config.getSensorMac(sensorName);
-        if (!strmac)
+        logger::logInf("getSensorData");
+        auto identifier = m_config.getSensorID(sensorName);
+        if (!identifier)
         {
             return std::string{"[]"};
         }
 
-        auto macAddr = MacAddr::strToMac(strmac.value());
-        auto readingsJson = m_readingsStorage.getReadingsAsJsonArr(macAddr, sensorName);
+        auto readingsJson = m_readingsStorage.getReadingsAsJsonArr(identifier.value(), sensorName);
 
-        logger::logInf("Sensor to download: %s, %s, %s", sensorName, strmac.value(), macAddr.str());
+        logger::logInf("Sensor to download: %s, %u", sensorName, identifier.value());
         auto &currentReadings = m_readingsStorage.getReadingBuffers();
-        for (const auto &[macAddr, readingsBuffer] : currentReadings)
+        for (const auto &[identifier, readingsBuffer] : currentReadings)
         {
-            auto sensName = m_config.getSensorName(macAddr.str()).value_or("Unnamed");
+            auto sensName = m_config.getSensorName(identifier).value_or("Unnamed");
         }
 
         return readingsJson;
@@ -211,7 +212,7 @@ App::Status App::connectWiFi()
 
 void App::sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime)
 {
-    auto sensorName = m_config.getSensorName(mac.str()).value_or(mac.str());
+    auto sensorName = m_config.getSensorName(mac.toUniqueID()).value_or("Unnamed");
     std::string jsonString = utils::readingsToJsonString(temp, hum, mac, sensorName, epochTime);
     m_web->sendEvent(jsonString.c_str(), "new_readings", millis());
 }

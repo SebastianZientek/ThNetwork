@@ -5,8 +5,7 @@
 
 #include "MacAddr.hpp"
 #include "serializer.hpp"
-
-using IDType = std::size_t;
+#include "types.hpp"
 
 enum class MsgType : uint8_t
 {

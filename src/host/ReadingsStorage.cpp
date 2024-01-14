@@ -7,25 +7,24 @@
 #include "common/logger.hpp"
 #include "utils.hpp"
 
-void ReadingsStorage::addReading(const MacAddr &mac,
+void ReadingsStorage::addReading(IDType ID,
                                  const std::string &sensorName,
                                  float temperature,
                                  float humidity,
                                  unsigned long epochTime)
 {
     std::string jsonArr = readingToStr(temperature, humidity, epochTime);
-    m_readingBuffers[mac].put(jsonArr);
+    m_readingBuffers[ID].put(jsonArr);
 }
 
-std::map<MacAddr, ReadingsStorage::ReadingsRingBuffer> &ReadingsStorage::getReadingBuffers()
+std::map<IDType, ReadingsStorage::ReadingsRingBuffer> &ReadingsStorage::getReadingBuffers()
 {
     return m_readingBuffers;
 }
 
-std::string ReadingsStorage::getReadingsAsJsonArr(const MacAddr &macAddr,
-                                                  const std::string &sensorName)
+std::string ReadingsStorage::getReadingsAsJsonArr(IDType ID, const std::string &sensorName)
 {
-    ReadingsRingBuffer &readingsBuffer = m_readingBuffers[macAddr];
+    ReadingsRingBuffer &readingsBuffer = m_readingBuffers[ID];
 
     std::string jsonStr = R"({"data":[)";
     bool first = true;
@@ -48,9 +47,9 @@ std::string ReadingsStorage::getReadingsAsJsonArr(const MacAddr &macAddr,
     return jsonStr;
 }
 
-std::string ReadingsStorage::lastReading(const MacAddr &macAddr, const std::string &sensorName)
+std::string ReadingsStorage::lastReading(IDType ID, const std::string &sensorName)
 {
-    ReadingsRingBuffer &readingsBuffer = m_readingBuffers[macAddr];
+    ReadingsRingBuffer &readingsBuffer = m_readingBuffers[ID];
     const auto &readingStr = readingsBuffer.getLast();
 
     return R"([")" + sensorName + R"(",)" + readingStr + "]";
