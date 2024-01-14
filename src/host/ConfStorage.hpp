@@ -3,6 +3,7 @@
 #include <array>
 #include <nlohmann/json.hpp>
 #include <string_view>
+#include "common/types.hpp"
 
 class ConfStorage
 {
@@ -19,6 +20,7 @@ public:
     State reset();
 
     std::pair<std::string, std::string> getCredentials();
+    std::string getSensorName(IDType identifier);
 
     nlohmann::json getConfigWithoutCredentials();
 

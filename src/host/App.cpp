@@ -7,8 +7,6 @@
 #include <memory>
 #include <numeric>
 
-#include "ArduinoJson/Document/StaticJsonDocument.hpp"
-#include "ArduinoJson/Json/JsonSerializer.hpp"
 #include "ConfStorage.hpp"
 #include "RaiiFile.hpp"
 #include "WebView.hpp"
@@ -68,6 +66,7 @@ void App::init()
     auto getSensorData = [this](const std::string &sensorName)
     {
         logger::logInf("getSensorData");
+
         auto identifier = m_config.getSensorID(sensorName);
         if (!identifier)
         {

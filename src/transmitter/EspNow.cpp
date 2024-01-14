@@ -152,7 +152,6 @@ void EspNow::sendDataToHost(std::size_t ID, MacAddr mac, float temperature, floa
     logger::logInf("Send data to %s", mac.str());
 
     auto sDataMsg = SensorDataMsg::create(ID, temperature, humidity);
-    WiFiAdp::macAddress(sDataMsg.transmitterMacAddr.data());
     auto buffer = sDataMsg.serialize();
 
     if (auto errCode = EspNowAdp::send(mac.data(), buffer.data(), buffer.size()); errCode)
