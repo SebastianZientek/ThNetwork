@@ -14,6 +14,7 @@
 #include "WebView.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
+#include "common/types.hpp"
 #include "utils.hpp"
 
 void App::init()
@@ -29,15 +30,15 @@ void App::init()
     }
 
     m_espNow->init(
-        [this](float temp, float hum, MacAddr mac, unsigned long epochTime)
+        [this](float temp, float hum, IDType identifier, unsigned long epochTime)
         {
-            auto sensorName = m_config.getSensorName(mac.toUniqueID()).value_or("Unnamed");
-            m_readingsStorage.addReading(mac.toUniqueID(), sensorName, temp, hum, epochTime);
+            auto sensorName = m_config.getSensorName(identifier).value_or("Unnamed");
+            m_readingsStorage.addReading(identifier, sensorName, temp, hum, epochTime);
 
-            auto currentReading = m_readingsStorage.lastReading(mac.toUniqueID(), sensorName);
+            auto currentReading = m_readingsStorage.lastReading(identifier, sensorName);
             m_web->sendEvent(currentReading.c_str(), "newReading", millis());
         },
-        [this](MacAddr macAddr) {}, m_config.getSensorUpdatePeriodMins());
+        [this](IDType identifier) {}, m_config.getSensorUpdatePeriodMins());
 
     auto getSensorNames = [this]
     {
@@ -208,11 +209,4 @@ App::Status App::connectWiFi()
                    WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), WiFi.channel());
 
     return Status::OK;
-}
-
-void App::sendEvent(float temp, float hum, MacAddr mac, unsigned long epochTime)
-{
-    auto sensorName = m_config.getSensorName(mac.toUniqueID()).value_or("Unnamed");
-    std::string jsonString = utils::readingsToJsonString(temp, hum, mac, sensorName, epochTime);
-    m_web->sendEvent(jsonString.c_str(), "new_readings", millis());
 }

@@ -8,14 +8,15 @@
 #include <memory>
 
 #include "common/MacAddr.hpp"
+#include "common/types.hpp"
 #include "common/Messages.hpp"
 
 class EspNow
 {
 public:
     using NewReadingsCb
-        = std::function<void(float temp, float hum, MacAddr mac, unsigned long epochTime)>;
-    using NewPeerCb = std::function<void(MacAddr macAddr)>;
+        = std::function<void(float temp, float hum, IDType identifier, unsigned long epochTime)>;
+    using NewPeerCb = std::function<void(IDType identifier)>;
 
     EspNow(std::shared_ptr<NTPClient> ntpClient);
     ~EspNow() = default;

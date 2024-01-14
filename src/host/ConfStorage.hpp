@@ -4,8 +4,6 @@
 #include <nlohmann/json.hpp>
 #include <string_view>
 
-#include "common/MacAddr.hpp"
-
 class ConfStorage
 {
 public:
@@ -19,11 +17,6 @@ public:
     State load();
     State save();
     State reset();
-
-    void addNewSensor(const MacAddr &macAddr);
-    // If name not exists, add to the map (if there is no more than 7 sensors)
-    void setSensorName(const MacAddr &mac, std::string_view name);
-    void removeSensor(const MacAddr &mac);
 
     std::pair<std::string, std::string> getCredentials();
 

@@ -23,7 +23,9 @@ EspNow::EspNow(std::shared_ptr<NTPClient> ntpClient)
 {
 }
 
-void EspNow::init(const NewReadingsCb &newReadingsCb, const NewPeerCb &newPeerCb, uint8_t sensorUpdatePeriodMins)
+void EspNow::init(const NewReadingsCb &newReadingsCb,
+                  const NewPeerCb &newPeerCb,
+                  uint8_t sensorUpdatePeriodMins)
 {
     if (esp_now_init() != ESP_OK)
     {
@@ -49,7 +51,6 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     }
 
     auto [msgType, signature] = msgAndSignature.value();
-
 
     if (signature != signatureTemplate)
     {
@@ -78,10 +79,11 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         SensorDataMsg sDataMsg;
         sDataMsg.deserialize(incomingData, len);
 
-        logger::logInf("[%s %s] T: %.1f, H: %.1f", mac.str(), m_ntpClient->getFormattedTime(),
+        logger::logInf("[%u %s] T: %.1f, H: %.1f", sDataMsg.ID, m_ntpClient->getFormattedTime(),
                        sDataMsg.temperature, sDataMsg.humidity);
 
-        m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, mac, m_ntpClient->getEpochTime());
+        m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, sDataMsg.ID,
+                        m_ntpClient->getEpochTime());
     }
     break;
     case MsgType::UNKNOWN:
