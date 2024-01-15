@@ -10,7 +10,6 @@ class ReadingsStorage
 {
     struct Reading
     {
-        std::string sensorName;
         float temperature;
         float humidity;
         unsigned long epochTime;

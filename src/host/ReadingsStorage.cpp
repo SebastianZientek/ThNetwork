@@ -14,7 +14,7 @@ void ReadingsStorage::addReading(IDType identifier,
                                  float humidity,
                                  unsigned long epochTime)
 {
-    m_readingBuffers[identifier].put({sensorName, temperature, humidity, epochTime});
+    m_readingBuffers[identifier].put({temperature, humidity, epochTime});
 }
 
 std::map<IDType, ReadingsStorage::ReadingsRingBuffer> &ReadingsStorage::getReadingBuffers()
