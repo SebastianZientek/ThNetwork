@@ -117,7 +117,7 @@ class MicroChart {
             }
 
             let lastVal = values[values.length - 1][valuesIndex];
-            let text = "[" + lastVal + "] " + sensorName;
+            let text = "[" + lastVal.toFixed(1) + "] " + sensorName;
 
             this.#ctx.fillStyle = this.#toRGB(sensor);
             this.#ctx.fillRect(this.#right + 10, y - 5, 10, 10);
