@@ -9,7 +9,6 @@
 #include "utils.hpp"
 
 void ReadingsStorage::addReading(IDType identifier,
-                                 const std::string &sensorName,
                                  float temperature,
                                  float humidity,
                                  unsigned long epochTime)
@@ -22,7 +21,7 @@ std::map<IDType, ReadingsStorage::ReadingsRingBuffer> &ReadingsStorage::getReadi
     return m_readingBuffers;
 }
 
-std::string ReadingsStorage::getReadingsAsJsonArr(IDType identifier, const std::string &sensorName)
+std::string ReadingsStorage::getReadingsAsJsonArr(IDType identifier)
 {
     ReadingsRingBuffer &readingsBuffer = m_readingBuffers[identifier];
     auto jsonData = nlohmann::json::array();
@@ -33,9 +32,23 @@ std::string ReadingsStorage::getReadingsAsJsonArr(IDType identifier, const std::
     }
 
     auto json = nlohmann::json();
-    json["data"] = jsonData;
-    json["id"] = identifier;
-    json["sensor"] = sensorName;
+    json["values"] = jsonData;
+    json["identifier"] = identifier;
+
+    return json.dump();
+}
+
+std::string ReadingsStorage::getLastReadingAsJson(IDType identifier)
+{
+    ReadingsRingBuffer &readingsBuffer = m_readingBuffers[identifier];
+    const auto &lastReading = readingsBuffer.getLast();
+
+    auto jsonData = nlohmann::json::array(
+        {{lastReading.epochTime, lastReading.temperature, lastReading.humidity}});
+
+    auto json = nlohmann::json();
+    json["values"] = jsonData;
+    json["identifier"] = identifier;
 
     return json.dump();
 }

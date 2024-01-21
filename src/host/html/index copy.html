@@ -53,7 +53,31 @@
         const TEMPERATURE_IDX = 1;
         const HUMIDITY_IDX = 2;
 
-        var gData = {};
+        var gData = {
+            123: {
+                "name": "blabla",
+                "values": [[
+                    1705432091,
+                    24.26605224609375,
+                    48.78044128417969
+                ],
+                [
+                    1705432092,
+                    24.270248413085938,
+                    48.77281188964844
+                ],
+                [
+                    1705432093,
+                    24.255752563476562,
+                    48.8037109375
+                ],
+                [
+                    1705432095,
+                    24.28436279296875,
+                    48.87228012084961
+                ]]
+            }
+        };
 
         const temperatureCanvas = document.getElementById("temperatureCanvas");
         const temperatureChart = new MicroChart(temperatureCanvas, "Temperature");
@@ -68,24 +92,25 @@
         }
 
         async function initialFetchSensorsData() {
+            const response = await fetch("sensorNames");
+            const sensors = await response.json();
             const sensorIDsToNames = await fetchSensorsIDToNameMapping();
 
             console.log(sensorIDsToNames);
 
-            for (const [identifier, name] of Object.entries(sensorIDsToNames)) {
+            for (const sensor of sensors) {
                 const dataResponse = await fetch('sensorData?' + new URLSearchParams({
-                    "identifier": identifier
+                    sensor: sensor
                 }))
 
-                const sensorData = await dataResponse.json();
-                console.log(sensorData);
+                const data = await dataResponse.json()
+                console.log("Data: ", data);
 
-                setSensorData(sensorData, name);
-
+                setSensorData(data);
+                cleanupData(gData);
                 drawData(gData, temperatureChart, 0, 1);
                 drawData(gData, humidityChart, 0, 2);
             }
-
         }
 
         function cleanupData(data) {
@@ -110,9 +135,10 @@
             chart.draw(data, yValIndex);
         }
 
-        function setSensorData(data, name) {
+        function setSensorData(data) {
             const identifier = data["identifier"]
-            const values = data["values"];
+            const name = data["sensor"];
+            const values = data["data"];
 
             gData[identifier] = {
                 "name": name,
@@ -129,9 +155,13 @@
         }
 
         window.addEventListener('load', function () {
-            initialFetchSensorsData();
+            // initialFetchSensorsData();
+
+            drawData(gData, temperatureChart, 0, 1);
+
             temperatureChart.draw(gData, TEMPERATURE_IDX);
             humidityChart.draw(gData, HUMIDITY_IDX);
+
         })
 
         window.addEventListener('resize', function () {
@@ -139,31 +169,29 @@
             humidityChart.draw(gData, HUMIDITY_IDX);
         })
 
-        if (!!window.EventSource) {
-            var source = new EventSource('/events');
+        // if (!!window.EventSource) {
+        //     var source = new EventSource('/events');
 
-            source.addEventListener('open', function (e) {
-                console.log("Connected");
-            }, false);
+        //     source.addEventListener('open', function (e) {
+        //         console.log("Connected");
+        //     }, false);
 
-            source.addEventListener('error', function (e) {
-                if (e.target.readyState != EventSource.OPEN) {
-                    console.log("Disconnected");
-                }
-            }, false);
+        //     source.addEventListener('error', function (e) {
+        //         if (e.target.readyState != EventSource.OPEN) {
+        //             console.log("Disconnected");
+        //         }
+        //     }, false);
 
-            source.addEventListener('newReading', function (e) {
-                console.log("newReading", e.data);
-                const reading = JSON.parse(e.data);
+        //     source.addEventListener('newReading', function (e) {
+        //         console.log("newReading", e.data);
+        //         const reading = JSON.parse(e.data);
 
-                console.log("New reading", reading);
-
-                // addSensorData(reading);
-                // cleanupData(gData);
-                // temperatureChart.draw(gData, TEMPERATURE_IDX);
-                // humidityChart.draw(gData, HUMIDITY_IDX);
-            }, false);
-        }
+        //         addSensorData(reading);
+        //         cleanupData(gData);
+        //         temperatureChart.draw(gData, TEMPERATURE_IDX);
+        //         humidityChart.draw(gData, HUMIDITY_IDX);
+        //     }, false);
+        // }
 
     </script>
 </body>

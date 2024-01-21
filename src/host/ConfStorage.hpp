@@ -21,6 +21,7 @@ public:
 
     std::pair<std::string, std::string> getCredentials();
     std::string getSensorName(IDType identifier);
+    std::string getSensorIDsToNamesJsonStr();
 
     nlohmann::json getConfigWithoutCredentials();
 

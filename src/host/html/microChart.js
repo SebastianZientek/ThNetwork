@@ -54,7 +54,8 @@ class MicroChart {
 
         xRange.min = Math.min(xRange.max - 1200, xRange.min); // Minimum is 20min range
 
-        for (const [sensor, values] of Object.entries(data)) {
+        for (const [sensor, payload] of Object.entries(data)) {
+            const values = payload["values"];
             this.#plotData(values, xRange, yRange, yValuesIndex, this.#toRGB(sensor));
         }
 
@@ -67,7 +68,10 @@ class MicroChart {
     #calcCommonMinMax(data, index) {
         let mins = [];
         let maxes = [];
-        for (const [sensor, values] of Object.entries(data)) {
+        for (const [identifier, payload] of Object.entries(data)) {
+            const values = payload["values"];
+
+            
             let [min, max] = this.#minMax(values, index);
             mins.push(min);
             maxes.push(max);
@@ -107,11 +111,12 @@ class MicroChart {
 
     #drawLegendNames(data, valuesIndex) {
         let step = 0;
-        for (const [sensor, values] of Object.entries(data)) {
+        for (const [sensor, payload] of Object.entries(data)) {
+            const values = payload["values"];
             const top = this.#topMargin + 10;
             const y = top + (15 * step)
 
-            let sensorName = sensor;
+            let sensorName = payload["name"];
             if (sensorName.length > 15) {
                 sensorName = sensorName.slice(0, 15) + "...";
             }
@@ -156,9 +161,9 @@ class MicroChart {
         this.#ctx.lineWidth = this.lineWidth;
         this.#ctx.beginPath();
 
-        for (const [i, entry] of data.entries()) {
-            let epoch = entry[xValuesIndex];
-            let value = entry[yValuesIndex];
+        for (const [i, values] of data.entries()) {
+            const epoch = values[xValuesIndex];
+            const value = values[yValuesIndex];
 
             let x = this.#mapToAxisX(epoch, xRange.min, xRange.max);
             let y = this.#mapToAxisY(value, valRange.min, valRange.max);

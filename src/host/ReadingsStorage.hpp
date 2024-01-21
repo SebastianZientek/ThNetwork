@@ -19,13 +19,10 @@ class ReadingsStorage
     using ReadingsRingBuffer = RingBuffer<Reading, maxReadingsPerSensor>;
 
 public:
-    void addReading(IDType identifier,
-                    const std::string &sensorName,
-                    float temperature,
-                    float humidity,
-                    unsigned long epochTime);
+    void addReading(IDType identifier, float temperature, float humidity, unsigned long epochTime);
     std::map<IDType, ReadingsRingBuffer> &getReadingBuffers();
-    std::string getReadingsAsJsonArr(IDType identifier, const std::string &sensorName);
+    std::string getReadingsAsJsonArr(IDType identifier);
+    std::string getLastReadingAsJson(IDType identifier);
     std::string lastReading(IDType identifier, const std::string &sensorName);
 
 private:

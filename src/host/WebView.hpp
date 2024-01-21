@@ -21,7 +21,7 @@ template <typename ConfStorageType, typename AsyncWebServerType, typename AsyncE
 class WebView
 {
     using GetSensorNamesCb = std::function<std::string()>;
-    using GetSensorDataCb = std::function<std::string(const std::string &)>;
+    using GetSensorDataCb = std::function<std::string(const std::size_t &)>;
 
 public:
     WebView(int port, std::shared_ptr<ConfStorageType> confStorage)
@@ -112,6 +112,15 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
                 [this](AsyncWebServerRequest *request)
                 { request->send_P(200, "application/javascript", gMicroChartData); });
 
+    m_server.on("/sensorIDsToNames", HTTP_GET,
+                [this](AsyncWebServerRequest *request)
+                {
+                    logger::logInf("sensorIDsToNames %s",
+                                   m_confStorage->getSensorIDsToNamesJsonStr().c_str());
+                    request->send_P(200, "application/json",
+                                    m_confStorage->getSensorIDsToNamesJsonStr().c_str());
+                });
+
     m_server.on("/sensorNames", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
                 { request->send_P(200, "application/json", m_getSensorNamesCb().c_str()); });
@@ -132,19 +141,24 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
     m_server.on("/sensorData", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
                 {
+                    logger::logInf("sensorsData");
                     int params = request->params();
-                    std::string sensorName{};
+                    std::size_t identifier{};
                     for (int i = 0; i < params; i++)
                     {
                         AsyncWebParameter *p = request->getParam(i);
-                        if (p->name() == "sensor")
+                        logger::logInf("sensorsData param %s %s", p->name().c_str(), p->value());
+                        if (p->name() == "identifier")
                         {
-                            sensorName = p->value().c_str();
+                            logger::logInf("ID %s", p->value().c_str());
+                            identifier = std::stoull(p->value().c_str());
                             break;
                         }
                     }
 
-                    request->send_P(200, "application/json", m_getSensorDataCb(sensorName).c_str());
+                    logger::logInf("ID %lu", identifier);
+
+                    request->send_P(200, "application/json", m_getSensorDataCb(identifier).c_str());
                 });
 
     m_events.onConnect(

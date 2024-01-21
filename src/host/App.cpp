@@ -30,11 +30,11 @@ void App::init()
     m_espNow->init(
         [this](float temp, float hum, IDType identifier, unsigned long epochTime)
         {
-            auto sensorName = m_config.getSensorName(identifier).value_or("Unnamed");
-            m_readingsStorage.addReading(identifier, sensorName, temp, hum, epochTime);
+            m_readingsStorage.addReading(identifier, temp, hum, epochTime);
 
-            auto currentReading = m_readingsStorage.lastReading(identifier, sensorName);
-            m_web->sendEvent(currentReading.c_str(), "newReading", millis());
+            logger::logInf("New reading sending");
+            auto reading = m_readingsStorage.getLastReadingAsJson(identifier);
+            m_web->sendEvent(reading.c_str(), "newReading", millis());
         },
         [this](IDType identifier) {}, m_config.getSensorUpdatePeriodMins());
 
@@ -63,26 +63,11 @@ void App::init()
         return sensors;
     };
 
-    auto getSensorData = [this](const std::string &sensorName)
+    auto getSensorData = [this](const std::size_t &identifier)
     {
         logger::logInf("getSensorData");
-
-        auto identifier = m_config.getSensorID(sensorName);
-        if (!identifier)
-        {
-            return std::string{"[]"};
-        }
-
-        auto readingsJson = m_readingsStorage.getReadingsAsJsonArr(identifier.value(), sensorName);
-
-        logger::logInf("Sensor to download: %s, %u", sensorName, identifier.value());
-        auto &currentReadings = m_readingsStorage.getReadingBuffers();
-        for (const auto &[identifier, readingsBuffer] : currentReadings)
-        {
-            auto sensName = m_config.getSensorName(identifier).value_or("Unnamed");
-        }
-
-        return readingsJson;
+        auto data = m_readingsStorage.getReadingsAsJsonArr(identifier);
+        return data;
     };
 
     m_web->startServer(getSensorNames, getSensorData);
