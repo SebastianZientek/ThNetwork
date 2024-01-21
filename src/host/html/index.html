@@ -54,6 +54,7 @@
         const HUMIDITY_IDX = 2;
 
         var gData = {};
+        var gSensorIDsToNames = {};
 
         const temperatureCanvas = document.getElementById("temperatureCanvas");
         const temperatureChart = new MicroChart(temperatureCanvas, "Temperature");
@@ -68,11 +69,10 @@
         }
 
         async function initialFetchSensorsData() {
-            const sensorIDsToNames = await fetchSensorsIDToNameMapping();
+            gSensorIDsToNames = await fetchSensorsIDToNameMapping();
+            console.log(gSensorIDsToNames);
 
-            console.log(sensorIDsToNames);
-
-            for (const [identifier, name] of Object.entries(sensorIDsToNames)) {
+            for (const [identifier, name] of Object.entries(gSensorIDsToNames)) {
                 const dataResponse = await fetch('sensorData?' + new URLSearchParams({
                     "identifier": identifier
                 }))
@@ -89,21 +89,21 @@
         }
 
         function cleanupData(data) {
-            // for (const [identifier, values] of Object.entries(data)) {
+            for (const [identifier, payload] of Object.entries(data)) {
+                let values = payload.values;
 
+                values.sort((a, b) => a[0] - b[0]);
+                let elemsToRemove = values.length - MAX_ARR_ELEMS;
+                if (elemsToRemove > 0) {
+                    data[identifier].values = values.slice(elemsToRemove);
+                }
 
-            //     values.sort((a, b) => a[0] - b[0]);
-            //     let elemsToRemove = values.length - MAX_ARR_ELEMS;
-            //     if (elemsToRemove > 0) {
-            //         data[identifier]. = values.slice(elemsToRemove);
-            //     }
+                const secInDay = 24 * 60 * 60;
+                const currentEpoch = Math.round(Date.now() / 1000);
+                const dayBeforeEpoch = currentEpoch - secInDay;
 
-            //     const secInDay = 24 * 60 * 60;
-            //     const currentEpoch = Math.round(Date.now() / 1000);
-            //     const dayBeforeEpoch = currentEpoch - secInDay;
-
-            //     data[identifier] = data[identifier].filter((val) => val[0] > dayBeforeEpoch);
-            // }
+                data[identifier].values = data[identifier].values.filter((val) => val[0] > dayBeforeEpoch);
+            }
         }
 
         function drawData(data, chart, xValIndex, yValIndex) {
@@ -120,12 +120,19 @@
             };
         }
 
-        function addSensorData(data) {
-            const sensor = data[0];
-            const values = data.slice(1);
+        function addSensorData(data, name) {
+            const identifier = data["identifier"]
+            const values = data["values"][0];
 
-            gData[sensor] = gData[sensor] || [];
-            gData[sensor].push(values);
+            if (gData.hasOwnProperty(identifier))
+            {
+                gData[identifier]["values"] = gData[identifier]["values"] || [];
+                gData[identifier]["values"].push(values);
+            }
+            else
+            {
+                setSensorData(data, name);
+            }
         }
 
         window.addEventListener('load', function () {
@@ -156,12 +163,17 @@
                 console.log("newReading", e.data);
                 const reading = JSON.parse(e.data);
 
-                console.log("New reading", reading);
+                let sensorName = "Unnamed";
+                if (gSensorIDsToNames.hasOwnProperty(reading.identifier))
+                {
+                    sensorName = gSensorIDsToNames[reading.identifier];
+                }
 
-                // addSensorData(reading);
-                // cleanupData(gData);
-                // temperatureChart.draw(gData, TEMPERATURE_IDX);
-                // humidityChart.draw(gData, HUMIDITY_IDX);
+                addSensorData(reading, sensorName);
+
+                cleanupData(gData);
+                temperatureChart.draw(gData, TEMPERATURE_IDX);
+                humidityChart.draw(gData, HUMIDITY_IDX);
             }, false);
         }
 
