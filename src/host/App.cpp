@@ -38,31 +38,6 @@ void App::init()
         },
         [this](IDType identifier) {}, m_config.getSensorUpdatePeriodMins());
 
-    auto getSensorNames = [this]
-    {
-        logger::logInf("getSensorNames");
-        auto &readings = m_readingsStorage.getReadingBuffers();
-        std::string sensors = "[";
-
-        bool first = true;
-        for (const auto &[ID, readingsBuffer] : readings)
-        {
-            auto sensorName = m_config.getSensorName(ID).value_or("Unnamed");
-
-            if (first)
-            {
-                sensors += "\"" + sensorName + "\"";
-            }
-            else
-            {
-                sensors += ",\"" + sensorName + "\"";
-            }
-        }
-        sensors += ']';
-
-        return sensors;
-    };
-
     auto getSensorData = [this](const std::size_t &identifier)
     {
         logger::logInf("getSensorData");
@@ -70,7 +45,7 @@ void App::init()
         return data;
     };
 
-    m_web->startServer(getSensorNames, getSensorData);
+    m_web->startServer(getSensorData);
 }
 
 void App::update()

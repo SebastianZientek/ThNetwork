@@ -20,7 +20,6 @@ extern "C"
 template <typename ConfStorageType, typename AsyncWebServerType, typename AsyncEventSourceType>
 class WebView
 {
-    using GetSensorNamesCb = std::function<std::string()>;
     using GetSensorDataCb = std::function<std::string(const std::size_t &)>;
 
 public:
@@ -36,15 +35,13 @@ public:
                    uint32_t identifier = 0,
                    uint32_t reconnect = 0);
 
-    void startServer(const GetSensorNamesCb &getSensorNamesCb,
-                     const GetSensorDataCb &getSensorDataCb);
+    void startServer(const GetSensorDataCb &getSensorDataCb);
 
 private:
     AsyncWebServerType m_server;
     AsyncEventSourceType m_events;
     std::shared_ptr<ConfStorageType> m_confStorage;
 
-    GetSensorNamesCb m_getSensorNamesCb;
     GetSensorDataCb m_getSensorDataCb;
 };
 
@@ -59,9 +56,8 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::sendEve
 
 template <typename ConfStorageType, typename AsyncWebServerType, typename AsyncEventSourceType>
 void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startServer(
-    const GetSensorNamesCb &getSensorNamesCb, const GetSensorDataCb &getSensorDataCb)
+    const GetSensorDataCb &getSensorDataCb)
 {
-    m_getSensorNamesCb = getSensorNamesCb;
     m_getSensorDataCb = getSensorDataCb;
 
     auto auth = [this](AsyncWebServerRequest *request)
@@ -121,10 +117,6 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
                                     m_confStorage->getSensorIDsToNamesJsonStr().c_str());
                 });
 
-    m_server.on("/sensorNames", HTTP_GET,
-                [this](AsyncWebServerRequest *request)
-                { request->send_P(200, "application/json", m_getSensorNamesCb().c_str()); });
-
     m_server.on("/configuration", HTTP_GET,
                 [this, auth](AsyncWebServerRequest *request)
                 {
@@ -134,7 +126,6 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
                     }
 
                     auto config = m_confStorage->getConfigWithoutCredentials();
-
                     request->send_P(200, "application/json", config.dump().c_str());
                 });
 
@@ -165,7 +156,7 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
             {
                 logger::logInf("Client reconnected, last ID: %u\n", client->lastId());
             }
-            client->send("init", NULL, millis(), 10000);
+            client->send("init", nullptr, millis(), 10000);
         });
     m_server.addHandler(&m_events);
     m_server.begin();
