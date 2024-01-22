@@ -147,16 +147,12 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
                     for (int i = 0; i < params; i++)
                     {
                         AsyncWebParameter *p = request->getParam(i);
-                        logger::logInf("sensorsData param %s %s", p->name().c_str(), p->value());
                         if (p->name() == "identifier")
                         {
-                            logger::logInf("ID %s", p->value().c_str());
                             identifier = std::stoull(p->value().c_str());
                             break;
                         }
                     }
-
-                    logger::logInf("ID %lu", identifier);
 
                     request->send_P(200, "application/json", m_getSensorDataCb(identifier).c_str());
                 });

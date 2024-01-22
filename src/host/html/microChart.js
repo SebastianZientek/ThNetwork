@@ -71,7 +71,6 @@ class MicroChart {
         for (const [identifier, payload] of Object.entries(data)) {
             const values = payload["values"];
 
-
             let [min, max] = this.#minMax(values, index);
             mins.push(min);
             maxes.push(max);
