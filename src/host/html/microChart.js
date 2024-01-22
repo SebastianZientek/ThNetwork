@@ -71,7 +71,7 @@ class MicroChart {
         for (const [identifier, payload] of Object.entries(data)) {
             const values = payload["values"];
 
-            
+
             let [min, max] = this.#minMax(values, index);
             mins.push(min);
             maxes.push(max);
@@ -80,19 +80,22 @@ class MicroChart {
         return { "min": Math.min(...mins), "max": Math.max(...maxes) };
     }
 
-    #toRGB(str) {
-        str = str + "x"; // Temporary, to make color brighter
-        var hash = 0;
-        if (str.length === 0) return hash;
-        for (var i = 0; i < str.length; i++) {
-            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            hash = hash & hash;
+    #toRGB(val) {
+        let r = (val >>> 0) & 0xFF;
+        let g = (val >>> 8) & 0xFF;
+        let b = (val >>> 16) & 0xFF;
+
+        let rgb = [r, g, b];
+        const sum = rgb.reduce((acc, curr) => acc + curr, 0);
+
+        let valToAdd = 0;
+        if (sum < 255) {
+            valToAdd = 255 - sum;
         }
-        var rgb = [0, 0, 0];
-        for (var i = 0; i < 3; i++) {
-            var value = (hash >> (i * 8)) & 150;
-            rgb[i] = value;
-        }
+
+        var indexMin = rgb.indexOf(Math.min(...rgb));
+        rgb[indexMin] += valToAdd;
+
         return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
     }
 
@@ -105,7 +108,7 @@ class MicroChart {
         exRange.max += valuesSpan * expandFactor;
 
         exRange.min = Math.floor(exRange.min) - 1; // HACK
-        exRange.max = Math.ceil( exRange.max) + 1; // HACK
+        exRange.max = Math.ceil(exRange.max) + 1; // HACK
 
         return exRange;
     }
