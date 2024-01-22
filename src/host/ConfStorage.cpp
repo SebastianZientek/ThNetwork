@@ -75,6 +75,11 @@ std::string ConfStorage::getSensorName(IDType identifier)
     return m_jsonData["sensors"][identifier];
 }
 
+std::string ConfStorage::getSensorIDsToNamesJsonStr()
+{
+    return m_jsonData["sensors"].dump();
+}
+
 nlohmann::json ConfStorage::getConfigWithoutCredentials()
 {
     nlohmann::json dataWithoutCred = m_jsonData;
@@ -93,5 +98,5 @@ void ConfStorage::setDefaultData()
     m_jsonData["sensorUpdatePeriodMins"] = 1;
 
     // TODO: STUB, remove after implementation ready
-    m_jsonData["sensors"] = {{2506682365, "Some sensor name"}};
+    m_jsonData["sensors"] = {{"2506682365", "Some sensor name"}};
 }

@@ -54,7 +54,8 @@ class MicroChart {
 
         xRange.min = Math.min(xRange.max - 1200, xRange.min); // Minimum is 20min range
 
-        for (const [sensor, values] of Object.entries(data)) {
+        for (const [sensor, payload] of Object.entries(data)) {
+            const values = payload["values"];
             this.#plotData(values, xRange, yRange, yValuesIndex, this.#toRGB(sensor));
         }
 
@@ -67,7 +68,9 @@ class MicroChart {
     #calcCommonMinMax(data, index) {
         let mins = [];
         let maxes = [];
-        for (const [sensor, values] of Object.entries(data)) {
+        for (const [identifier, payload] of Object.entries(data)) {
+            const values = payload["values"];
+
             let [min, max] = this.#minMax(values, index);
             mins.push(min);
             maxes.push(max);
@@ -76,18 +79,22 @@ class MicroChart {
         return { "min": Math.min(...mins), "max": Math.max(...maxes) };
     }
 
-    #toRGB(str) {
-        var hash = 0;
-        if (str.length === 0) return hash;
-        for (var i = 0; i < str.length; i++) {
-            hash = str.charCodeAt(i) + ((hash << 5) - hash);
-            hash = hash & hash;
+    #toRGB(val) {
+        let r = (val >>> 0) & 0xFF;
+        let g = (val >>> 8) & 0xFF;
+        let b = (val >>> 16) & 0xFF;
+
+        let rgb = [r, g, b];
+        const sum = rgb.reduce((acc, curr) => acc + curr, 0);
+
+        let valToAdd = 0;
+        if (sum < 255) {
+            valToAdd = 255 - sum;
         }
-        var rgb = [0, 0, 0];
-        for (var i = 0; i < 3; i++) {
-            var value = (hash >> (i * 8)) & 150;
-            rgb[i] = value;
-        }
+
+        var indexMin = rgb.indexOf(Math.min(...rgb));
+        rgb[indexMin] += valToAdd;
+
         return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
     }
 
@@ -100,18 +107,19 @@ class MicroChart {
         exRange.max += valuesSpan * expandFactor;
 
         exRange.min = Math.floor(exRange.min) - 1; // HACK
-        exRange.max = Math.ceil( exRange.max) + 1; // HACK
+        exRange.max = Math.ceil(exRange.max) + 1; // HACK
 
         return exRange;
     }
 
     #drawLegendNames(data, valuesIndex) {
         let step = 0;
-        for (const [sensor, values] of Object.entries(data)) {
+        for (const [sensor, payload] of Object.entries(data)) {
+            const values = payload["values"];
             const top = this.#topMargin + 10;
             const y = top + (15 * step)
 
-            let sensorName = sensor;
+            let sensorName = payload["name"];
             if (sensorName.length > 15) {
                 sensorName = sensorName.slice(0, 15) + "...";
             }
@@ -156,9 +164,9 @@ class MicroChart {
         this.#ctx.lineWidth = this.lineWidth;
         this.#ctx.beginPath();
 
-        for (const [i, entry] of data.entries()) {
-            let epoch = entry[xValuesIndex];
-            let value = entry[yValuesIndex];
+        for (const [i, values] of data.entries()) {
+            const epoch = values[xValuesIndex];
+            const value = values[yValuesIndex];
 
             let x = this.#mapToAxisX(epoch, xRange.min, xRange.max);
             let y = this.#mapToAxisY(value, valRange.min, valRange.max);
