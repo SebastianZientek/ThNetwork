@@ -1,9 +1,9 @@
 #include "utils.hpp"
 
 #include <ArduinoJson.h>
+#include <Crypto.h>
 
 #include <ctime>
-#include <Crypto.h>
 
 namespace
 {
@@ -34,12 +34,12 @@ std::string getSHA256(std::string data)
 {
     SHA256 hasher;
     hasher.doUpdate(data.c_str());
-    std::array<byte, SHA256_SIZE> hash;
+    std::array<byte, SHA256_SIZE> hash{};
     hasher.doFinal(hash.data());
 
     std::string shaString(SHA256_SIZE * 2, '-');
-    constexpr char hexes[]
-        = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+    constexpr std::array<char, 16> hexes{'0', '1', '2', '3', '4', '5', '6', '7',
+                                         '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
 
     for (size_t i = 0; i < hash.size(); ++i)
     {

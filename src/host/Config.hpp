@@ -17,7 +17,7 @@ public:
     [[nodiscard]] std::string getWifiSsid() const;
     [[nodiscard]] std::string getWifiPass() const;
     std::map<std::string, std::string> &getSensorsMap();
-    std::optional<std::string> getSensorName(IDType id);
+    std::optional<std::string> getSensorName(IDType identifier);
     std::optional<IDType> getSensorID(const std::string& sensorName);
     [[nodiscard]] uint8_t getSensorUpdatePeriodMins() const;
     [[nodiscard]] int getServerPort() const;

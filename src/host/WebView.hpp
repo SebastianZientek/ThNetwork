@@ -60,6 +60,11 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
 {
     m_getSensorDataCb = getSensorDataCb;
 
+    constexpr auto HTML_OK = 200;
+    constexpr auto HTML_UNAUTH = 401;
+
+    constexpr auto RECONNECT_TIMEOUT = 10000;
+
     auto auth = [this](AsyncWebServerRequest *request)
     {
         auto [user, passwd] = m_confStorage->getCredentials();
@@ -68,7 +73,7 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
 
     m_server.on("/", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
-                { request->send_P(200, "text/html", gIndexHtmlData); });
+                { request->send_P(HTML_OK, "text/html", gIndexHtmlData); });
 
     m_server.on("/admin", HTTP_GET,
                 [this, auth](AsyncWebServerRequest *request)
@@ -77,43 +82,43 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
                     {
                         return request->requestAuthentication();
                     }
-                    request->send_P(200, "text/html", gAdminHtmlData);
+                    request->send_P(HTML_OK, "text/html", gAdminHtmlData);
                 });
 
     m_server.on("/setCredentials", HTTP_POST,
                 [this](AsyncWebServerRequest *request)
                 {
-                    int params = request->params();
+                    auto params = request->params();
                     std::string sensorName{};
                     for (int i = 0; i < params; i++)
                     {
-                        AsyncWebParameter *p = request->getParam(i);
-                        if (p->name() == "sensor")
+                        AsyncWebParameter *param = request->getParam(i);
+                        if (param->name() == "sensor")
                         {
-                            sensorName = p->value().c_str();
+                            sensorName = param->value().c_str();
                             break;
                         }
                     }
 
-                    request->send_P(200, "text/html", gAdminHtmlData);
+                    request->send_P(HTML_OK, "text/html", gAdminHtmlData);
                 });
 
-    m_server.on("/logout", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(401); });
+    m_server.on("/logout", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(HTML_UNAUTH); });
 
     m_server.on("/favicon.ico", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
-                { request->send_P(200, "image/png", gFaviconData, gFaviconSize); });
+                { request->send_P(HTML_OK, "image/png", gFaviconData, gFaviconSize); });
 
     m_server.on("/microChart.js", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
-                { request->send_P(200, "application/javascript", gMicroChartData); });
+                { request->send_P(HTML_OK, "application/javascript", gMicroChartData); });
 
     m_server.on("/sensorIDsToNames", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
                 {
                     logger::logInf("sensorIDsToNames %s",
                                    m_confStorage->getSensorIDsToNamesJsonStr().c_str());
-                    request->send_P(200, "application/json",
+                    request->send_P(HTML_OK, "application/json",
                                     m_confStorage->getSensorIDsToNamesJsonStr().c_str());
                 });
 
@@ -122,41 +127,41 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
                 {
                     if (!auth(request))
                     {
-                        request->send(401);
+                        request->send(HTML_UNAUTH);
                     }
 
                     auto config = m_confStorage->getConfigWithoutCredentials();
-                    request->send_P(200, "application/json", config.dump().c_str());
+                    request->send_P(HTML_OK, "application/json", config.dump().c_str());
                 });
 
     m_server.on("/sensorData", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
                 {
                     logger::logInf("sensorsData");
-                    int params = request->params();
+                    auto params = request->params();
                     std::size_t identifier{};
                     for (int i = 0; i < params; i++)
                     {
-                        AsyncWebParameter *p = request->getParam(i);
-                        if (p->name() == "identifier")
+                        AsyncWebParameter *param = request->getParam(i);
+                        if (param->name() == "identifier")
                         {
-                            identifier = std::stoull(p->value().c_str());
+                            identifier = std::stoull(param->value().c_str());
                             break;
                         }
                     }
 
-                    request->send_P(200, "application/json", m_getSensorDataCb(identifier).c_str());
+                    request->send_P(HTML_OK, "application/json", m_getSensorDataCb(identifier).c_str());
                 });
 
     m_events.onConnect(
         [this](AsyncEventSourceClient *client)
         {
             logger::logInf("Client connected");
-            if (client->lastId())
+            if (client->lastId() != 0)
             {
                 logger::logInf("Client reconnected, last ID: %u\n", client->lastId());
             }
-            client->send("init", nullptr, millis(), 10000);
+            client->send("init", nullptr, millis(), RECONNECT_TIMEOUT);
         });
     m_server.addHandler(&m_events);
     m_server.begin();
