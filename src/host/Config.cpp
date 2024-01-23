@@ -126,13 +126,13 @@ std::map<std::string, std::string> &Config::getSensorsMap()
     return m_sensorsMap;
 }
 
-std::optional<std::string> Config::getSensorName(IDType id)
+std::optional<std::string> Config::getSensorName(IDType identifier)
 {
     auto item = std::find_if(m_sensorsMap.begin(), m_sensorsMap.end(),
-                             [id](auto &item)
+                             [identifier](auto &item)
                              {
                                  auto mac = MacAddr::strToMac(item.first);
-                                 return mac.toUniqueID() == id;
+                                 return mac.toUniqueID() == identifier;
                              });
 
     if (item != m_sensorsMap.end())

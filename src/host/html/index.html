@@ -160,7 +160,6 @@
             }, false);
 
             source.addEventListener('newReading', function (e) {
-                console.log("newReading", e.data);
                 const reading = JSON.parse(e.data);
 
                 let sensorName = "Unnamed";

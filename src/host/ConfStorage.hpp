@@ -28,7 +28,7 @@ public:
 private:
     constexpr static auto configFilePath = "/config.json";
     constexpr static auto maxSensorsNum = 7;
-    nlohmann::json m_jsonData;
+    nlohmann::json m_jsonData{};
 
     void setDefaultData();
 };
