@@ -8,8 +8,8 @@
 #include <memory>
 
 #include "common/MacAddr.hpp"
-#include "common/types.hpp"
 #include "common/Messages.hpp"
+#include "common/types.hpp"
 
 class EspNow
 {
@@ -25,7 +25,10 @@ public:
     EspNow &operator=(const EspNow &) = delete;
     EspNow &operator=(EspNow &&) = delete;
 
-    void init(const NewReadingsCb &newReadingsCb, const NewPeerCb &newPeerCb, uint8_t sensorUpdatePeriodMins);
+    void init(const NewReadingsCb &newReadingsCb,
+              const NewPeerCb &newPeerCb,
+              uint8_t sensorUpdatePeriodMins);
+    void deinit();
 
 private:
     using OnSendCb = std::function<void(const MacAddr &mac, esp_now_send_status_t status)>;

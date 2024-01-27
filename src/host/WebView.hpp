@@ -36,6 +36,7 @@ public:
                    uint32_t reconnect = 0);
 
     void startServer(const GetSensorDataCb &getSensorDataCb);
+    void stopServer();
 
 private:
     AsyncWebServerType m_server;
@@ -103,7 +104,8 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
                     request->send_P(HTML_OK, "text/html", gAdminHtmlData);
                 });
 
-    m_server.on("/logout", HTTP_GET, [](AsyncWebServerRequest *request) { request->send(HTML_UNAUTH); });
+    m_server.on("/logout", HTTP_GET,
+                [](AsyncWebServerRequest *request) { request->send(HTML_UNAUTH); });
 
     m_server.on("/favicon.ico", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
@@ -150,7 +152,8 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
                         }
                     }
 
-                    request->send_P(HTML_OK, "application/json", m_getSensorDataCb(identifier).c_str());
+                    request->send_P(HTML_OK, "application/json",
+                                    m_getSensorDataCb(identifier).c_str());
                 });
 
     m_events.onConnect(
@@ -165,4 +168,11 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
         });
     m_server.addHandler(&m_events);
     m_server.begin();
+}
+
+template <typename ConfStorageType, typename AsyncWebServerType, typename AsyncEventSourceType>
+void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::stopServer()
+{
+    m_events.close();
+    m_server.end();
 }

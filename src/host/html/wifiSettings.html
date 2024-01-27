@@ -1,0 +1,126 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <title>T/H monitor - admin</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+        html {
+            display: inline-block;
+            /* text-align: center; */
+        }
+
+        body {
+            margin: 0;
+            background-color: #1b1b1b;
+            color: #aaa;
+        }
+
+        .main_bar {
+            overflow: hidden;
+            background-color: #263453;
+            color: #e2e2e2;
+            font-size: 24pt;
+            padding: 15pt;
+            text-align: center;
+        }
+
+        .content {
+            margin: auto;
+            width: 60%;
+            padding: 10px;
+        }
+
+        .chart {
+            border: 1px #333 solid;
+        }
+
+        .sensors_tb {
+            border-collapse: collapse;
+            border-color: #93a1a1;
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .sensors_tb td {
+            background-color: #fdf6e3;
+            border-color: #93a1a1;
+            border-style: solid;
+            border-width: 0px;
+            color: #002b36;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            overflow: hidden;
+            padding: 10px 5px;
+            word-break: normal;
+        }
+
+        .sensors_tb th {
+            background-color: #263453;
+            border-color: #2e3a55;
+            border-style: solid;
+            border-width: 0px;
+            color: #fdf6e3;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            font-weight: normal;
+            overflow: hidden;
+            padding: 10px 5px;
+            word-break: normal;
+        }
+
+        .sensors_tb .sensors_tb-0pky {
+            border-color: inherit;
+            text-align: left;
+            vertical-align: top
+        }
+
+        .sensors_tb tr {
+            border-bottom: 1px solid #93a1a1
+        }
+
+        .main_bar_content button {
+            float: right;
+            height: 40px;
+        }
+
+        form {
+            margin: 0 auto;
+            width: 290px;
+            padding-top: 20px;
+        }
+
+        .cred_button {
+            float: right;
+        }
+
+        .credentials label {
+            display: inline-block;
+            width: 100px;
+            text-align: right;
+        }
+
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="main_bar">
+        <div class="main_bar_content">T/H monitor - wifi configuration</div>
+    </div>
+    <div class="content">
+        <form class="credentials" action="/setWifi" method="post">
+            <label for="ssid">SSID:</label>
+            <input type="text" id="ssid" name="ssid"><br><br>
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password"><br><br>
+            <input class="cred_button" type="submit" value="Submit">
+        </form>
+    </div>
+
+</body>
+
+</html>
