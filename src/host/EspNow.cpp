@@ -40,6 +40,11 @@ void EspNow::init(const NewReadingsCb &newReadingsCb,
     setOnDataSendCb();
 }
 
+void EspNow::deinit()
+{
+    esp_now_deinit();
+}
+
 void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
 {
     auto msgAndSignature = serializer::partialDeserialize<MsgType, Signature>(incomingData, len);

@@ -3,6 +3,7 @@
 #include <SPIFFS.h>
 
 #include <algorithm>
+#include <optional>
 
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
@@ -38,6 +39,8 @@ ConfStorage::State ConfStorage::load()
         }
     }
 
+    logger::logInf("Config: %s", m_jsonData.dump());
+
     return State::OK;
 }
 
@@ -65,9 +68,32 @@ ConfStorage::State ConfStorage::reset()
     return save();
 }
 
+void ConfStorage::setWifiConfig(std::string ssid, std::string pass)
+{
+    m_jsonData["wifi"]["ssid"] = ssid;
+    m_jsonData["wifi"]["pass"] = pass;
+}
+
 std::pair<std::string, std::string> ConfStorage::getCredentials()
 {
     return {m_jsonData["user"], m_jsonData["passwd"]};
+}
+
+std::optional<std::pair<std::string, std::string>> ConfStorage::getWifiConfig()
+{
+    try
+    {
+        std::string ssid = m_jsonData["wifi"]["ssid"];
+        std::string pass = m_jsonData["wifi"]["pass"];
+
+        return std::make_pair(ssid, pass);
+    }
+    catch (nlohmann::json::type_error err)
+    {
+        return std::nullopt;
+    }
+
+    return std::nullopt;
 }
 
 std::string ConfStorage::getSensorName(IDType identifier)

@@ -2,7 +2,9 @@
 
 #include <array>
 #include <nlohmann/json.hpp>
+#include <optional>
 #include <string_view>
+
 #include "common/types.hpp"
 
 class ConfStorage
@@ -19,7 +21,9 @@ public:
     State save();
     State reset();
 
+    void setWifiConfig(std::string ssid, std::string pass);
     std::pair<std::string, std::string> getCredentials();
+    std::optional<std::pair<std::string, std::string>> getWifiConfig();
     std::string getSensorName(IDType identifier);
     std::string getSensorIDsToNamesJsonStr();
 
