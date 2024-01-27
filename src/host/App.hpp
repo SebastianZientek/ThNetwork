@@ -11,7 +11,6 @@
 #include "ReadingsStorage.hpp"
 #include "WebView.hpp"
 #include "WebWifiConfig.hpp"
-#include "host/WebWifiConfig.hpp"
 
 class App
 {
