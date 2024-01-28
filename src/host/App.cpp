@@ -1,6 +1,5 @@
 #include "App.hpp"
 
-#include <ArduinoJson.h>
 #include <SD.h>
 
 #include <algorithm>
