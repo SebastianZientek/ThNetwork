@@ -106,6 +106,16 @@ std::string ConfStorage::getSensorIDsToNamesJsonStr()
     return m_jsonData["sensors"].dump();
 }
 
+std::size_t ConfStorage::getSensorUpdatePeriodMins()
+{
+    return 1;
+}
+
+std::size_t ConfStorage::getServerPort()
+{
+    return 80;
+}
+
 nlohmann::json ConfStorage::getConfigWithoutCredentials()
 {
     nlohmann::json dataWithoutCred = m_jsonData;

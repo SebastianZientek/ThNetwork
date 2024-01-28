@@ -1,6 +1,5 @@
 #include "App.hpp"
 
-#include <ArduinoJson.h>
 #include <SD.h>
 
 #include <algorithm>
@@ -43,7 +42,7 @@ void App::init()
                 auto reading = m_readingsStorage.getLastReadingAsJson(identifier);
                 m_web->sendEvent(reading.c_str(), "newReading", millis());
             },
-            [this](IDType identifier) {}, m_config.getSensorUpdatePeriodMins());
+            [this](IDType identifier) {}, m_confStorage->getSensorUpdatePeriodMins());
 
         auto getSensorData = [this](const std::size_t &identifier)
         {
@@ -76,10 +75,6 @@ App::Status App::systemInit()
     {
         return status;
     }
-    if (auto status = saveExampleConfig(); status != Status::OK)
-    {
-        return status;
-    }
     if (auto status = readConfig(); status != Status::OK)
     {
         return status;
@@ -94,7 +89,7 @@ App::Status App::systemInit()
     m_timeClient->update();
 
     m_espNow = std::make_unique<EspNow>(m_timeClient);
-    m_web = std::make_unique<WebViewType>(m_config.getServerPort(), m_confStorage);
+    m_web = std::make_unique<WebViewType>(m_confStorage);
 
     return Status::OK;
 }
@@ -117,38 +112,10 @@ App::Status App::initSD()
 
 App::Status App::readConfig()
 {
-    {
-        m_confStorage = std::make_shared<ConfStorage>();
-        auto state = m_confStorage->load();
-    }
+    m_confStorage = std::make_shared<ConfStorage>();
+    auto state = m_confStorage->load();
 
-    // TODO: Obsolete, will be removed while wifimanager will be in use
-    {
-        RaiiFile file(SD, "/config.json");
-        std::string data = file->readString().c_str();
-        if (!m_config.load(data))
-        {
-            logger::logErr("Reading config error");
-            return Status::FAIL;
-        }
-    }
-    return Status::OK;
-}
-
-App::Status App::saveExampleConfig()
-{
-    if (SD.exists("/config_example.json"))
-    {
-        logger::logInf("config_example.json exists");
-    }
-    else
-    {
-        logger::logInf("Saving config_example.json");
-        RaiiFile file(SD, "/config_example.json", FILE_WRITE);
-        file->print(m_config.getExampleConfig().c_str());
-    }
-
-    return Status::OK;
+    return state == ConfStorage::State::OK ? Status::OK : Status::FAIL;
 }
 
 App::Status App::connectWiFi()

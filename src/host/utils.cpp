@@ -1,6 +1,5 @@
 #include "utils.hpp"
 
-#include <ArduinoJson.h>
 #include <Crypto.h>
 
 #include <ctime>
