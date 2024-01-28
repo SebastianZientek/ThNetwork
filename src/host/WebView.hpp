@@ -63,7 +63,6 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
 
     constexpr auto HTML_OK = 200;
     constexpr auto HTML_UNAUTH = 401;
-
     constexpr auto RECONNECT_TIMEOUT = 10000;
 
     auto auth = [this](AsyncWebServerRequest *request)

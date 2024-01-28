@@ -1,6 +1,6 @@
 #include "App.hpp"
 
-#include <SD.h>
+#include <SPIFFS.h>
 
 #include <algorithm>
 #include <memory>
@@ -71,10 +71,6 @@ App::Status App::systemInit()
     setupWifiButton();
 
     logger::init();
-    if (auto status = initSD(); status != Status::OK)
-    {
-        return status;
-    }
     if (auto status = readConfig(); status != Status::OK)
     {
         return status;
@@ -94,25 +90,10 @@ App::Status App::systemInit()
     return Status::OK;
 }
 
-App::Status App::initSD()
-{
-    if (!SD.begin())
-    {
-        logger::logErr("Card Mount Failed");
-        return Status::FAIL;
-    }
-
-    if (SD.cardType() == CARD_NONE)
-    {
-        logger::logErr("No SD card attached");
-        return Status::FAIL;
-    }
-    return Status::OK;
-}
-
 App::Status App::readConfig()
 {
-    m_confStorage = std::make_shared<ConfStorage>();
+    SPIFFS.begin(true);
+    m_confStorage = std::make_shared<ConfStorage>(SPIFFS, "/config.json");
     auto state = m_confStorage->load();
 
     return state == ConfStorage::State::OK ? Status::OK : Status::FAIL;

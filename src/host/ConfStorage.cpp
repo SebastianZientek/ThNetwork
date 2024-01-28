@@ -1,30 +1,29 @@
 #include "ConfStorage.hpp"
 
-#include <SPIFFS.h>
-
 #include <algorithm>
 #include <optional>
 
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
 
-ConfStorage::ConfStorage()
+ConfStorage::ConfStorage(fs::FS filesystem, std::string path)
+    : m_filesystem(filesystem)
+    , m_configFilePath(path)
 {
-    SPIFFS.begin(true);
 }
 
 ConfStorage::State ConfStorage::load()
 {
-    if (!SPIFFS.exists(configFilePath))
+    if (!m_filesystem.exists(m_configFilePath.c_str()))
     {
         logger::logInf("File not exists, setting and saving defaults");
         reset();
     }
     else
     {
-        logger::logInf("Loading configuration from: %s", configFilePath);
+        logger::logInf("Loading configuration from: %s", m_configFilePath);
 
-        RaiiFile configFile(SPIFFS, configFilePath);
+        RaiiFile configFile(m_filesystem, m_configFilePath);
         std::string data = configFile->readString().c_str();
         try
         {
@@ -48,7 +47,7 @@ ConfStorage::State ConfStorage::save()
 {
     try
     {
-        RaiiFile configFile(SPIFFS, configFilePath, FILE_WRITE);
+        RaiiFile configFile(m_filesystem, m_configFilePath, FILE_WRITE);
         auto data = m_jsonData.dump();
         configFile->print(data.c_str());
     }
@@ -96,11 +95,6 @@ std::optional<std::pair<std::string, std::string>> ConfStorage::getWifiConfig()
     return std::nullopt;
 }
 
-std::string ConfStorage::getSensorName(IDType identifier)
-{
-    return m_jsonData["sensors"][identifier];
-}
-
 std::string ConfStorage::getSensorIDsToNamesJsonStr()
 {
     return m_jsonData["sensors"].dump();
@@ -108,12 +102,12 @@ std::string ConfStorage::getSensorIDsToNamesJsonStr()
 
 std::size_t ConfStorage::getSensorUpdatePeriodMins()
 {
-    return 1;
+    return m_jsonData["sensorUpdatePeriodMins"];
 }
 
 std::size_t ConfStorage::getServerPort()
 {
-    return 80;
+    return m_jsonData["serverPort"];
 }
 
 nlohmann::json ConfStorage::getConfigWithoutCredentials()

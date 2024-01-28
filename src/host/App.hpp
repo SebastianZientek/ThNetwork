@@ -36,7 +36,6 @@ public:
 
 private:
     Status systemInit();
-    Status initSD();
     Status readConfig();
     Status connectWiFi();
     void wifiSettingsMode();
