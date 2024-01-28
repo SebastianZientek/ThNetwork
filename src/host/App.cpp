@@ -115,14 +115,7 @@ App::Status App::readConfig()
     m_confStorage = std::make_shared<ConfStorage>();
     auto state = m_confStorage->load();
 
-    if (state == ConfStorage::State::OK)
-    {
-        return Status::OK;
-    }
-    else
-    {
-        return Status::FAIL;
-    }
+    return state == ConfStorage::State::OK ? Status::OK : Status::FAIL;
 }
 
 App::Status App::connectWiFi()
