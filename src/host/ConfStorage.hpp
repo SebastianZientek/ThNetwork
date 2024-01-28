@@ -26,6 +26,8 @@ public:
     std::optional<std::pair<std::string, std::string>> getWifiConfig();
     std::string getSensorName(IDType identifier);
     std::string getSensorIDsToNamesJsonStr();
+    std::size_t getSensorUpdatePeriodMins();
+    std::size_t getServerPort();
 
     nlohmann::json getConfigWithoutCredentials();
 

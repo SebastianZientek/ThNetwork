@@ -6,7 +6,6 @@
 #include <memory>
 
 #include "ConfStorage.hpp"
-#include "Config.hpp"
 #include "EspNow.hpp"
 #include "ReadingsStorage.hpp"
 #include "WebView.hpp"
@@ -39,7 +38,6 @@ private:
     Status systemInit();
     Status initSD();
     Status readConfig();
-    Status saveExampleConfig();
     Status connectWiFi();
     void wifiSettingsMode();
     void setupWifiButton();
@@ -52,6 +50,5 @@ private:
     WiFiUDP m_ntpUDP{};
     std::shared_ptr<NTPClient> m_timeClient{};
     std::unique_ptr<EspNow> m_espNow{};
-    Config m_config{};
     ReadingsStorage m_readingsStorage{};
 };

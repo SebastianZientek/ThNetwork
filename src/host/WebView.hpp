@@ -23,8 +23,8 @@ class WebView
     using GetSensorDataCb = std::function<std::string(const std::size_t &)>;
 
 public:
-    WebView(int port, std::shared_ptr<ConfStorageType> confStorage)
-        : m_server(port)
+    WebView(std::shared_ptr<ConfStorageType> confStorage)
+        : m_server(confStorage->getServerPort())
         , m_events("/events")
         , m_confStorage(confStorage)
     {
