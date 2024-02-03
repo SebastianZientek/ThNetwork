@@ -28,6 +28,7 @@ endfunction()
 set(SRCS 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter/EspNow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter/utils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ConfStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 )
 

@@ -6,76 +6,39 @@
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
 
-ConfStorage::ConfStorage(fs::FS filesystem, std::string path)
-    : m_filesystem(filesystem)
-    , m_configFilePath(path)
+void ConfStorage::setDefault()
 {
+    m_jsonData["admin"]["user"] = "admin";
+    m_jsonData["admin"]["passwd"] = "passwd";
+    m_jsonData["sensors"] = {};
+    m_jsonData["serverPort"] = 80;
+    m_jsonData["sensorUpdatePeriodMins"] = 1;
 }
 
-ConfStorage::State ConfStorage::load()
+void ConfStorage::setSensorUpdatePeriodMins(std::size_t minutes)
 {
-    if (!m_filesystem.exists(m_configFilePath.c_str()))
-    {
-        logger::logInf("File not exists, setting and saving defaults");
-        reset();
-    }
-    else
-    {
-        logger::logInf("Loading configuration from: %s", m_configFilePath);
-
-        RaiiFile configFile(m_filesystem, m_configFilePath);
-        std::string data = configFile->readString().c_str();
-        try
-        {
-            m_jsonData = nlohmann::json::parse(data);
-        }
-        catch (nlohmann::json::parse_error err)
-        {
-            logger::logErr("Can't parse json data, %s", err.what());
-            reset();
-
-            return State::FAIL;
-        }
-    }
-
-    logger::logInf("Config: %s", m_jsonData.dump());
-
-    return State::OK;
+    m_jsonData["sensorUpdatePeriodMins"] = minutes;
 }
 
-ConfStorage::State ConfStorage::save()
+std::size_t ConfStorage::getSensorUpdatePeriodMins()
 {
-    try
-    {
-        RaiiFile configFile(m_filesystem, m_configFilePath, FILE_WRITE);
-        auto data = m_jsonData.dump();
-        configFile->print(data.c_str());
-    }
-    catch (nlohmann::json::type_error err)
-    {
-        logger::logErr("Can't dump json data of configuration file, %s", err.what());
-        return State::FAIL;
-    }
-
-    return State::OK;
+    return m_jsonData["sensorUpdatePeriodMins"];
 }
 
-ConfStorage::State ConfStorage::reset()
+void ConfStorage::setServerPort(std::size_t port)
 {
-    logger::logInf("Rewriting default config");
-    setDefaultData();
-    return save();
+    m_jsonData["serverPort"] = port;
+}
+
+std::size_t ConfStorage::getServerPort()
+{
+    return m_jsonData["serverPort"];
 }
 
 void ConfStorage::setWifiConfig(std::string ssid, std::string pass)
 {
     m_jsonData["wifi"]["ssid"] = ssid;
     m_jsonData["wifi"]["pass"] = pass;
-}
-
-std::pair<std::string, std::string> ConfStorage::getCredentials()
-{
-    return {m_jsonData["user"], m_jsonData["passwd"]};
 }
 
 std::optional<std::pair<std::string, std::string>> ConfStorage::getWifiConfig()
@@ -95,38 +58,69 @@ std::optional<std::pair<std::string, std::string>> ConfStorage::getWifiConfig()
     return std::nullopt;
 }
 
-std::string ConfStorage::getSensorIDsToNamesJsonStr()
+void ConfStorage::setAdminCredentials(std::string user, std::string pass)
 {
-    return m_jsonData["sensors"].dump();
+    m_jsonData["admin"]["user"] = user;
+    m_jsonData["admin"]["pass"] = pass;
 }
 
-std::size_t ConfStorage::getSensorUpdatePeriodMins()
+std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredentials()
 {
-    return m_jsonData["sensorUpdatePeriodMins"];
-}
-
-std::size_t ConfStorage::getServerPort()
-{
-    return m_jsonData["serverPort"];
+    try
+    {
+        auto admin = m_jsonData["admin"];
+        return std::make_pair(admin["user"], admin["passwd"]);
+    }
+    catch (nlohmann::json::type_error err)
+    {
+        return std::nullopt;
+    }
+    return std::nullopt;
 }
 
 nlohmann::json ConfStorage::getConfigWithoutCredentials()
 {
-    nlohmann::json dataWithoutCred = m_jsonData;
-    dataWithoutCred.erase("user");
-    dataWithoutCred.erase("passwd");
+    nlohmann::json dataWithoutCred = {
+        {"sensorUpdatePeriodMins", m_jsonData["sensorUpdatePeriodMins"]},
+        {"sensors", m_jsonData["sensors"]},
+        {"serverPort", m_jsonData["serverPort"]}
+    };
 
     return dataWithoutCred;
 }
 
-void ConfStorage::setDefaultData()
+bool ConfStorage::isAvailableSpaceForNextSensor()
 {
-    m_jsonData["user"] = "admin";
-    m_jsonData["passwd"] = "passwd";
-    m_jsonData["sensors"] = {};
-    m_jsonData["serverPort"] = 80;
-    m_jsonData["sensorUpdatePeriodMins"] = 1;
-
-    // TODO: STUB, remove after implementation ready
-    m_jsonData["sensors"] = {{"2506682365", "Some sensor name"}};
+    return m_jsonData["sensors"].size() < maxSensorsNum;
 }
+
+bool ConfStorage::addSensor(std::size_t identifier, const std::string &name)
+{
+    if (isAvailableSpaceForNextSensor())
+    {
+        m_jsonData["sensors"][std::to_string(identifier)] = name;
+        return true;
+    }
+
+    return false;
+}
+
+bool ConfStorage::removeSensor(std::size_t identifier)
+{
+    auto toRemove = m_jsonData["sensors"].find(std::to_string(identifier));
+    auto end = m_jsonData["sensors"].end();
+
+    if (toRemove != end)
+    {
+        m_jsonData["sensors"].erase(toRemove);
+        return true;
+    }
+
+    return false;
+}
+
+nlohmann::json ConfStorage::getSensorsMapping()
+{
+    return m_jsonData["sensors"];
+}
+

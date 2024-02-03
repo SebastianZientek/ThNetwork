@@ -36,7 +36,7 @@ public:
 
 private:
     Status systemInit();
-    Status readConfig();
+    Status initConfig();
     Status connectWiFi();
     void wifiSettingsMode();
     void setupWifiButton();

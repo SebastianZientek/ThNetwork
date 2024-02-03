@@ -1,26 +1,14 @@
 #pragma once
 
-#include <Arduino.h>
-
-#include "common/logger.hpp"
-
-class File;
-
-template <typename FileSystem, typename FileType = File>
+template <typename FileT>
 class RaiiFile
 {
 public:
-    explicit RaiiFile(FileSystem filesystem,
-                      const std::string &path,
-                      const char *mode = "r",
-                      bool create = false)
-        : m_file(filesystem.open(path.c_str(), mode, create))
+    explicit RaiiFile(FileT file)
+        : m_file(file)
     {
-        if (!m_file)
-        {
-            logger::logErr("Failed to open file for reading");
-        }
     }
+
     RaiiFile(const RaiiFile &) = delete;
     RaiiFile(RaiiFile &&) noexcept = default;
     RaiiFile &operator=(const RaiiFile &) = delete;
@@ -31,11 +19,11 @@ public:
         m_file.close();
     }
 
-    FileType *operator->()
+    FileT *operator->()
     {
         return &m_file;
     }
 
 private:
-    FileType m_file{};
+    FileT m_file;
 };

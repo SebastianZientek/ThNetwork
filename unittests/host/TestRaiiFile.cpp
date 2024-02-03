@@ -17,6 +17,6 @@ TEST_GROUP(RaiiFileTest)  // NOLINT
 TEST(RaiiFileTest, ShouldCloseFileAfterGoingOutOfTheScope)  // NOLINT
 {
     mock().expectOneCall("FileMock::close");
-    auto fileSystem = FileSystemStub{};
-    RaiiFile<FileSystemStub, FileMock> someFile(fileSystem, "FilePath_NotImportantInTest");
+    FileMock fileMock;
+    RaiiFile<FileMock> someFile(fileMock);
 }

@@ -67,7 +67,13 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
 
     auto auth = [this](AsyncWebServerRequest *request)
     {
-        auto [user, passwd] = m_confStorage->getCredentials();
+        auto credentials = m_confStorage->getAdminCredentials();
+        if (!credentials.has_value())
+        {
+            return false;
+        }
+
+        auto [user, passwd] = credentials.value();
         return request->authenticate(user.c_str(), passwd.c_str());
     };
 
@@ -117,10 +123,9 @@ void WebView<ConfStorageType, AsyncWebServerType, AsyncEventSourceType>::startSe
     m_server.on("/sensorIDsToNames", HTTP_GET,
                 [this](AsyncWebServerRequest *request)
                 {
-                    logger::logInf("sensorIDsToNames %s",
-                                   m_confStorage->getSensorIDsToNamesJsonStr().c_str());
-                    request->send_P(HTML_OK, "application/json",
-                                    m_confStorage->getSensorIDsToNamesJsonStr().c_str());
+                    auto sensorsMappingJsonStr = m_confStorage->getSensorsMapping().dump();
+                    logger::logInf("sensorIDsToNames %s", sensorsMappingJsonStr.c_str());
+                    request->send_P(HTML_OK, "application/json", sensorsMappingJsonStr.c_str());
                 });
 
     m_server.on("/configuration", HTTP_GET,

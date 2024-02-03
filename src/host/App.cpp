@@ -52,6 +52,9 @@ void App::init()
         };
 
         m_web->startServer(getSensorData);
+
+        // TODO: STUB, remove after implementation ready
+        m_confStorage->addSensor(2506682365, "Some sensor name");
     }
 }
 
@@ -71,7 +74,7 @@ App::Status App::systemInit()
     setupWifiButton();
 
     logger::init();
-    if (auto status = readConfig(); status != Status::OK)
+    if (auto status = initConfig(); status != Status::OK)
     {
         return status;
     }
@@ -90,13 +93,26 @@ App::Status App::systemInit()
     return Status::OK;
 }
 
-App::Status App::readConfig()
+App::Status App::initConfig()
 {
     SPIFFS.begin(true);
-    m_confStorage = std::make_shared<ConfStorage>(SPIFFS, "/config.json");
-    auto state = m_confStorage->load();
+    RaiiFile configFile(SPIFFS.open("/config.json"));
 
-    return state == ConfStorage::State::OK ? Status::OK : Status::FAIL;
+    m_confStorage = std::make_shared<ConfStorage>();
+    auto state = m_confStorage->load(configFile);
+
+    if (state == ConfStorage::State::FAIL)
+    {
+        logger::logWrn("File not exists, setting and saving defaults");
+        m_confStorage->setDefault();
+        if (m_confStorage->save(configFile) == ConfStorage::State::FAIL)
+        {
+            logger::logErr("Can't save settings");
+            return Status::FAIL;
+        }
+    }
+
+    return Status::OK;
 }
 
 App::Status App::connectWiFi()
@@ -112,6 +128,7 @@ App::Status App::connectWiFi()
     auto wifiConfig = m_confStorage->getWifiConfig();
     if (!wifiConfig)
     {
+        logger::logWrn("No wifi configuration!");
         return Status::WIFI_CONFIGURATION_NEEDED;
     }
 
