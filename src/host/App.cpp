@@ -1,6 +1,6 @@
 #include "App.hpp"
 
-#include <SD.h>
+#include <SPIFFS.h>
 
 #include <algorithm>
 #include <memory>
@@ -18,7 +18,7 @@
 
 void App::init()
 {
-    if (auto initStatus = systemInit(); initStatus == Status::FAIL)
+    if (auto initState = systemInit(); initState == State::FAIL)
     {
         constexpr auto msInSecond = 1000;
         constexpr auto waitBeforeRebootSec = 5;
@@ -27,7 +27,7 @@ void App::init()
         delay(waitBeforeRebootSec * msInSecond);
         ESP.restart();
     }
-    else if (initStatus == Status::WIFI_CONFIGURATION_NEEDED)
+    else if (initState == State::WIFI_CONFIGURATION_NEEDED)
     {
         wifiSettingsMode();
     }
@@ -52,6 +52,9 @@ void App::init()
         };
 
         m_web->startServer(getSensorData);
+
+        // TODO: STUB, remove after implementation ready
+        m_confStorage->addSensor(2506682365, "Some sensor name");
     }
 }
 
@@ -63,7 +66,7 @@ void App::update()
     }
 }
 
-App::Status App::systemInit()
+App::State App::systemInit()
 {
     // Let the board be electrically ready before initialization
     constexpr auto waitBeforeInitializationMs = 1000;
@@ -71,17 +74,13 @@ App::Status App::systemInit()
     setupWifiButton();
 
     logger::init();
-    if (auto status = initSD(); status != Status::OK)
+    if (auto state = initConfig(); state != State::OK)
     {
-        return status;
+        return state;
     }
-    if (auto status = readConfig(); status != Status::OK)
+    if (auto state = connectWiFi(); state != State::OK)
     {
-        return status;
-    }
-    if (auto status = connectWiFi(); status != Status::OK)
-    {
-        return status;
+        return state;
     }
 
     m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
@@ -91,34 +90,32 @@ App::Status App::systemInit()
     m_espNow = std::make_unique<EspNow>(m_timeClient);
     m_web = std::make_unique<WebViewType>(m_confStorage);
 
-    return Status::OK;
+    return State::OK;
 }
 
-App::Status App::initSD()
+App::State App::initConfig()
 {
-    if (!SD.begin())
-    {
-        logger::logErr("Card Mount Failed");
-        return Status::FAIL;
-    }
+    SPIFFS.begin(true);
+    RaiiFile configFile(SPIFFS.open("/config.json"));
 
-    if (SD.cardType() == CARD_NONE)
-    {
-        logger::logErr("No SD card attached");
-        return Status::FAIL;
-    }
-    return Status::OK;
-}
-
-App::Status App::readConfig()
-{
     m_confStorage = std::make_shared<ConfStorage>();
-    auto state = m_confStorage->load();
+    auto state = m_confStorage->load(configFile);
 
-    return state == ConfStorage::State::OK ? Status::OK : Status::FAIL;
+    if (state == ConfStorage::State::FAIL)
+    {
+        logger::logWrn("File not exists, setting and saving defaults");
+        m_confStorage->setDefault();
+        if (m_confStorage->save(configFile) == ConfStorage::State::FAIL)
+        {
+            logger::logErr("Can't save settings");
+            return State::FAIL;
+        }
+    }
+
+    return State::OK;
 }
 
-App::Status App::connectWiFi()
+App::State App::connectWiFi()
 {
     logger::logInf("Connecting to WiFi");
 
@@ -131,7 +128,8 @@ App::Status App::connectWiFi()
     auto wifiConfig = m_confStorage->getWifiConfig();
     if (!wifiConfig)
     {
-        return Status::WIFI_CONFIGURATION_NEEDED;
+        logger::logWrn("No wifi configuration!");
+        return State::WIFI_CONFIGURATION_NEEDED;
     }
 
     auto [ssid, pass] = wifiConfig.value();
@@ -142,7 +140,7 @@ App::Status App::connectWiFi()
     {
         if (isWifiButtonPressed())
         {
-            return Status::WIFI_CONFIGURATION_NEEDED;
+            return State::WIFI_CONFIGURATION_NEEDED;
         }
 
         wifiConnectionTries++;
@@ -160,7 +158,7 @@ App::Status App::connectWiFi()
     logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", WiFi.SSID(),
                    WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), WiFi.channel());
 
-    return Status::OK;
+    return State::OK;
 }
 
 void App::wifiSettingsMode()

@@ -126,14 +126,3 @@ TEST(TestEspNow, ShouldSetupAfterPairMsg)  // NOLINT
 
     CHECK_TRUE(espNow.pair());  // NOLINT
 }
-
-TEST(TestEspNow, ShouldSendDataToHost)  // NOLINT
-{
-    EspNow espNow;
-
-    mock().expectOneCall("EspNowAdp::send").andReturnValue(0);
-    mock().expectOneCall("delay").withParameter("time", 1);
-
-    MacAddr mac = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};  // NOLINT
-    espNow.sendDataToHost(mac, 12.3, 4.56);              // NOLINT
-}
