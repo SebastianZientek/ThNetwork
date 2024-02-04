@@ -5,12 +5,16 @@
 #include "FileSystemMock.hpp"
 #include "RaiiFile.hpp"
 
+// clang-format off
 TEST_GROUP(ConfStorageTest)  // NOLINT
-{void teardown() override{mock().checkExpectations();
-mock().clear();
-}
-}
-;
+{
+    void teardown() override
+    {
+        mock().checkExpectations();
+        mock().clear();
+    }
+};
+// clang-format on
 
 TEST(ConfStorageTest, ShouldLoadCorrectConfiguration)  // NOLINT
 {
