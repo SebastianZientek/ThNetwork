@@ -1,13 +1,12 @@
 #include "App.hpp"
 
+#include <Arduino.h>
 #include <SPIFFS.h>
 
 #include <algorithm>
-#include <iterator>
 #include <memory>
 #include <numeric>
 
-#include "Arduino.h"
 #include "ConfStorage.hpp"
 #include "RaiiFile.hpp"
 #include "WebView.hpp"
