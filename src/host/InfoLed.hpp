@@ -3,6 +3,8 @@
 #include <Arduino.h>
 
 #include <cstddef>
+
+#include "Timer.hpp"
 #include "common/logger.hpp"
 
 class InfoLed
@@ -12,43 +14,33 @@ public:
         : m_ledPin(pin)
     {
         pinMode(m_ledPin, OUTPUT);
+        m_blinkTimer.setCallback(
+            [this, ledOn = false]() mutable
+            {
+                ledOn = !ledOn;
+                digitalWrite(m_ledPin, ledOn ? HIGH : LOW);
+            });
     }
 
     void switchOn(bool state)
     {
+        m_blinkTimer.stop();
         digitalWrite(m_ledPin, state ? HIGH : LOW);
-        m_state = Mode::NORMAL;
     }
 
     void blinking()
     {
-        m_state = Mode::BLINKING;
+        m_blinkTimer.start(m_periodMilis, true);
     }
 
     void update()
     {
-        if (m_state == Mode::BLINKING)
-        {
-            if (m_lastChangeTime + m_periodMilis < millis())
-            {
-                m_lastChangeTime = millis();
-                m_ledOn = !m_ledOn;
-                digitalWrite(m_ledPin, m_ledOn ? HIGH : LOW);
-            }
-        }
+        m_blinkTimer.update();
     }
 
 private:
-    enum Mode
-    {
-        NORMAL,
-        BLINKING
-    };
-
     constexpr static auto m_periodMilis = 200;
 
     std::size_t m_ledPin;
-    std::size_t m_lastChangeTime = 0;
-    Mode m_state = NORMAL;
-    bool m_ledOn = false;
+    Timer m_blinkTimer;
 };

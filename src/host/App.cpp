@@ -87,7 +87,6 @@ App::State App::systemInit()
     setupWifiButton();
 
     m_infoLed = std::make_unique<InfoLed>(infoLed);
-    m_infoLed->blinking();
     m_infoLed->switchOn(false);
 
     logger::init();
