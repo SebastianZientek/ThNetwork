@@ -12,7 +12,7 @@ void ConfStorage::setDefault()
     m_jsonData["admin"]["passwd"] = "passwd";
     m_jsonData["sensors"] = {};
     m_jsonData["serverPort"] = defaultSrvPortNumber;
-    m_jsonData["sensorUpdatePeriodMins"] = 1;
+    m_jsonData["sensorUpdatePeriodMins"] = defaultSensorUpdateMins;
 }
 
 void ConfStorage::setSensorUpdatePeriodMins(std::size_t minutes)

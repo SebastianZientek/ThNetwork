@@ -74,5 +74,6 @@ private:
     // Limited because of space for readings
     constexpr static auto maxSensorsNum = 7;
     constexpr static auto defaultSrvPortNumber = 80;
+    constexpr static auto defaultSensorUpdateMins = 1;
     nlohmann::json m_jsonData{};
 };
