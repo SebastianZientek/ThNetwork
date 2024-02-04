@@ -13,7 +13,7 @@
 
 class App
 {
-    enum class Status
+    enum class State
     {
         OK,
         FAIL,
@@ -35,9 +35,9 @@ public:
     void update();
 
 private:
-    Status systemInit();
-    Status initConfig();
-    Status connectWiFi();
+    State systemInit();
+    State initConfig();
+    State connectWiFi();
     void wifiSettingsMode();
     void setupWifiButton();
     bool isWifiButtonPressed();

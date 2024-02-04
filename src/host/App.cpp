@@ -18,7 +18,7 @@
 
 void App::init()
 {
-    if (auto initStatus = systemInit(); initStatus == Status::FAIL)
+    if (auto initState = systemInit(); initState == State::FAIL)
     {
         constexpr auto msInSecond = 1000;
         constexpr auto waitBeforeRebootSec = 5;
@@ -27,7 +27,7 @@ void App::init()
         delay(waitBeforeRebootSec * msInSecond);
         ESP.restart();
     }
-    else if (initStatus == Status::WIFI_CONFIGURATION_NEEDED)
+    else if (initState == State::WIFI_CONFIGURATION_NEEDED)
     {
         wifiSettingsMode();
     }
@@ -66,7 +66,7 @@ void App::update()
     }
 }
 
-App::Status App::systemInit()
+App::State App::systemInit()
 {
     // Let the board be electrically ready before initialization
     constexpr auto waitBeforeInitializationMs = 1000;
@@ -74,13 +74,13 @@ App::Status App::systemInit()
     setupWifiButton();
 
     logger::init();
-    if (auto status = initConfig(); status != Status::OK)
+    if (auto state = initConfig(); state != State::OK)
     {
-        return status;
+        return state;
     }
-    if (auto status = connectWiFi(); status != Status::OK)
+    if (auto state = connectWiFi(); state != State::OK)
     {
-        return status;
+        return state;
     }
 
     m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
@@ -90,10 +90,10 @@ App::Status App::systemInit()
     m_espNow = std::make_unique<EspNow>(m_timeClient);
     m_web = std::make_unique<WebViewType>(m_confStorage);
 
-    return Status::OK;
+    return State::OK;
 }
 
-App::Status App::initConfig()
+App::State App::initConfig()
 {
     SPIFFS.begin(true);
     RaiiFile configFile(SPIFFS.open("/config.json"));
@@ -108,14 +108,14 @@ App::Status App::initConfig()
         if (m_confStorage->save(configFile) == ConfStorage::State::FAIL)
         {
             logger::logErr("Can't save settings");
-            return Status::FAIL;
+            return State::FAIL;
         }
     }
 
-    return Status::OK;
+    return State::OK;
 }
 
-App::Status App::connectWiFi()
+App::State App::connectWiFi()
 {
     logger::logInf("Connecting to WiFi");
 
@@ -129,7 +129,7 @@ App::Status App::connectWiFi()
     if (!wifiConfig)
     {
         logger::logWrn("No wifi configuration!");
-        return Status::WIFI_CONFIGURATION_NEEDED;
+        return State::WIFI_CONFIGURATION_NEEDED;
     }
 
     auto [ssid, pass] = wifiConfig.value();
@@ -140,7 +140,7 @@ App::Status App::connectWiFi()
     {
         if (isWifiButtonPressed())
         {
-            return Status::WIFI_CONFIGURATION_NEEDED;
+            return State::WIFI_CONFIGURATION_NEEDED;
         }
 
         wifiConnectionTries++;
@@ -158,7 +158,7 @@ App::Status App::connectWiFi()
     logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", WiFi.SSID(),
                    WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), WiFi.channel());
 
-    return Status::OK;
+    return State::OK;
 }
 
 void App::wifiSettingsMode()
