@@ -1,5 +1,6 @@
 #include "App.hpp"
 
+#include <Arduino.h>
 #include <SPIFFS.h>
 
 #include <algorithm>
@@ -60,9 +61,18 @@ void App::init()
 
 void App::update()
 {
+    static decltype(millis()) wifiModeStartTime = 0;
     if (m_mode != Mode::WIFI_SETTINGS && isWifiButtonPressed())
     {
+        wifiModeStartTime = millis();
         wifiSettingsMode();
+    }
+
+    if (m_mode == Mode::WIFI_SETTINGS
+        && millis() > wifiConfigServerTimeoutMillis + wifiModeStartTime)
+    {
+        logger::logInf("Wifi configuration timeout. Reboot...");
+        ESP.restart();
     }
 }
 
@@ -72,6 +82,8 @@ App::State App::systemInit()
     constexpr auto waitBeforeInitializationMs = 1000;
     delay(waitBeforeInitializationMs);
     setupWifiButton();
+    initLed();
+    setInfoLed(false);
 
     logger::init();
     if (auto state = initConfig(); state != State::OK)
@@ -164,6 +176,8 @@ App::State App::connectWiFi()
 void App::wifiSettingsMode()
 {
     logger::logInf("Wifi settings mode");
+    setInfoLed(true);
+
     m_mode = Mode::WIFI_SETTINGS;
     if (m_espNow)
     {
@@ -181,10 +195,20 @@ void App::wifiSettingsMode()
 
 void App::setupWifiButton()
 {
-    pinMode(21, INPUT_PULLUP);
+    pinMode(wifiButton, INPUT_PULLUP);
 }
 
 bool App::isWifiButtonPressed()
 {
-    return digitalRead(21) == LOW;
+    return digitalRead(wifiButton) == LOW;
+}
+
+void App::initLed()
+{
+    pinMode(infoLed, OUTPUT);
+}
+
+void App::setInfoLed(bool state)
+{
+    digitalWrite(infoLed, state ? HIGH : LOW);
 }
