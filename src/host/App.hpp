@@ -10,6 +10,7 @@
 #include "ReadingsStorage.hpp"
 #include "WebView.hpp"
 #include "WebWifiConfig.hpp"
+#include "InfoLed.hpp"
 
 class App
 {
@@ -41,14 +42,14 @@ private:
     void wifiSettingsMode();
     void setupWifiButton();
     bool isWifiButtonPressed();
-    void initLed();
-    void setInfoLed(bool ledState);
 
     constexpr static auto infoLed = 23;
     constexpr static auto wifiButton = 14;
     constexpr static auto wifiConfigServerTimeoutMillis = 1000 * 60 * 10; // 10 minutes
 
     Mode m_mode = Mode::SENSOR_HOST;
+
+    std::unique_ptr<InfoLed> m_infoLed;
     std::shared_ptr<ConfStorage> m_confStorage{};
     std::unique_ptr<WebViewType> m_web{};
     std::unique_ptr<WebWifiConfigType> m_webWifiConfig{};
