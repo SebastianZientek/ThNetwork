@@ -40,6 +40,16 @@ void EspNow::init(const NewReadingsCb &newReadingsCb,
     setOnDataSendCb();
 }
 
+void EspNow::enablePairing()
+{
+    m_pairingEnabled = true;
+}
+
+void EspNow::disablePairing()
+{
+    m_pairingEnabled = false;
+}
+
 void EspNow::deinit()
 {
     esp_now_deinit();

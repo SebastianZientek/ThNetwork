@@ -28,6 +28,8 @@ public:
     void init(const NewReadingsCb &newReadingsCb,
               const NewPeerCb &newPeerCb,
               uint8_t sensorUpdatePeriodMins);
+    void enablePairing();
+    void disablePairing();
     void deinit();
 
 private:
@@ -37,6 +39,10 @@ private:
 
     static OnSendCb m_onSend;  // NOLINT
     static OnRecvCb m_onRecv;  // NOLINT
+
+    constexpr static std::size_t m_pairingTimeout = 3;// * 60 * 1000; // 3 minutes
+    std::size_t m_pairingStartTime = 0;
+    bool m_pairingEnabled = false;
 
     NewReadingsCb m_newReadingsCb;
     NewPeerCb m_newPeerCb;
