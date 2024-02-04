@@ -8,6 +8,7 @@
 #include <numeric>
 
 #include "ConfStorage.hpp"
+#include "InfoLed.hpp"
 #include "RaiiFile.hpp"
 #include "WebView.hpp"
 #include "WiFi.h"
@@ -74,6 +75,8 @@ void App::update()
         logger::logInf("Wifi configuration timeout. Reboot...");
         ESP.restart();
     }
+
+    m_infoLed->update();
 }
 
 App::State App::systemInit()
@@ -82,8 +85,10 @@ App::State App::systemInit()
     constexpr auto waitBeforeInitializationMs = 1000;
     delay(waitBeforeInitializationMs);
     setupWifiButton();
-    initLed();
-    setInfoLed(false);
+
+    m_infoLed = std::make_unique<InfoLed>(infoLed);
+    m_infoLed->blinking();
+    m_infoLed->switchOn(false);
 
     logger::init();
     if (auto state = initConfig(); state != State::OK)
@@ -176,7 +181,7 @@ App::State App::connectWiFi()
 void App::wifiSettingsMode()
 {
     logger::logInf("Wifi settings mode");
-    setInfoLed(true);
+    m_infoLed->switchOn(true);
 
     m_mode = Mode::WIFI_SETTINGS;
     if (m_espNow)
@@ -201,14 +206,4 @@ void App::setupWifiButton()
 bool App::isWifiButtonPressed()
 {
     return digitalRead(wifiButton) == LOW;
-}
-
-void App::initLed()
-{
-    pinMode(infoLed, OUTPUT);
-}
-
-void App::setInfoLed(bool state)
-{
-    digitalWrite(infoLed, state ? HIGH : LOW);
 }
