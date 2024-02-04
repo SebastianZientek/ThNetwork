@@ -80,11 +80,10 @@ std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredenti
 
 nlohmann::json ConfStorage::getConfigWithoutCredentials()
 {
-    nlohmann::json dataWithoutCred = {
-        {"sensorUpdatePeriodMins", m_jsonData["sensorUpdatePeriodMins"]},
-        {"sensors", m_jsonData["sensors"]},
-        {"serverPort", m_jsonData["serverPort"]}
-    };
+    nlohmann::json dataWithoutCred
+        = {{"sensorUpdatePeriodMins", m_jsonData["sensorUpdatePeriodMins"]},
+           {"sensors", m_jsonData["sensors"]},
+           {"serverPort", m_jsonData["serverPort"]}};
 
     return dataWithoutCred;
 }
@@ -94,7 +93,7 @@ bool ConfStorage::isAvailableSpaceForNextSensor()
     return m_jsonData["sensors"].size() < maxSensorsNum;
 }
 
-bool ConfStorage::addSensor(std::size_t identifier, const std::string &name)
+bool ConfStorage::addSensor(IDType identifier, const std::string &name)
 {
     if (isAvailableSpaceForNextSensor())
     {
@@ -105,7 +104,7 @@ bool ConfStorage::addSensor(std::size_t identifier, const std::string &name)
     return false;
 }
 
-bool ConfStorage::removeSensor(std::size_t identifier)
+bool ConfStorage::removeSensor(IDType identifier)
 {
     auto toRemove = m_jsonData["sensors"].find(std::to_string(identifier));
     auto end = m_jsonData["sensors"].end();
@@ -123,4 +122,3 @@ nlohmann::json ConfStorage::getSensorsMapping()
 {
     return m_jsonData["sensors"];
 }
-

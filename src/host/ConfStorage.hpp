@@ -66,10 +66,9 @@ public:
     nlohmann::json getConfigWithoutCredentials();
 
     bool isAvailableSpaceForNextSensor();
-    bool addSensor(std::size_t identifier, const std::string &name = "Unnamed");
-    bool removeSensor(std::size_t identifier);
+    bool addSensor(IDType identifier, const std::string &name = "Unnamed");
+    bool removeSensor(IDType identifier);
     nlohmann::json getSensorsMapping();
-
 
 private:
     // Limited because of space for readings

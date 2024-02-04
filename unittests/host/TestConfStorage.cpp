@@ -213,7 +213,7 @@ TEST(ConfStorageTest, ShouldBeAbleToRemoveSensor)
     auto expected = nlohmann::json({
         {"2", "Aa"},
     });
-    
+
     auto sensorsMapping = confStorage.getSensorsMapping();
     CHECK_TRUE(expected == sensorsMapping);
 }
@@ -232,7 +232,7 @@ TEST(ConfStorageTest, ShouldNotRemoveSensorWithWrongIdentifier)
         {"1", "Unnamed"},
         {"2", "Aa"},
     });
-    
+
     auto sensorsMapping = confStorage.getSensorsMapping();
     CHECK_TRUE(expected == sensorsMapping);
 }
