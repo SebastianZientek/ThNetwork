@@ -30,6 +30,10 @@ public:
               uint8_t sensorUpdatePeriodMins);
     void deinit();
 
+    void enablePairing();
+    void disablePairing();
+    bool isPairingEnabled();
+
 private:
     using OnSendCb = std::function<void(const MacAddr &mac, esp_now_send_status_t status)>;
     using OnRecvCb
@@ -42,6 +46,7 @@ private:
     NewPeerCb m_newPeerCb;
     std::shared_ptr<NTPClient> m_ntpClient;
     uint8_t m_sensorUpdatePeriodMins;
+    bool m_pairingEnabled = false;
 
     void onDataSend(const MacAddr &mac, esp_now_send_status_t status);
     void onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len);

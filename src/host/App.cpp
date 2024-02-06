@@ -76,7 +76,19 @@ void App::update()
         ESP.restart();
     }
 
+    if (isPairButtonPressed() && !m_espNow->isPairingEnabled())
+    {
+        m_espNow->enablePairing();
+        m_infoLed->blinking();
+        m_pairingTimer.setCallback([this]{
+            m_espNow->disablePairing();
+            m_infoLed->switchOn(false);
+        });
+        m_pairingTimer.start(5000);
+    }
+
     m_infoLed->update();
+    m_pairingTimer.update();
 }
 
 App::State App::systemInit()
@@ -84,7 +96,7 @@ App::State App::systemInit()
     // Let the board be electrically ready before initialization
     constexpr auto waitBeforeInitializationMs = 1000;
     delay(waitBeforeInitializationMs);
-    setupWifiButton();
+    setupButtons();
 
     m_infoLed = std::make_unique<InfoLed>(infoLed);
     m_infoLed->switchOn(false);
@@ -197,12 +209,18 @@ void App::wifiSettingsMode()
     m_webWifiConfig->startConfiguration(m_confStorage);
 }
 
-void App::setupWifiButton()
+void App::setupButtons()
 {
     pinMode(wifiButton, INPUT_PULLUP);
+    pinMode(pairButton, INPUT_PULLUP);
 }
 
 bool App::isWifiButtonPressed()
 {
     return digitalRead(wifiButton) == LOW;
+}
+
+bool App::isPairButtonPressed()
+{
+    return digitalRead(pairButton) == LOW;
 }
