@@ -3,23 +3,17 @@
 #include <array>
 #include <nlohmann/json.hpp>
 #include <optional>
-#include <string_view>
 
+#include "IConfStorage.hpp"
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
 
-class ConfStorage
+class ConfStorage : public IConfStorage
 {
 public:
-    enum class State
-    {
-        OK,
-        FAIL
-    };
-
     template <typename RaiiFileT>
-    State load(RaiiFileT &file)
+    IConfStorage::State load(RaiiFileT &file)
     {
         std::string data = file->readString().c_str();
         try
