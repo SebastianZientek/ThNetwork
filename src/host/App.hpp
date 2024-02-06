@@ -63,6 +63,7 @@ private:
     constexpr static auto wifiButton = 14;
     constexpr static auto pairButton = 18;
     constexpr static auto wifiConfigServerTimeoutMillis = 1000 * 60 * 10; // 10 minutes
+    constexpr static auto espNowPairingTimeout = 1000 * 60 * 2; // 2 minutes
 
     Mode m_mode = Mode::SENSOR_HOST;
 
