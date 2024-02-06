@@ -1,5 +1,3 @@
-#include "WebView.hpp"
-
 #include <incbin.h>
 
 INCTXT(IndexHtml, "src/host/html/index.html");

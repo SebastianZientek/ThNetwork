@@ -6,12 +6,8 @@
 #include <memory>
 
 #include "RaiiFile.hpp"
+#include "Resources.hpp"
 #include "common/logger.hpp"
-
-extern "C"
-{
-    extern const char gWifiSettingsHtmlData[];
-}
 
 template <typename ConfStorageType, typename AsyncWebServerType>
 class WebWifiConfig

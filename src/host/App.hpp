@@ -2,6 +2,7 @@
 
 #include <NTPClient.h>
 #include <WiFiUdp.h>
+#include <ESPAsyncWebServer.h>
 
 #include <memory>
 
@@ -27,7 +28,20 @@ class App
         WIFI_SETTINGS
     };
 
-    using WebViewType = WebView<ConfStorage, AsyncWebServer, AsyncEventSource>;
+    struct WebViewComponentTypes {
+        using AsyncWebSvrType = AsyncWebServer;
+        using AsyncEventSrcType = AsyncEventSource;
+        using AsyncWebSrvReq = AsyncWebServerRequest;
+        using AsyncEventSrcClient = AsyncEventSourceClient;
+        using AsyncWebParam = AsyncWebParameter;
+
+        enum ReqMethod {
+            GET = HTTP_GET,
+            POST = HTTP_POST
+        };
+    };
+
+    using WebViewType = WebView<WebViewComponentTypes>;
     using WebWifiConfigType = WebWifiConfig<ConfStorage, AsyncWebServer>;
 
 public:
