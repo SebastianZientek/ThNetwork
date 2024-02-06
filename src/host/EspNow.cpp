@@ -88,9 +88,15 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         if (m_pairingEnabled)
         {
             logger::logInf("PAIR_REQ received");
-            addPeer(mac, WiFi.channel());
-            sendPairOK(mac);
-            esp_now_del_peer(mac.data());
+            PairReqMsg pairReqMsg;
+            pairReqMsg.deserialize(incomingData, len);
+            if (m_newPeerCb(pairReqMsg.ID))
+            {
+                addPeer(mac, WiFi.channel());
+                sendPairOK(mac);
+                esp_now_del_peer(mac.data());
+            }
+
         }
         else
         {

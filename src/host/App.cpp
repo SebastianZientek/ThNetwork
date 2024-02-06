@@ -35,16 +35,35 @@ void App::init()
     }
     else
     {
-        m_espNow->init(
-            [this](float temp, float hum, IDType identifier, unsigned long epochTime)
-            {
-                m_readingsStorage.addReading(identifier, temp, hum, epochTime);
+        auto newReadingCallback
+            = [this](float temp, float hum, IDType identifier, unsigned long epochTime)
+        {
+            m_readingsStorage.addReading(identifier, temp, hum, epochTime);
 
-                logger::logInf("New reading sending");
-                auto reading = m_readingsStorage.getLastReadingAsJson(identifier);
-                m_web->sendEvent(reading.c_str(), "newReading", millis());
-            },
-            [this](IDType identifier) {}, m_confStorage->getSensorUpdatePeriodMins());
+            logger::logInf("New reading sending");
+            auto reading = m_readingsStorage.getLastReadingAsJson(identifier);
+            m_web->sendEvent(reading.c_str(), "newReading", millis());
+        };
+
+        auto newSensorCallback = [this](IDType identifier)
+        {
+            if (!m_confStorage->isAvailableSpaceForNextSensor())
+            {
+                logger::logWrn("No space for more sensors");
+                return false;
+            }
+
+            logger::logInf("Paired sensor with ID: %u", identifier);
+            m_confStorage->addSensor(identifier);
+        
+            RaiiFile configFile(SPIFFS.open("/config.json", "w"));
+            m_confStorage->save(configFile);
+
+            return true;
+        };
+
+        m_espNow->init(newReadingCallback, newSensorCallback,
+                       m_confStorage->getSensorUpdatePeriodMins());
 
         auto getSensorData = [this](const std::size_t &identifier)
         {
@@ -80,11 +99,13 @@ void App::update()
     {
         m_espNow->enablePairing();
         m_infoLed->blinking();
-        m_pairingTimer.setCallback([this]{
-            m_espNow->disablePairing();
-            m_infoLed->switchOn(false);
-        });
-        m_pairingTimer.start(5000);
+        m_pairingTimer.setCallback(
+            [this]
+            {
+                m_espNow->disablePairing();
+                m_infoLed->switchOn(false);
+            });
+        m_pairingTimer.start(espNowPairingTimeout);
     }
 
     m_infoLed->update();

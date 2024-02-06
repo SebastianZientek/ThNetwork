@@ -48,21 +48,21 @@ public:
 
     void setDefault();
 
-    void setSensorUpdatePeriodMins(std::size_t minutes);
-    std::size_t getSensorUpdatePeriodMins();
-    void setServerPort(std::size_t port);
-    std::size_t getServerPort();
-    void setWifiConfig(std::string ssid, std::string pass);
-    std::optional<std::pair<std::string, std::string>> getWifiConfig();
-    void setAdminCredentials(std::string user, std::string pass);
-    std::optional<std::pair<std::string, std::string>> getAdminCredentials();
+    void setSensorUpdatePeriodMins(std::size_t minutes) override;
+    std::size_t getSensorUpdatePeriodMins() override;
+    void setServerPort(std::size_t port) override;
+    std::size_t getServerPort() override;
+    void setWifiConfig(std::string ssid, std::string pass) override;
+    std::optional<std::pair<std::string, std::string>> getWifiConfig() override;
+    void setAdminCredentials(std::string user, std::string pass) override;
+    std::optional<std::pair<std::string, std::string>> getAdminCredentials() override;
 
-    nlohmann::json getConfigWithoutCredentials();
+    nlohmann::json getConfigWithoutCredentials() override;
 
-    bool isAvailableSpaceForNextSensor();
-    bool addSensor(IDType identifier, const std::string &name = "Unnamed");
-    bool removeSensor(IDType identifier);
-    nlohmann::json getSensorsMapping();
+    bool isAvailableSpaceForNextSensor() override;
+    bool addSensor(IDType identifier, const std::string &name = "Unnamed") override;
+    bool removeSensor(IDType identifier) override;
+    nlohmann::json getSensorsMapping() override;
 
 private:
     // Limited because of space for readings

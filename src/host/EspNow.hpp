@@ -16,7 +16,7 @@ class EspNow
 public:
     using NewReadingsCb
         = std::function<void(float temp, float hum, IDType identifier, unsigned long epochTime)>;
-    using NewPeerCb = std::function<void(IDType identifier)>;
+    using NewPeerCb = std::function<bool(IDType identifier)>;
 
     EspNow(std::shared_ptr<NTPClient> ntpClient);
     ~EspNow() = default;
