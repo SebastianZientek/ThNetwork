@@ -12,6 +12,7 @@
 #include "WebView.hpp"
 #include "WebWifiConfig.hpp"
 #include "InfoLed.hpp"
+#include "Timer.hpp"
 
 class App
 {
@@ -54,16 +55,18 @@ private:
     State initConfig();
     State connectWiFi();
     void wifiSettingsMode();
-    void setupWifiButton();
+    void setupButtons();
     bool isWifiButtonPressed();
+    bool isPairButtonPressed();
 
     constexpr static auto infoLed = 23;
     constexpr static auto wifiButton = 14;
+    constexpr static auto pairButton = 18;
     constexpr static auto wifiConfigServerTimeoutMillis = 1000 * 60 * 10; // 10 minutes
 
     Mode m_mode = Mode::SENSOR_HOST;
 
-    std::unique_ptr<InfoLed> m_infoLed;
+    std::unique_ptr<InfoLed> m_infoLed{};
     std::shared_ptr<ConfStorage> m_confStorage{};
     std::unique_ptr<WebViewType> m_web{};
     std::unique_ptr<WebWifiConfigType> m_webWifiConfig{};
@@ -71,4 +74,5 @@ private:
     std::shared_ptr<NTPClient> m_timeClient{};
     std::unique_ptr<EspNow> m_espNow{};
     ReadingsStorage m_readingsStorage{};
+    Timer m_pairingTimer;
 };

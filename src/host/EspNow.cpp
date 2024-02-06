@@ -45,6 +45,21 @@ void EspNow::deinit()
     esp_now_deinit();
 }
 
+void EspNow::enablePairing()
+{
+    m_pairingEnabled = true;
+}
+
+void EspNow::disablePairing()
+{
+    m_pairingEnabled = false;
+}
+
+bool EspNow::isPairingEnabled()
+{
+    return m_pairingEnabled;
+}
+
 void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
 {
     auto msgAndSignature = serializer::partialDeserialize<MsgType, Signature>(incomingData, len);
@@ -70,10 +85,17 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     {
     case MsgType::PAIR_REQ:
     {
-        logger::logWrn("PAIR_REQ received");
-        addPeer(mac, WiFi.channel());
-        sendPairOK(mac);
-        esp_now_del_peer(mac.data());
+        if (m_pairingEnabled)
+        {
+            logger::logInf("PAIR_REQ received");
+            addPeer(mac, WiFi.channel());
+            sendPairOK(mac);
+            esp_now_del_peer(mac.data());
+        }
+        else
+        {
+            logger::logWrn("Pairing not enabled, request rejected");
+        }
     }
     break;
     case MsgType::PAIR_RESP:
