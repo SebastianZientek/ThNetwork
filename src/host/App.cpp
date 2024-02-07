@@ -55,7 +55,7 @@ void App::init()
 
             logger::logInf("Paired sensor with ID: %u", identifier);
             m_confStorage->addSensor(identifier);
-        
+
             RaiiFile configFile(SPIFFS.open("/config.json", "w"));
             m_confStorage->save(configFile);
 

@@ -16,11 +16,6 @@ void ReadingsStorage::addReading(IDType identifier,
     m_readingBuffers[identifier].put({temperature, humidity, epochTime});
 }
 
-std::map<IDType, ReadingsStorage::ReadingsRingBuffer> &ReadingsStorage::getReadingBuffers()
-{
-    return m_readingBuffers;
-}
-
 std::string ReadingsStorage::getReadingsAsJsonArr(IDType identifier)
 {
     ReadingsRingBuffer &readingsBuffer = m_readingBuffers[identifier];
