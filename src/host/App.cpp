@@ -137,7 +137,7 @@ App::State App::systemInit()
     m_timeClient->update();
 
     m_espNow = std::make_unique<EspNow>(m_timeClient);
-    m_web = std::make_unique<WebViewType>(m_confStorage);
+    m_web = std::make_unique<WebViewType>(m_confStorage, std::make_unique<Resources>());
 
     return State::OK;
 }
@@ -226,7 +226,7 @@ void App::wifiSettingsMode()
     }
     WiFi.disconnect();
 
-    m_webWifiConfig = std::make_unique<WebWifiConfigType>();
+    m_webWifiConfig = std::make_unique<WebWifiConfigType>(std::make_unique<Resources>());
     m_webWifiConfig->startConfiguration(m_confStorage);
 }
 

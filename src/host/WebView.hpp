@@ -5,6 +5,7 @@
 #include <string_view>
 
 #include "IConfStorage.hpp"
+#include "IResources.hpp"
 #include "Resources.hpp"
 #include "common/logger.hpp"
 
@@ -20,10 +21,11 @@ class WebView
     using GetSensorDataCb = std::function<std::string(const std::size_t &)>;
 
 public:
-    WebView(std::shared_ptr<IConfStorage> confStorage)
+    WebView(std::shared_ptr<IConfStorage> confStorage, std::unique_ptr<IResources> resources)
         : m_server(confStorage->getServerPort())
         , m_events("/events")
         , m_confStorage(confStorage)
+        , m_resources(std::move(resources))
     {
     }
 
@@ -59,7 +61,7 @@ public:
 
         m_server.on("/", ComponentTypes::ReqMethod::GET,
                     [this](AsyncWebSrvReq *request)
-                    { request->send_P(HTML_OK, "text/html", gIndexHtmlData); });
+                    { request->send_P(HTML_OK, "text/html", m_resources->getIndexHtml()); });
 
         m_server.on("/admin", ComponentTypes::ReqMethod::GET,
                     [this, auth](AsyncWebSrvReq *request)
@@ -68,7 +70,7 @@ public:
                         {
                             return request->requestAuthentication();
                         }
-                        request->send_P(HTML_OK, "text/html", gAdminHtmlData);
+                        request->send_P(HTML_OK, "text/html", m_resources->getAdminHtml());
                     });
 
         m_server.on("/setCredentials", ComponentTypes::ReqMethod::POST,
@@ -86,7 +88,7 @@ public:
                             }
                         }
 
-                        request->send_P(HTML_OK, "text/html", gAdminHtmlData);
+                        request->send_P(HTML_OK, "text/html", m_resources->getAdminHtml());
                     });
 
         m_server.on("/logout", ComponentTypes::ReqMethod::GET,
@@ -94,11 +96,11 @@ public:
 
         m_server.on("/favicon.ico", ComponentTypes::ReqMethod::GET,
                     [this](AsyncWebSrvReq *request)
-                    { request->send_P(HTML_OK, "image/png", gFaviconData, gFaviconSize); });
+                    { request->send_P(HTML_OK, "image/png", m_resources->getFavicon(), m_resources->getFaviconSize()); });
 
         m_server.on("/microChart.js", ComponentTypes::ReqMethod::GET,
                     [this](AsyncWebSrvReq *request)
-                    { request->send_P(HTML_OK, "application/javascript", gMicroChartData); });
+                    { request->send_P(HTML_OK, "application/javascript", m_resources->getMicroChart()); });
 
         m_server.on("/sensorIDsToNames", ComponentTypes::ReqMethod::GET,
                     [this](AsyncWebSrvReq *request)
@@ -164,6 +166,7 @@ private:
     AsyncWebSvrType m_server;
     AsyncEventSrcType m_events;
     std::shared_ptr<IConfStorage> m_confStorage;
+    std::unique_ptr<IResources> m_resources;
 
     GetSensorDataCb m_getSensorDataCb;
 };

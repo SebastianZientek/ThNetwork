@@ -5,16 +5,17 @@
 
 #include <memory>
 
+#include "IResources.hpp"
 #include "RaiiFile.hpp"
-#include "Resources.hpp"
 #include "common/logger.hpp"
 
 template <typename ConfStorageType, typename AsyncWebServerType>
 class WebWifiConfig
 {
 public:
-    WebWifiConfig()
+    WebWifiConfig(std::unique_ptr<IResources> resources)
         : m_server(80)
+        , m_resources(std::move(resources))
     {
     }
 
@@ -32,7 +33,7 @@ public:
 
         m_server.on("/", HTTP_GET,
                     [this](AsyncWebServerRequest *request)
-                    { request->send_P(HTML_OK, "text/html", gWifiSettingsHtmlData); });
+                    { request->send_P(HTML_OK, "text/html", m_resources->getWifiSettingsHtml()); });
 
         m_server.on("/setWifi", HTTP_POST,
                     [this](AsyncWebServerRequest *request)
@@ -69,4 +70,5 @@ public:
 private:
     AsyncWebServerType m_server;
     std::shared_ptr<ConfStorageType> m_confStorage;
+    std::unique_ptr<IResources> m_resources;
 };
