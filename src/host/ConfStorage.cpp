@@ -78,14 +78,14 @@ std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredenti
     return std::nullopt;
 }
 
-nlohmann::json ConfStorage::getConfigWithoutCredentials()
+std::string ConfStorage::getConfigWithoutCredentials()
 {
     nlohmann::json dataWithoutCred
         = {{"sensorUpdatePeriodMins", m_jsonData["sensorUpdatePeriodMins"]},
            {"sensors", m_jsonData["sensors"]},
            {"serverPort", m_jsonData["serverPort"]}};
 
-    return dataWithoutCred;
+    return dataWithoutCred.dump();
 }
 
 bool ConfStorage::isAvailableSpaceForNextSensor()
@@ -118,7 +118,7 @@ bool ConfStorage::removeSensor(IDType identifier)
     return false;
 }
 
-nlohmann::json ConfStorage::getSensorsMapping()
+std::string ConfStorage::getSensorsMapping()
 {
-    return m_jsonData["sensors"];
+    return m_jsonData["sensors"].dump();
 }

@@ -105,8 +105,8 @@ public:
         m_server.on("/sensorIDsToNames", ComponentTypes::ReqMethod::GET,
                     [this](AsyncWebSrvReq *request)
                     {
-                        auto sensorsMappingJsonStr = m_confStorage->getSensorsMapping().dump();
-                        logger::logInf("sensorIDsToNames %s", sensorsMappingJsonStr.c_str());
+                        auto sensorsMappingJsonStr = m_confStorage->getSensorsMapping();
+                        logger::logInf("sensorIDsToNames %s", sensorsMappingJsonStr);
                         request->send_P(HTML_OK, "application/json", sensorsMappingJsonStr.c_str());
                     });
 
@@ -119,7 +119,7 @@ public:
                         }
 
                         auto config = m_confStorage->getConfigWithoutCredentials();
-                        request->send_P(HTML_OK, "application/json", config.dump().c_str());
+                        request->send_P(HTML_OK, "application/json", config.c_str());
                     });
 
         m_server.on("/sensorData", ComponentTypes::ReqMethod::GET,

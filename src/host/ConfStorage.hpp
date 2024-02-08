@@ -12,8 +12,14 @@
 class ConfStorage : public IConfStorage
 {
 public:
+    enum class State
+    {
+        OK,
+        FAIL
+    };
+
     template <typename RaiiFileT>
-    IConfStorage::State load(RaiiFileT &file)
+    State load(RaiiFileT &file)
     {
         std::string data = file->readString().c_str();
         try
@@ -57,12 +63,12 @@ public:
     void setAdminCredentials(std::string user, std::string pass) override;
     std::optional<std::pair<std::string, std::string>> getAdminCredentials() override;
 
-    nlohmann::json getConfigWithoutCredentials() override;
+    std::string getConfigWithoutCredentials() override;
 
     bool isAvailableSpaceForNextSensor() override;
     bool addSensor(IDType identifier, const std::string &name = "Unnamed") override;
     bool removeSensor(IDType identifier) override;
-    nlohmann::json getSensorsMapping() override;
+    std::string getSensorsMapping() override;
 
 private:
     // Limited because of space for readings
