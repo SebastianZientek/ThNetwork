@@ -201,7 +201,7 @@ TEST(ConfStorageTest, ShouldReturnSensorsMapping)
     });
 
     auto sensorsMapping = confStorage.getSensorsMapping();
-    CHECK_TRUE(expected == sensorsMapping);
+    CHECK_TRUE(expected.dump() == sensorsMapping);
 }
 
 TEST(ConfStorageTest, ShouldBeAbleToRemoveSensor)
@@ -219,7 +219,7 @@ TEST(ConfStorageTest, ShouldBeAbleToRemoveSensor)
     });
 
     auto sensorsMapping = confStorage.getSensorsMapping();
-    CHECK_TRUE(expected == sensorsMapping);
+    CHECK_TRUE(expected.dump() == sensorsMapping);
 }
 
 TEST(ConfStorageTest, ShouldNotRemoveSensorWithWrongIdentifier)
@@ -238,7 +238,7 @@ TEST(ConfStorageTest, ShouldNotRemoveSensorWithWrongIdentifier)
     });
 
     auto sensorsMapping = confStorage.getSensorsMapping();
-    CHECK_TRUE(expected == sensorsMapping);
+    CHECK_TRUE(expected.dump() == sensorsMapping);
 }
 
 TEST(ConfStorageTest, CheckSimpleParameters)
@@ -266,5 +266,5 @@ TEST(ConfStorageTest, ShouldReturnConfigWithoutCredentials)
     };
 
     auto configWithoutCred = confStorage.getConfigWithoutCredentials();
-    CHECK_TRUE(expected == configWithoutCred);
+    CHECK_TRUE(expected.dump() == configWithoutCred);
 }

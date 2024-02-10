@@ -1,7 +1,6 @@
 #pragma once
 
 #include <map>
-#include <string_view>
 
 #include "RingBuffer.hpp"
 #include "common/types.hpp"
@@ -20,9 +19,8 @@ class ReadingsStorage
 
 public:
     void addReading(IDType identifier, float temperature, float humidity, unsigned long epochTime);
-    std::map<IDType, ReadingsRingBuffer> &getReadingBuffers();
-    std::string getReadingsAsJsonArr(IDType identifier);
-    std::string getLastReadingAsJson(IDType identifier);
+    std::string getReadingsAsJsonArrStr(IDType identifier);
+    std::string getLastReadingAsJsonStr(IDType identifier);
     std::string lastReading(IDType identifier, const std::string &sensorName);
 
 private:

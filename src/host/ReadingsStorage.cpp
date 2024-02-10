@@ -16,12 +16,7 @@ void ReadingsStorage::addReading(IDType identifier,
     m_readingBuffers[identifier].put({temperature, humidity, epochTime});
 }
 
-std::map<IDType, ReadingsStorage::ReadingsRingBuffer> &ReadingsStorage::getReadingBuffers()
-{
-    return m_readingBuffers;
-}
-
-std::string ReadingsStorage::getReadingsAsJsonArr(IDType identifier)
+std::string ReadingsStorage::getReadingsAsJsonArrStr(IDType identifier)
 {
     ReadingsRingBuffer &readingsBuffer = m_readingBuffers[identifier];
     auto jsonData = nlohmann::json::array();
@@ -38,7 +33,7 @@ std::string ReadingsStorage::getReadingsAsJsonArr(IDType identifier)
     return json.dump();
 }
 
-std::string ReadingsStorage::getLastReadingAsJson(IDType identifier)
+std::string ReadingsStorage::getLastReadingAsJsonStr(IDType identifier)
 {
     ReadingsRingBuffer &readingsBuffer = m_readingBuffers[identifier];
     const auto &lastReading = readingsBuffer.getLast();
