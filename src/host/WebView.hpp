@@ -96,11 +96,15 @@ public:
 
         m_server.on("/favicon.ico", ComponentTypes::ReqMethod::GET,
                     [this](AsyncWebSrvReq *request)
-                    { request->send_P(HTML_OK, "image/png", m_resources->getFavicon(), m_resources->getFaviconSize()); });
+                    {
+                        request->send_P(HTML_OK, "image/png", m_resources->getFavicon(),
+                                        m_resources->getFaviconSize());
+                    });
 
-        m_server.on("/microChart.js", ComponentTypes::ReqMethod::GET,
-                    [this](AsyncWebSrvReq *request)
-                    { request->send_P(HTML_OK, "application/javascript", m_resources->getMicroChart()); });
+        m_server.on(
+            "/microChart.js", ComponentTypes::ReqMethod::GET,
+            [this](AsyncWebSrvReq *request)
+            { request->send_P(HTML_OK, "application/javascript", m_resources->getMicroChart()); });
 
         m_server.on("/sensorIDsToNames", ComponentTypes::ReqMethod::GET,
                     [this](AsyncWebSrvReq *request)

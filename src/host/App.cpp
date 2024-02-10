@@ -41,7 +41,7 @@ void App::init()
             m_readingsStorage.addReading(identifier, temp, hum, epochTime);
 
             logger::logInf("New reading sending");
-            auto reading = m_readingsStorage.getLastReadingAsJson(identifier);
+            auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
             m_web->sendEvent(reading.c_str(), "newReading", millis());
         };
 
@@ -68,7 +68,7 @@ void App::init()
         auto getSensorData = [this](const std::size_t &identifier)
         {
             logger::logInf("getSensorData");
-            auto data = m_readingsStorage.getReadingsAsJsonArr(identifier);
+            auto data = m_readingsStorage.getReadingsAsJsonArrStr(identifier);
             return data;
         };
 
