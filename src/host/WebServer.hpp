@@ -101,13 +101,13 @@ public:
         m_server.end();
     }
 
-    void onGet(std::string url, std::function<void(const Request &)> clbk)
+    void onGet(std::string url, std::function<void(Request)> clbk)
     {
         m_server.on(url.c_str(), HTTP_GET,
                     [clbk](AsyncWebServerRequest *request) { clbk(Request(request)); });
     }
 
-    void onPost(std::string url, std::function<void(const Request &)> clbk)
+    void onPost(std::string url, std::function<void(Request)> clbk)
     {
         m_server.on(url.c_str(), HTTP_POST,
                     [clbk](AsyncWebServerRequest *request) { clbk(Request(request)); });

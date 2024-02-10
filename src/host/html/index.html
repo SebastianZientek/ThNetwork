@@ -161,6 +161,7 @@
 
             source.addEventListener('newReading', function (e) {
                 const reading = JSON.parse(e.data);
+                console.log(e.data);
 
                 let sensorName = "Unnamed";
                 if (gSensorIDsToNames.hasOwnProperty(reading.identifier))
