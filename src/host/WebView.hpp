@@ -9,6 +9,8 @@
 #include "Resources.hpp"
 #include "common/logger.hpp"
 
+#include "WebServer.hpp"
+
 template <typename ComponentTypes>
 class WebView
 {
