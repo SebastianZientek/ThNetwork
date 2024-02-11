@@ -4,10 +4,10 @@
 #include <nlohmann/json.hpp>
 #include <string_view>
 
-#include "webserver/WebServer.hpp"
 #include "common/logger.hpp"
 #include "interfaces/IConfStorage.hpp"
 #include "interfaces/IResources.hpp"
+#include "webserver/WebServer.hpp"
 
 class WebPageMain
 {
@@ -39,6 +39,7 @@ public:
 
         constexpr auto HTML_OK = 200;
         constexpr auto HTML_UNAUTH = 401;
+        constexpr auto HTML_NOT_FOUND = 404;
         constexpr auto RECONNECT_TIMEOUT = 10000;
 
         auto auth = [this](IWebRequest &request)
@@ -53,8 +54,11 @@ public:
             return request.authenticate(user.c_str(), passwd.c_str());
         };
 
-        m_server->onGet("/", [this](IWebRequest &request)
-                        { request.send(HTML_OK, "text/html", m_resources->getIndexHtml()); });
+        m_server->onGet("/",
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "text/html", m_resources->getIndexHtml());
+                        });
 
         m_server->onGet("/admin",
                         [this, auth](IWebRequest &request)
@@ -76,17 +80,25 @@ public:
                              request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
                          });
 
-        m_server->onGet("/logout", [](IWebRequest &request) { request.send(HTML_UNAUTH); });
+        m_server->onGet("/logout",
+                        [](IWebRequest &request)
+                        {
+                            request.send(HTML_UNAUTH);
+                        });
 
         m_server->onGet("/favicon.ico",
-                        [this](IWebRequest &request) {
+                        [this](IWebRequest &request)
+                        {
                             request.send(HTML_OK, "image/png", m_resources->getFavicon(),
                                          m_resources->getFaviconSize());
                         });
 
-        m_server->onGet(
-            "/microChart.js", [this](IWebRequest &request)
-            { request.send(HTML_OK, "application/javascript", m_resources->getMicroChart()); });
+        m_server->onGet("/microChart.js",
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "application/javascript",
+                                         m_resources->getMicroChart());
+                        });
 
         m_server->onGet("/sensorIDsToNames",
                         [this](IWebRequest &request)
@@ -123,7 +135,7 @@ public:
                             }
                             else
                             {
-                                request.send(404);
+                                request.send(HTML_NOT_FOUND);
                             }
                         });
 

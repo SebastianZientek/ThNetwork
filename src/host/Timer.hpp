@@ -10,7 +10,7 @@ class Timer
     using FunType = std::function<void()>;
 
 public:
-    void setCallback(FunType fun)
+    void setCallback(const FunType &fun)
     {
         m_function = fun;
     }
@@ -34,18 +34,22 @@ public:
         if (!m_stopped && m_period + m_startTime < millis())
         {
             m_function();
-            m_stopped = true;
 
             if (m_repeat)
             {
                 m_startTime = millis();
-                m_stopped = false;
+            }
+            else
+            {
+                m_stopped = true;
             }
         }
     }
 
 private:
-    FunType m_function = [] {};
+    FunType m_function = []
+    {
+    };
     bool m_stopped = false;
     bool m_repeat = false;
     std::size_t m_period = 0;

@@ -6,6 +6,7 @@ PointerAlignment: Right
 AllowShortFunctionsOnASingleLine : false
 AllowShortIfStatementsOnASingleLine: true
 AllowShortLoopsOnASingleLine: false
+AllowShortLambdasOnASingleLine: false
 AlwaysBreakAfterDefinitionReturnType: false
 BinPackParameters: false
 BreakBeforeBinaryOperators: true
