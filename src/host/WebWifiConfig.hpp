@@ -5,9 +5,9 @@
 
 #include <memory>
 
-#include "IResources.hpp"
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
+#include "interfaces/IResources.hpp"
 
 template <typename ConfStorageType, typename AsyncWebServerType>
 class WebWifiConfig

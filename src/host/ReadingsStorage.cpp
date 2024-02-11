@@ -6,7 +6,6 @@
 
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
-#include "utils.hpp"
 
 void ReadingsStorage::addReading(IDType identifier,
                                  float temperature,
