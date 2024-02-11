@@ -1,11 +1,10 @@
 #pragma once
 
-#include <Arduino.h>
-
 #include <cstddef>
 
 #include "Timer.hpp"
 #include "common/logger.hpp"
+#include "adapters/ArduinoAdp.hpp"
 
 class LedIndicator
 {
@@ -13,19 +12,19 @@ public:
     LedIndicator(std::size_t pin)
         : m_ledPin(pin)
     {
-        pinMode(m_ledPin, OUTPUT);
+        ArduinoAdp::pinMode(m_ledPin, ArduinoAdp::MODE_OUT);
         m_blinkTimer.setCallback(
             [this, ledOn = false]() mutable
             {
                 ledOn = !ledOn;
-                digitalWrite(m_ledPin, ledOn ? HIGH : LOW);
+                ArduinoAdp::digitalWrite(m_ledPin, ledOn ? ArduinoAdp::LVL_HI : ArduinoAdp::LVL_LO);
             });
     }
 
     void switchOn(bool state)
     {
         m_blinkTimer.stop();
-        digitalWrite(m_ledPin, state ? HIGH : LOW);
+        ArduinoAdp::digitalWrite(m_ledPin, state ? ArduinoAdp::LVL_HI : ArduinoAdp::LVL_LO);
     }
 
     void blinking()

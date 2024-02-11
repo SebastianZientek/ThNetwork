@@ -17,11 +17,18 @@ void EspNowPairingManager::enablePairing()
     }
 
     m_pairingEnabled = true;
-    m_pairingLed->blinking();
+    if (m_pairingLed)
+    {
+        m_pairingLed->blinking();
+    }
+
     m_pairingTimer.setCallback(
         [this]
         {
-            m_pairingLed->switchOn(false);
+            if (m_pairingLed)
+            {
+                m_pairingLed->switchOn(false);
+            }
             m_pairingEnabled = false;
         });
     m_pairingTimer.start(m_pairingTimeout);

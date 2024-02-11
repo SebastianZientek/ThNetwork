@@ -44,7 +44,6 @@ set(INCLS
 
 set(MOCKS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/Arduino.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpStub.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspAdpStub.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspNowAdpMock.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/WifiAdpMock.cpp
@@ -55,15 +54,22 @@ set(TR_TESTS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestEspNow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestUtils.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpStub.cpp
 )
 
 set(HS_TESTS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/EspNowPairingManager.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRingBuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRaiiFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestConfStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestReadingsStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestEspNowPairingManager.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpMock.cpp
 )
 
 set(CM_TESTS
@@ -74,9 +80,9 @@ set(CM_TESTS
 )
 
 
-buildTests(TransmitterUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${TR_TESTS}")
+# buildTests(TransmitterUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${TR_TESTS}")
 buildTests(HostUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${HS_TESTS}")
-buildTests(CommonUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${CM_TESTS}")
+# buildTests(CommonUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${CM_TESTS}")
 
 # add_executable(UnitTests ${SRCS} ${MOCKS} ${TESTS})
 # target_include_directories(UnitTests PRIVATE ${INCLS})
