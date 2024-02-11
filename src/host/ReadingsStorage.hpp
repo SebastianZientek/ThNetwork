@@ -7,6 +7,12 @@
 
 class ReadingsStorage
 {
+public:
+    void addReading(IDType identifier, float temperature, float humidity, unsigned long epochTime);
+    std::string getReadingsAsJsonStr(IDType identifier);
+    std::string getLastReadingAsJsonStr(IDType identifier);
+
+private:
     struct Reading
     {
         float temperature;
@@ -17,12 +23,5 @@ class ReadingsStorage
     constexpr static uint16_t maxReadingsPerSensor = 220;
     using ReadingsRingBuffer = RingBuffer<Reading, maxReadingsPerSensor>;
 
-public:
-    void addReading(IDType identifier, float temperature, float humidity, unsigned long epochTime);
-    std::string getReadingsAsJsonArrStr(IDType identifier);
-    std::string getLastReadingAsJsonStr(IDType identifier);
-    std::string lastReading(IDType identifier, const std::string &sensorName);
-
-private:
     std::map<IDType, ReadingsRingBuffer> m_readingBuffers;
 };
