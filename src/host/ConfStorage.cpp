@@ -6,6 +6,38 @@
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
 
+ConfStorage::State ConfStorage::load(IRaiiFile &file)
+{
+    std::string data = file->readString().c_str();
+    try
+    {
+        m_jsonData = nlohmann::json::parse(data);
+    }
+    catch (nlohmann::json::parse_error err)
+    {
+        logger::logErr("Can't parse json data, %s", err.what());
+        return State::FAIL;
+    }
+
+    return State::OK;
+}
+
+ConfStorage::State ConfStorage::save(IRaiiFile &file)
+{
+    try
+    {
+        auto data = m_jsonData.dump();
+        file->print(data.c_str());
+    }
+    catch (nlohmann::json::type_error err)
+    {
+        logger::logErr("Can't dump json data of configuration file, %s", err.what());
+        return State::FAIL;
+    }
+
+    return State::OK;
+}
+
 void ConfStorage::setDefault()
 {
     m_jsonData["admin"]["user"] = "admin";
@@ -121,4 +153,12 @@ bool ConfStorage::removeSensor(IDType identifier)
 std::string ConfStorage::getSensorsMapping()
 {
     return m_jsonData["sensors"].dump();
+}
+
+bool ConfStorage::isSensorMapped(IDType identifier)
+{
+    auto sensorIt = m_jsonData["sensors"].find(std::to_string(identifier));
+    auto end = m_jsonData["sensors"].end();
+
+    return sensorIt != end;
 }

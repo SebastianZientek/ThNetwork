@@ -1,7 +1,7 @@
 #include <CppUTest/TestHarness.h>
 
 #include "ConfStorage.hpp"
-#include "FileMock.hpp"
+#include "FS.h"
 #include "FileSystemMock.hpp"
 #include "RaiiFile.hpp"
 
@@ -18,12 +18,12 @@ TEST_GROUP(ConfStorageTest)  // NOLINT
 
 TEST(ConfStorageTest, ShouldLoadCorrectConfiguration)  // NOLINT
 {
-    FileMock fileMock;
+    fs::File fileMock;
     ConfStorage confStorage;
     RaiiFile file(fileMock);
 
     std::string fileContent = R"({"user":"admin"})";
-    mock().expectOneCall("FileMock::readString").andReturnValue(&fileContent);
+    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
     mock().ignoreOtherCalls();
 
     auto state = confStorage.load(file);
@@ -32,12 +32,12 @@ TEST(ConfStorageTest, ShouldLoadCorrectConfiguration)  // NOLINT
 
 TEST(ConfStorageTest, ShouldntLoadIncorrectConfiguration)  // NOLINT
 {
-    FileMock fileMock;
+    fs::File fileMock;
     ConfStorage confStorage;
     RaiiFile file(fileMock);
 
     std::string fileContent = R"(brokenjsonfile:"admin"})";
-    mock().expectOneCall("FileMock::readString").andReturnValue(&fileContent);
+    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
     mock().ignoreOtherCalls();
 
     auto state = confStorage.load(file);
@@ -46,7 +46,7 @@ TEST(ConfStorageTest, ShouldntLoadIncorrectConfiguration)  // NOLINT
 
 TEST(ConfStorageTest, ShouldSaveDefaultConfiguration)
 {
-    FileMock fileMock;
+    fs::File fileMock;
     ConfStorage confStorage;
     RaiiFile file(fileMock);
 
@@ -54,7 +54,7 @@ TEST(ConfStorageTest, ShouldSaveDefaultConfiguration)
         = R"({"admin":{"passwd":"passwd","user":"admin"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80})";
 
     mock()
-        .expectOneCall("FileMock::print")
+        .expectOneCall("File::print")
         .withStringParameter("data", expectedStringToSave.c_str());
     mock().ignoreOtherCalls();
 
@@ -65,12 +65,12 @@ TEST(ConfStorageTest, ShouldSaveDefaultConfiguration)
 
 TEST(ConfStorageTest, ShouldParseFileAndReadWifiConfig)
 {
-    FileMock fileMock;
+    fs::File fileMock;
     ConfStorage confStorage;
     RaiiFile file(fileMock);
 
     std::string fileContent = R"({"wifi":{"ssid": "test", "pass": "testPass"}})";
-    mock().expectOneCall("FileMock::readString").andReturnValue(&fileContent);
+    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
     mock().ignoreOtherCalls();
 
     auto state = confStorage.load(file);
@@ -86,12 +86,12 @@ TEST(ConfStorageTest, ShouldParseFileAndReadWifiConfig)
 
 TEST(ConfStorageTest, ShouldReturnNulloptWhenWifiConfigIsIncompleteOrWrong)
 {
-    FileMock fileMock;
+    fs::File fileMock;
     ConfStorage confStorage;
     RaiiFile file(fileMock);
 
     std::string fileContent = R"({"wifi":{"pass": "testPass"}})";
-    mock().expectOneCall("FileMock::readString").andReturnValue(&fileContent);
+    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
     mock().ignoreOtherCalls();
 
     auto state = confStorage.load(file);
@@ -103,13 +103,13 @@ TEST(ConfStorageTest, ShouldReturnNulloptWhenWifiConfigIsIncompleteOrWrong)
 
 TEST(ConfStorageTest, ShouldSaveWifiConfiguration)
 {
-    FileMock fileMock;
+    fs::File fileMock;
     ConfStorage confStorage;
     RaiiFile file(fileMock);
 
     std::string expectedFileContent = R"({"wifi":{"pass":"thing","ssid":"some"}})";
     mock()
-        .expectOneCall("FileMock::print")
+        .expectOneCall("File::print")
         .withStringParameter("data", expectedFileContent.c_str());
     mock().ignoreOtherCalls();
 
@@ -120,12 +120,12 @@ TEST(ConfStorageTest, ShouldSaveWifiConfiguration)
 
 TEST(ConfStorageTest, ShouldParseFileAndReadAdminCredentials)
 {
-    FileMock fileMock;
+    fs::File fileMock;
     ConfStorage confStorage;
     RaiiFile file(fileMock);
 
     std::string fileContent = R"({"admin": {"passwd":"dark","user":"tranquillity"}})";
-    mock().expectOneCall("FileMock::readString").andReturnValue(&fileContent);
+    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
     mock().ignoreOtherCalls();
 
     auto state = confStorage.load(file);
@@ -141,13 +141,13 @@ TEST(ConfStorageTest, ShouldParseFileAndReadAdminCredentials)
 
 TEST(ConfStorageTest, ShouldSaveAdminCredentials)
 {
-    FileMock fileMock;
+    fs::File fileMock;
     ConfStorage confStorage;
     RaiiFile file(fileMock);
 
     std::string expectedFileContent = R"({"admin":{"pass":"in","user":"flames"}})";
     mock()
-        .expectOneCall("FileMock::print")
+        .expectOneCall("File::print")
         .withStringParameter("data", expectedFileContent.c_str());
     mock().ignoreOtherCalls();
 

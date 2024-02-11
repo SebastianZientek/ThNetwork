@@ -1,10 +1,13 @@
 #pragma once
 
-template <typename FileT>
-class RaiiFile
+#include <FS.h>
+
+#include "interfaces/IRaiiFile.hpp"
+
+class RaiiFile: public IRaiiFile
 {
 public:
-    explicit RaiiFile(FileT file)
+    explicit RaiiFile(const fs::File &file)
         : m_file(file)
     {
     }
@@ -14,16 +17,16 @@ public:
     RaiiFile &operator=(const RaiiFile &) = delete;
     RaiiFile &operator=(RaiiFile &&) noexcept = default;
 
-    ~RaiiFile()  // NOLINT
+    virtual ~RaiiFile()  // NOLINT
     {
         m_file.close();
     }
 
-    FileT *operator->()
+    fs::File *operator->() override
     {
         return &m_file;
     }
 
 private:
-    FileT m_file;
+    fs::File m_file;
 };

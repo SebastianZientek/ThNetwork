@@ -17,9 +17,11 @@ constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 
 EspNow::OnSendCb EspNow::m_onSend;  // NOLINT
 EspNow::OnRecvCb EspNow::m_onRecv;  // NOLINT
 
-EspNow::EspNow(std::shared_ptr<NTPClient> ntpClient)
+EspNow::EspNow(std::shared_ptr<EspNowPairingManager> pairingManager,
+               std::shared_ptr<NTPClient> ntpClient)
     : m_ntpClient(ntpClient)
     , m_sensorUpdatePeriodMins(1)
+    , m_pairingManager(pairingManager)
 {
 }
 
@@ -43,21 +45,6 @@ void EspNow::init(const NewReadingsCb &newReadingsCb,
 void EspNow::deinit()
 {
     esp_now_deinit();
-}
-
-void EspNow::enablePairing()
-{
-    m_pairingEnabled = true;
-}
-
-void EspNow::disablePairing()
-{
-    m_pairingEnabled = false;
-}
-
-bool EspNow::isPairingEnabled()
-{
-    return m_pairingEnabled;
 }
 
 void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
@@ -85,7 +72,7 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     {
     case MsgType::PAIR_REQ:
     {
-        if (m_pairingEnabled)
+        if (m_pairingManager->isPairingEnabled())
         {
             logger::logInf("PAIR_REQ received");
             PairReqMsg pairReqMsg;
@@ -96,7 +83,6 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
                 sendPairOK(mac);
                 esp_now_del_peer(mac.data());
             }
-
         }
         else
         {
@@ -112,11 +98,18 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         SensorDataMsg sDataMsg;
         sDataMsg.deserialize(incomingData, len);
 
-        logger::logInf("[%u %s] T: %.1f, H: %.1f", sDataMsg.ID, m_ntpClient->getFormattedTime(),
-                       sDataMsg.temperature, sDataMsg.humidity);
+        if (m_pairingManager->isPaired(sDataMsg.ID))
+        {
+            logger::logInf("[%u %s] T: %.1f, H: %.1f", sDataMsg.ID, m_ntpClient->getFormattedTime(),
+                           sDataMsg.temperature, sDataMsg.humidity);
 
-        m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, sDataMsg.ID,
-                        m_ntpClient->getEpochTime());
+            m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, sDataMsg.ID,
+                            m_ntpClient->getEpochTime());
+        }
+        else
+        {
+            logger::logWrn("Ignored data from unpaired sensor, id: %u", sDataMsg.ID);
+        }
     }
     break;
     case MsgType::UNKNOWN:
@@ -140,7 +133,9 @@ void EspNow::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
 void EspNow::setOnDataSendCb()
 {
     m_onSend = [this](const MacAddr &mac, esp_now_send_status_t status)
-    { this->onDataSend(mac, status); };
+    {
+        this->onDataSend(mac, status);
+    };
     auto onDataSend = [](const uint8_t *rawMac, esp_now_send_status_t status)
     {
         MacAddr macAddr{};
@@ -155,7 +150,9 @@ void EspNow::setOnDataSendCb()
 void EspNow::setOnDataRecvCb()
 {
     m_onRecv = [this](MacAddr mac, const uint8_t *incomingData, int len)
-    { this->onDataRecv(mac, incomingData, len); };
+    {
+        this->onDataRecv(mac, incomingData, len);
+    };
     auto onDataRecv = [](const uint8_t *rawMac, const uint8_t *incomingData, int len)
     {
         MacAddr macAddr{};

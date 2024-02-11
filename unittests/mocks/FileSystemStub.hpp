@@ -2,15 +2,15 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-#include "FileMock.hpp"
+#include "FS.h"
 
 class FileSystemStub
 {
 public:
-    FileMock open([[maybe_unused]] const char *path,
+    fs::File open([[maybe_unused]] const char *path,
                   [[maybe_unused]] const char *mode,
                   [[maybe_unused]] bool create)
     {
-        return FileMock{};
+        return fs::File{};
     }
 };

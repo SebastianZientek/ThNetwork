@@ -7,10 +7,10 @@
 #include "Timer.hpp"
 #include "common/logger.hpp"
 
-class InfoLed
+class LedIndicator
 {
 public:
-    InfoLed(std::size_t pin)
+    LedIndicator(std::size_t pin)
         : m_ledPin(pin)
     {
         pinMode(m_ledPin, OUTPUT);
