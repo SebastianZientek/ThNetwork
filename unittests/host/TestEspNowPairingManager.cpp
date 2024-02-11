@@ -16,8 +16,8 @@ TEST_GROUP(EspNowPairingManagerTest)  // NOLINT
 
 TEST(EspNowPairingManagerTest, XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX)  // NOLINT
 {
-    ConfStorageMock confStorageMock;
-    EspNowPairingManager espNowPairingManager(nullptr, nullptr);
+    auto confStorageMock = std::make_shared<ConfStorageMock>();
+    EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
     // mock().expectOneCall("File::close");
     // fs::File fileMock;
     // RaiiFile someFile(fileMock);
