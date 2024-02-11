@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SPIFFS.h>
-
 #include <cstddef>
 #include <memory>
 
@@ -14,76 +12,16 @@ class EspNowPairingManager
 {
 public:
     explicit EspNowPairingManager(std::shared_ptr<IConfStorage> confStorage,
-                                std::shared_ptr<LedIndicator> pairingLed = nullptr)
-        : m_confStorage(confStorage)
-        , m_pairingLed(pairingLed)
-    {
-    }
+                                std::shared_ptr<LedIndicator> pairingLed = nullptr);
 
-    void enablePairing()
-    {
-        if (isPairingEnabled())
-        {
-            return;
-        }
+    void enablePairing();
+    void disablePairing();
+    [[nodiscard]] bool isPairingEnabled() const;
+    bool isPaired(IDType identifier);
+    bool pairSensor(IDType identifier);
+    void unpairSensor(IDType identifier);
+    void update();
 
-        m_pairingEnabled = true;
-        m_pairingLed->blinking();
-        m_pairingTimer.setCallback(
-            [this]
-            {
-                m_pairingLed->switchOn(false);
-                m_pairingEnabled = false;
-            });
-        m_pairingTimer.start(m_pairingTimeout);
-    }
-
-    void disablePairing()
-    {
-        m_pairingEnabled = false;
-    }
-
-    [[nodiscard]] bool isPairingEnabled() const
-    {
-        return m_pairingEnabled;
-    }
-
-    bool isPaired(IDType identifier)
-    {
-        return m_confStorage->isSensorMapped(identifier);
-    }
-
-    bool pairSensor(IDType identifier)
-    {
-        if (isPaired(identifier))
-        {
-            return true;
-        }
-
-        if (!m_confStorage->isAvailableSpaceForNextSensor())
-        {
-            logger::logWrn("No space for more sensors");
-            return false;
-        }
-
-        logger::logInf("Paired sensor with ID: %u", identifier);
-        m_confStorage->addSensor(identifier);
-
-        RaiiFile configFile(SPIFFS.open("/config.json", "w"));
-        m_confStorage->save(configFile);
-
-        return true;
-    }
-
-    void unpairSensor(IDType identifier)
-    {
-        m_confStorage->removeSensor(identifier);
-    }
-
-    void update()
-    {
-        m_pairingTimer.update();
-    }
 
 private:
     constexpr static auto m_pairingTimeout = 1000 * 60 * 2;  // 2 minutes
