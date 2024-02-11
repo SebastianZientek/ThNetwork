@@ -125,8 +125,7 @@ TEST(ReadingStorageTest, getReadingsReturnsEmptyValuesWhenSensorIdNotExisting)  
 
     auto notExistingSensorId = 3;
     auto expected = nlohmann::json(
-        {{"identifier", notExistingSensorId},
-         {"values", nlohmann::json::array()}});
+        {{"identifier", notExistingSensorId}, {"values", nlohmann::json::array()}});
 
     auto results = storage.getReadingsAsJsonStr(3);
     CHECK_TRUE(results == expected.dump());
@@ -149,8 +148,7 @@ TEST(ReadingStorageTest, getLastReadingsReturnsEmptyValuesWhenSensorIdNotExistin
 
     auto notExistingSensorId = 3;
     auto expected = nlohmann::json(
-        {{"identifier", notExistingSensorId},
-         {"values", nlohmann::json::array()}});
+        {{"identifier", notExistingSensorId}, {"values", nlohmann::json::array()}});
 
     auto results = storage.getLastReadingAsJsonStr(3);
     CHECK_TRUE(results == expected.dump());
