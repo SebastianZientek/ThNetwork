@@ -1,4 +1,4 @@
-#include "EspNow.hpp"
+#include "EspNowServer.hpp"
 
 #include <WiFi.h>
 
@@ -14,16 +14,18 @@ constexpr auto macSize = 6;
 constexpr auto msgSignatureSize = 4;
 constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
-EspNow::OnSendCb EspNow::m_onSend;  // NOLINT
-EspNow::OnRecvCb EspNow::m_onRecv;  // NOLINT
+EspNowServer::OnSendCb EspNowServer::m_onSend;  // NOLINT
+EspNowServer::OnRecvCb EspNowServer::m_onRecv;  // NOLINT
 
-EspNow::EspNow(std::shared_ptr<NTPClient> ntpClient)
+EspNowServer::EspNowServer(std::shared_ptr<EspNowPairingManager> pairingManager,
+               std::shared_ptr<NTPClient> ntpClient)
     : m_ntpClient(ntpClient)
     , m_sensorUpdatePeriodMins(1)
+    , m_pairingManager(pairingManager)
 {
 }
 
-void EspNow::init(const NewReadingsCb &newReadingsCb,
+void EspNowServer::init(const NewReadingsCb &newReadingsCb,
                   const NewPeerCb &newPeerCb,
                   uint8_t sensorUpdatePeriodMins)
 {
@@ -40,27 +42,12 @@ void EspNow::init(const NewReadingsCb &newReadingsCb,
     setOnDataSendCb();
 }
 
-void EspNow::deinit()
+void EspNowServer::deinit()
 {
     esp_now_deinit();
 }
 
-void EspNow::enablePairing()
-{
-    m_pairingEnabled = true;
-}
-
-void EspNow::disablePairing()
-{
-    m_pairingEnabled = false;
-}
-
-bool EspNow::isPairingEnabled()
-{
-    return m_pairingEnabled;
-}
-
-void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
+void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
 {
     auto msgAndSignature = serializer::partialDeserialize<MsgType, Signature>(incomingData, len);
 
@@ -85,7 +72,7 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     {
     case MsgType::PAIR_REQ:
     {
-        if (m_pairingEnabled)
+        if (m_pairingManager->isPairingEnabled())
         {
             logger::logInf("PAIR_REQ received");
             PairReqMsg pairReqMsg;
@@ -96,7 +83,6 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
                 sendPairOK(mac);
                 esp_now_del_peer(mac.data());
             }
-
         }
         else
         {
@@ -112,11 +98,18 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
         SensorDataMsg sDataMsg;
         sDataMsg.deserialize(incomingData, len);
 
-        logger::logInf("[%u %s] T: %.1f, H: %.1f", sDataMsg.ID, m_ntpClient->getFormattedTime(),
-                       sDataMsg.temperature, sDataMsg.humidity);
+        if (m_pairingManager->isPaired(sDataMsg.ID))
+        {
+            logger::logInf("[%u %s] T: %.1f, H: %.1f", sDataMsg.ID, m_ntpClient->getFormattedTime(),
+                           sDataMsg.temperature, sDataMsg.humidity);
 
-        m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, sDataMsg.ID,
-                        m_ntpClient->getEpochTime());
+            m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, sDataMsg.ID,
+                            m_ntpClient->getEpochTime());
+        }
+        else
+        {
+            logger::logWrn("Ignored data from unpaired sensor, id: %u", sDataMsg.ID);
+        }
     }
     break;
     case MsgType::UNKNOWN:
@@ -124,7 +117,7 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     }
 }
 
-void EspNow::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
+void EspNowServer::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
 {
     logger::logInf("Last Packet Send Status: ");
     if (status == 0)
@@ -137,10 +130,12 @@ void EspNow::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
     }
 }
 
-void EspNow::setOnDataSendCb()
+void EspNowServer::setOnDataSendCb()
 {
     m_onSend = [this](const MacAddr &mac, esp_now_send_status_t status)
-    { this->onDataSend(mac, status); };
+    {
+        this->onDataSend(mac, status);
+    };
     auto onDataSend = [](const uint8_t *rawMac, esp_now_send_status_t status)
     {
         MacAddr macAddr{};
@@ -152,10 +147,12 @@ void EspNow::setOnDataSendCb()
     esp_now_register_send_cb(onDataSend);
 }
 
-void EspNow::setOnDataRecvCb()
+void EspNowServer::setOnDataRecvCb()
 {
     m_onRecv = [this](MacAddr mac, const uint8_t *incomingData, int len)
-    { this->onDataRecv(mac, incomingData, len); };
+    {
+        this->onDataRecv(mac, incomingData, len);
+    };
     auto onDataRecv = [](const uint8_t *rawMac, const uint8_t *incomingData, int len)
     {
         MacAddr macAddr{};
@@ -167,7 +164,7 @@ void EspNow::setOnDataRecvCb()
     esp_now_register_recv_cb(onDataRecv);
 }
 
-void EspNow::addPeer(const MacAddr &mac, uint8_t channel)
+void EspNowServer::addPeer(const MacAddr &mac, uint8_t channel)
 {
     esp_now_peer_info_t peer = {};
     memcpy(&peer.peer_addr[0], mac.data(), ESP_NOW_ETH_ALEN);
@@ -175,7 +172,7 @@ void EspNow::addPeer(const MacAddr &mac, uint8_t channel)
     esp_now_add_peer(&peer);
 }
 
-void EspNow::sendPairOK(const MacAddr &mac) const
+void EspNowServer::sendPairOK(const MacAddr &mac) const
 {
     auto pairRespMsg
         = PairRespMsg::create(static_cast<uint8_t>(WiFi.channel()), m_sensorUpdatePeriodMins);

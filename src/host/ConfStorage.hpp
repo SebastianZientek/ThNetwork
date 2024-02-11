@@ -4,53 +4,16 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 
-#include "interfaces/IConfStorage.hpp"
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
+#include "interfaces/IConfStorage.hpp"
 
 class ConfStorage : public IConfStorage
 {
 public:
-    enum class State
-    {
-        OK,
-        FAIL
-    };
-
-    template <typename RaiiFileT>
-    State load(RaiiFileT &file)
-    {
-        std::string data = file->readString().c_str();
-        try
-        {
-            m_jsonData = nlohmann::json::parse(data);
-        }
-        catch (nlohmann::json::parse_error err)
-        {
-            logger::logErr("Can't parse json data, %s", err.what());
-            return State::FAIL;
-        }
-
-        return State::OK;
-    }
-
-    template <typename RaiiFileT>
-    State save(RaiiFileT &file)
-    {
-        try
-        {
-            auto data = m_jsonData.dump();
-            file->print(data.c_str());
-        }
-        catch (nlohmann::json::type_error err)
-        {
-            logger::logErr("Can't dump json data of configuration file, %s", err.what());
-            return State::FAIL;
-        }
-
-        return State::OK;
-    }
+    State load(IRaiiFile &file) override;
+    State save(IRaiiFile &file) override;
 
     void setDefault();
 
@@ -69,6 +32,7 @@ public:
     bool addSensor(IDType identifier, const std::string &name = "Unnamed") override;
     bool removeSensor(IDType identifier) override;
     std::string getSensorsMapping() override;
+    bool isSensorMapped(IDType identifier) override;
 
 private:
     // Limited because of space for readings

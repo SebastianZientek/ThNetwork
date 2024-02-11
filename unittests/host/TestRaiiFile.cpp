@@ -1,6 +1,6 @@
 #include <CppUTest/TestHarness.h>
 
-#include "FileMock.hpp"
+#include "FS.h"
 #include "FileSystemStub.hpp"
 #include "RaiiFile.hpp"
 
@@ -16,7 +16,7 @@ TEST_GROUP(RaiiFileTest)  // NOLINT
 
 TEST(RaiiFileTest, ShouldCloseFileAfterGoingOutOfTheScope)  // NOLINT
 {
-    mock().expectOneCall("FileMock::close");
-    FileMock fileMock;
-    RaiiFile<FileMock> someFile(fileMock);
+    mock().expectOneCall("File::close");
+    fs::File fileMock;
+    RaiiFile someFile(fileMock);
 }

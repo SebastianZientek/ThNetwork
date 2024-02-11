@@ -7,12 +7,13 @@
 #include <memory>
 
 #include "ConfStorage.hpp"
-#include "EspNow.hpp"
-#include "InfoLed.hpp"
+#include "EspNowServer.hpp"
+#include "LedIndicator.hpp"
 #include "ReadingsStorage.hpp"
 #include "Timer.hpp"
 #include "WebPageMain.hpp"
 #include "WebWifiConfig.hpp"
+#include "EspNowPairingManager.hpp"
 
 class App
 {
@@ -60,7 +61,7 @@ private:
     bool isWifiButtonPressed();
     bool isPairButtonPressed();
 
-    constexpr static auto infoLed = 23;
+    constexpr static auto ledIndicator = 23;
     constexpr static auto wifiButton = 14;
     constexpr static auto pairButton = 18;
     constexpr static auto wifiConfigServerTimeoutMillis = 1000 * 60 * 10;  // 10 minutes
@@ -68,13 +69,13 @@ private:
 
     Mode m_mode = Mode::SENSOR_HOST;
 
-    std::unique_ptr<InfoLed> m_infoLed{};
+    std::shared_ptr<LedIndicator> m_ledIndicator{};
     std::shared_ptr<ConfStorage> m_confStorage{};
     std::unique_ptr<WebPageMain> m_webPageMain{};
     std::unique_ptr<WebWifiConfigType> m_webPageMainWifiConfig{};
     WiFiUDP m_ntpUDP{};
     std::shared_ptr<NTPClient> m_timeClient{};
-    std::unique_ptr<EspNow> m_espNow{};
+    std::shared_ptr<EspNowPairingManager> m_pairingManager{};
+    std::unique_ptr<EspNowServer> m_espNow{};
     ReadingsStorage m_readingsStorage{};
-    Timer m_pairingTimer;
 };

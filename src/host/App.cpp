@@ -8,7 +8,8 @@
 #include <numeric>
 
 #include "ConfStorage.hpp"
-#include "InfoLed.hpp"
+#include "EspNowPairingManager.hpp"
+#include "LedIndicator.hpp"
 #include "RaiiFile.hpp"
 #include "Resources.hpp"
 #include "WebPageMain.hpp"
@@ -95,21 +96,13 @@ void App::update()
         ESP.restart();
     }
 
-    if (isPairButtonPressed() && !m_espNow->isPairingEnabled())
+    if (isPairButtonPressed())
     {
-        m_espNow->enablePairing();
-        m_infoLed->blinking();
-        m_pairingTimer.setCallback(
-            [this]
-            {
-                m_espNow->disablePairing();
-                m_infoLed->switchOn(false);
-            });
-        m_pairingTimer.start(espNowPairingTimeout);
+        m_pairingManager->enablePairing();
     }
 
-    m_infoLed->update();
-    m_pairingTimer.update();
+    m_pairingManager->update();
+    m_ledIndicator->update();
 }
 
 App::State App::systemInit()
@@ -119,8 +112,8 @@ App::State App::systemInit()
     delay(waitBeforeInitializationMs);
     setupButtons();
 
-    m_infoLed = std::make_unique<InfoLed>(infoLed);
-    m_infoLed->switchOn(false);
+    m_ledIndicator = std::make_shared<LedIndicator>(ledIndicator);
+    m_ledIndicator->switchOn(false);
 
     logger::init();
     if (auto state = initConfig(); state != State::OK)
@@ -136,7 +129,8 @@ App::State App::systemInit()
     m_timeClient->begin();
     m_timeClient->update();
 
-    m_espNow = std::make_unique<EspNow>(m_timeClient);
+    m_pairingManager = std::make_unique<EspNowPairingManager>(m_confStorage, m_ledIndicator);
+    m_espNow = std::make_unique<EspNowServer>(m_pairingManager, m_timeClient);
     m_webPageMain = std::make_unique<WebPageMain>(std::make_unique<WebServer>(),
                                                   std::make_unique<Resources>(), m_confStorage);
 
@@ -214,7 +208,7 @@ App::State App::connectWiFi()
 void App::wifiSettingsMode()
 {
     logger::logInf("Wifi settings mode");
-    m_infoLed->switchOn(true);
+    m_ledIndicator->switchOn(true);
 
     m_mode = Mode::WIFI_SETTINGS;
     if (m_espNow)

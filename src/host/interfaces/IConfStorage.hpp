@@ -4,11 +4,18 @@
 #include <optional>
 #include <string>
 
+#include "IRaiiFile.hpp"
 #include "common/types.hpp"
 
 class IConfStorage
 {
 public:
+    enum class State
+    {
+        OK,
+        FAIL
+    };
+
     IConfStorage() = default;
     IConfStorage(const IConfStorage &) = default;
     IConfStorage(IConfStorage &&) = default;
@@ -16,6 +23,9 @@ public:
 
     IConfStorage &operator=(const IConfStorage &) = default;
     IConfStorage &operator=(IConfStorage &&) = default;
+
+    virtual State load(IRaiiFile &file) = 0;
+    virtual State save(IRaiiFile &file) = 0;
 
     virtual void setSensorUpdatePeriodMins(std::size_t minutes) = 0;
     virtual std::size_t getSensorUpdatePeriodMins() = 0;
@@ -30,4 +40,5 @@ public:
     virtual bool addSensor(IDType identifier, const std::string &name = "Unnamed") = 0;
     virtual bool removeSensor(IDType identifier) = 0;
     virtual std::string getSensorsMapping() = 0;
+    virtual bool isSensorMapped(IDType identifier) = 0;
 };
