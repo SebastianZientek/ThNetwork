@@ -10,13 +10,13 @@
 #include "ConfStorage.hpp"
 #include "InfoLed.hpp"
 #include "RaiiFile.hpp"
-#include "WebView.hpp"
+#include "Resources.hpp"
+#include "WebPageMain.hpp"
 #include "WiFi.h"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
-#include "esp32-hal-gpio.h"
-#include "utils.hpp"
+#include "webserver/WebServer.hpp"
 
 void App::init()
 {
@@ -42,7 +42,7 @@ void App::init()
 
             logger::logInf("New reading sending");
             auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
-            m_web->sendEvent(reading.c_str(), "newReading", millis());
+            m_webPageMain->sendEvent(reading.c_str(), "newReading", millis());
         };
 
         auto newSensorCallback = [this](IDType identifier)
@@ -72,7 +72,7 @@ void App::init()
             return data;
         };
 
-        m_web->startServer(getSensorData);
+        m_webPageMain->startServer(getSensorData);
 
         // TODO: STUB, remove after implementation ready
         m_confStorage->addSensor(2506682365, "Some sensor name");
@@ -137,7 +137,8 @@ App::State App::systemInit()
     m_timeClient->update();
 
     m_espNow = std::make_unique<EspNow>(m_timeClient);
-    m_web = std::make_unique<WebViewType>(m_confStorage, std::make_unique<Resources>());
+    m_webPageMain = std::make_unique<WebPageMain>(std::make_unique<WebServer>(),
+                                                  std::make_unique<Resources>(), m_confStorage);
 
     return State::OK;
 }
@@ -220,14 +221,14 @@ void App::wifiSettingsMode()
     {
         m_espNow->deinit();
     }
-    if (m_web)
+    if (m_webPageMain)
     {
-        m_web->stopServer();
+        m_webPageMain->stopServer();
     }
     WiFi.disconnect();
 
-    m_webWifiConfig = std::make_unique<WebWifiConfigType>(std::make_unique<Resources>());
-    m_webWifiConfig->startConfiguration(m_confStorage);
+    m_webPageMainWifiConfig = std::make_unique<WebWifiConfigType>(std::make_unique<Resources>());
+    m_webPageMainWifiConfig->startConfiguration(m_confStorage);
 }
 
 void App::setupButtons()

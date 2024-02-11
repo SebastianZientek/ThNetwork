@@ -1,18 +1,18 @@
 #pragma once
 
+#include <ESPAsyncWebServer.h>
 #include <NTPClient.h>
 #include <WiFiUdp.h>
-#include <ESPAsyncWebServer.h>
 
 #include <memory>
 
 #include "ConfStorage.hpp"
 #include "EspNow.hpp"
-#include "ReadingsStorage.hpp"
-#include "WebView.hpp"
-#include "WebWifiConfig.hpp"
 #include "InfoLed.hpp"
+#include "ReadingsStorage.hpp"
 #include "Timer.hpp"
+#include "WebPageMain.hpp"
+#include "WebWifiConfig.hpp"
 
 class App
 {
@@ -29,20 +29,21 @@ class App
         WIFI_SETTINGS
     };
 
-    struct WebViewComponentTypes {
+    struct WebViewComponentTypes
+    {
         using AsyncWebSvrType = AsyncWebServer;
         using AsyncEventSrcType = AsyncEventSource;
         using AsyncWebSrvReq = AsyncWebServerRequest;
         using AsyncEventSrcClient = AsyncEventSourceClient;
         using AsyncWebParam = AsyncWebParameter;
 
-        enum ReqMethod {
+        enum ReqMethod
+        {
             GET = HTTP_GET,
             POST = HTTP_POST
         };
     };
 
-    using WebViewType = WebView<WebViewComponentTypes>;
     using WebWifiConfigType = WebWifiConfig<ConfStorage, AsyncWebServer>;
 
 public:
@@ -62,15 +63,15 @@ private:
     constexpr static auto infoLed = 23;
     constexpr static auto wifiButton = 14;
     constexpr static auto pairButton = 18;
-    constexpr static auto wifiConfigServerTimeoutMillis = 1000 * 60 * 10; // 10 minutes
-    constexpr static auto espNowPairingTimeout = 1000 * 60 * 2; // 2 minutes
+    constexpr static auto wifiConfigServerTimeoutMillis = 1000 * 60 * 10;  // 10 minutes
+    constexpr static auto espNowPairingTimeout = 1000 * 60 * 2;            // 2 minutes
 
     Mode m_mode = Mode::SENSOR_HOST;
 
     std::unique_ptr<InfoLed> m_infoLed{};
     std::shared_ptr<ConfStorage> m_confStorage{};
-    std::unique_ptr<WebViewType> m_web{};
-    std::unique_ptr<WebWifiConfigType> m_webWifiConfig{};
+    std::unique_ptr<WebPageMain> m_webPageMain{};
+    std::unique_ptr<WebWifiConfigType> m_webPageMainWifiConfig{};
     WiFiUDP m_ntpUDP{};
     std::shared_ptr<NTPClient> m_timeClient{};
     std::unique_ptr<EspNow> m_espNow{};

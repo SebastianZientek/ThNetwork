@@ -4,7 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 
-#include "IConfStorage.hpp"
+#include "interfaces/IConfStorage.hpp"
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
