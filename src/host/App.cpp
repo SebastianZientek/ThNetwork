@@ -68,7 +68,7 @@ void App::init()
         auto getSensorData = [this](const std::size_t &identifier)
         {
             logger::logInf("getSensorData");
-            auto data = m_readingsStorage.getReadingsAsJsonArrStr(identifier);
+            auto data = m_readingsStorage.getReadingsAsJsonStr(identifier);
             return data;
         };
 

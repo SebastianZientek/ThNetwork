@@ -29,6 +29,7 @@ set(SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter/EspNow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter/utils.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ConfStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ReadingsStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 )
 
@@ -62,6 +63,7 @@ set(HS_TESTS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRingBuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRaiiFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestConfStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestReadingsStorage.cpp
 )
 
 set(CM_TESTS
