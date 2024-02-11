@@ -3,7 +3,14 @@
 class IWebRequest
 {
 public:
+    IWebRequest() = default;
+    IWebRequest(const IWebRequest &) = default;
+    IWebRequest(IWebRequest &&) = default;
     virtual ~IWebRequest() = default;
+
+    IWebRequest &operator=(const IWebRequest &) = default;
+    IWebRequest &operator=(IWebRequest &&) = default;
+
     virtual void send(int code, std::string contentType, const uint8_t *content, size_t len) = 0;
     virtual void send(int code, std::string contentType, const char *content) = 0;
     virtual void send(int code) = 0;

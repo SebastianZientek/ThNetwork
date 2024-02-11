@@ -9,7 +9,13 @@
 class IConfStorage
 {
 public:
+    IConfStorage() = default;
+    IConfStorage(const IConfStorage &) = default;
+    IConfStorage(IConfStorage &&) = default;
     virtual ~IConfStorage() = default;
+
+    IConfStorage &operator=(const IConfStorage &) = default;
+    IConfStorage &operator=(IConfStorage &&) = default;
 
     virtual void setSensorUpdatePeriodMins(std::size_t minutes) = 0;
     virtual std::size_t getSensorUpdatePeriodMins() = 0;

@@ -40,7 +40,7 @@ std::map<std::string, std::string> WebRequest::getParams()
         AsyncWebParameter *param = m_WebRequest->getParam(idx);
         const auto *paramName = param->name().c_str();
         const auto *paramValue = param->value().c_str();
-        paramsMap[paramName] = paramValue;
+        paramsMap[paramName] = paramValue;  // NOLINT
     }
 
     return paramsMap;

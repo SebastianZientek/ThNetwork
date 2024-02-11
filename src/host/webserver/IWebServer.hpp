@@ -1,7 +1,7 @@
 #pragma once
 
-#include "IWebRequest.hpp"
 #include "IEventSrcClient.hpp"
+#include "IWebRequest.hpp"
 
 class IWebServer
 {
@@ -9,7 +9,13 @@ public:
     using WebRequestClbk = std::function<void(IWebRequest &)>;
     using EventClbk = std::function<void(IEventSrcClient &)>;
 
+    IWebServer() = default;
+    IWebServer(const IWebServer &) = default;
+    IWebServer(IWebServer &&) = default;
     virtual ~IWebServer() = default;
+
+    IWebServer &operator=(const IWebServer &) = default;
+    IWebServer &operator=(IWebServer &&) = default;
 
     virtual void start() = 0;
     virtual void stop() = 0;
