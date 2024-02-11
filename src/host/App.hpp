@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "ConfStorage.hpp"
-#include "EspNow.hpp"
+#include "EspNowServer.hpp"
 #include "LedIndicator.hpp"
 #include "ReadingsStorage.hpp"
 #include "Timer.hpp"
@@ -76,6 +76,6 @@ private:
     WiFiUDP m_ntpUDP{};
     std::shared_ptr<NTPClient> m_timeClient{};
     std::shared_ptr<EspNowPairingManager> m_pairingManager{};
-    std::unique_ptr<EspNow> m_espNow{};
+    std::unique_ptr<EspNowServer> m_espNow{};
     ReadingsStorage m_readingsStorage{};
 };

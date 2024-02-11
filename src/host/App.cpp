@@ -130,7 +130,7 @@ App::State App::systemInit()
     m_timeClient->update();
 
     m_pairingManager = std::make_unique<EspNowPairingManager>(m_confStorage, m_ledIndicator);
-    m_espNow = std::make_unique<EspNow>(m_pairingManager, m_timeClient);
+    m_espNow = std::make_unique<EspNowServer>(m_pairingManager, m_timeClient);
     m_webPageMain = std::make_unique<WebPageMain>(std::make_unique<WebServer>(),
                                                   std::make_unique<Resources>(), m_confStorage);
 

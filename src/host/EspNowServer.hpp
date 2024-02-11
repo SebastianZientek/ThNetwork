@@ -12,20 +12,20 @@
 #include "common/Messages.hpp"
 #include "common/types.hpp"
 
-class EspNow
+class EspNowServer
 {
 public:
     using NewReadingsCb
         = std::function<void(float temp, float hum, IDType identifier, unsigned long epochTime)>;
     using NewPeerCb = std::function<bool(IDType identifier)>;
 
-    EspNow(std::shared_ptr<EspNowPairingManager> pairingManager,
+    EspNowServer(std::shared_ptr<EspNowPairingManager> pairingManager,
            std::shared_ptr<NTPClient> ntpClient);
-    ~EspNow() = default;
-    EspNow(const EspNow &) = delete;
-    EspNow(EspNow &&) = delete;
-    EspNow &operator=(const EspNow &) = delete;
-    EspNow &operator=(EspNow &&) = delete;
+    ~EspNowServer() = default;
+    EspNowServer(const EspNowServer &) = delete;
+    EspNowServer(EspNowServer &&) = delete;
+    EspNowServer &operator=(const EspNowServer &) = delete;
+    EspNowServer &operator=(EspNowServer &&) = delete;
 
     void init(const NewReadingsCb &newReadingsCb,
               const NewPeerCb &newPeerCb,
