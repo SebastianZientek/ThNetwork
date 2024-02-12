@@ -15,8 +15,8 @@ FetchContent_MakeAvailable(CppUTest)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
-function(buildTests suiteName srcs incls mocks tests)
-    add_executable(${suiteName} ${srcs} ${mocks} ${tests})
+function(buildTests suiteName srcs incls)
+    add_executable(${suiteName} ${srcs} ${tests})
     target_include_directories(${suiteName} PRIVATE ${incls})
     target_compile_options(${suiteName} PUBLIC -fsanitize=address -O0 -g)
     target_link_libraries(${suiteName} PRIVATE CppUTest::CppUTest CppUTest::CppUTestExt nlohmann_json::nlohmann_json)
@@ -24,14 +24,6 @@ function(buildTests suiteName srcs incls mocks tests)
     target_compile_definitions(${suiteName} PRIVATE UNIT_TESTS)
     target_link_options(${suiteName} PRIVATE -fsanitize=address)
 endfunction()
-
-set(SRCS 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter/EspNow.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter/utils.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ConfStorage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ReadingsStorage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
-)
 
 set(INCLS
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -42,27 +34,13 @@ set(INCLS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks
 )
 
-set(MOCKS
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/Arduino.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspAdpStub.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspNowAdpMock.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/WifiAdpMock.cpp
-)
-
-set(TR_TESTS
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestEspNow.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestUtils.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpStub.cpp
-)
-
-set(HS_TESTS
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
-
+set(HOST_TEST_SRCS 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ConfStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ReadingsStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/EspNowPairingManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRingBuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRaiiFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestConfStorage.cpp
@@ -72,18 +50,35 @@ set(HS_TESTS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpMock.cpp
 )
 
-set(CM_TESTS
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
+set(COMMON_TEST_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestMacAddr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestSerializer.cpp
+
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpMock.cpp
 )
 
+set(TRANSMITTER_TEST_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter/EspNow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter/utils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 
-buildTests(TransmitterUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${TR_TESTS}")
-buildTests(HostUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${HS_TESTS}")
-buildTests(CommonUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${CM_TESTS}")
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestEspNow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestUtils.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpStub.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/WifiAdpMock.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspNowAdpMock.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspAdpStub.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/Arduino.cpp
+)
+
+buildTests(HostUTs "${HOST_TEST_SRCS}" "${INCLS}")
+buildTests(CommonUTs "${COMMON_TEST_SRCS}" "${INCLS}")
+buildTests(TransmitterUTs "${TRANSMITTER_TEST_SRCS}" "${INCLS}")
 
 # add_executable(UnitTests ${SRCS} ${MOCKS} ${TESTS})
 # target_include_directories(UnitTests PRIVATE ${INCLS})
