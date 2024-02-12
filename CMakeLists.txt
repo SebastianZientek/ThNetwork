@@ -15,17 +15,7 @@ FetchContent_MakeAvailable(CppUTest)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.11.3/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
-function(buildTests suiteName srcs incls mocks tests)
-    add_executable(${suiteName} ${srcs} ${mocks} ${tests})
-    target_include_directories(${suiteName} PRIVATE ${incls})
-    target_compile_options(${suiteName} PUBLIC -fsanitize=address -O0 -g)
-    target_link_libraries(${suiteName} PRIVATE CppUTest::CppUTest CppUTest::CppUTestExt nlohmann_json::nlohmann_json)
-    target_compile_features(${suiteName} PRIVATE cxx_std_17)
-    target_compile_definitions(${suiteName} PRIVATE UNIT_TESTS)
-    target_link_options(${suiteName} PRIVATE -fsanitize=address)
-endfunction()
-
-function(buildTestsNew suiteName srcs incls)
+function(buildTests suiteName srcs incls)
     add_executable(${suiteName} ${srcs} ${tests})
     target_include_directories(${suiteName} PRIVATE ${incls})
     target_compile_options(${suiteName} PUBLIC -fsanitize=address -O0 -g)
@@ -86,9 +76,9 @@ set(TRANSMITTER_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/Arduino.cpp
 )
 
-buildTestsNew(HostUTs "${HOST_TEST_SRCS}" "${INCLS}")
-buildTestsNew(CommonUTs "${COMMON_TEST_SRCS}" "${INCLS}")
-buildTestsNew(TransmitterUTs "${TRANSMITTER_TEST_SRCS}" "${INCLS}")
+buildTests(HostUTs "${HOST_TEST_SRCS}" "${INCLS}")
+buildTests(CommonUTs "${COMMON_TEST_SRCS}" "${INCLS}")
+buildTests(TransmitterUTs "${TRANSMITTER_TEST_SRCS}" "${INCLS}")
 
 # add_executable(UnitTests ${SRCS} ${MOCKS} ${TESTS})
 # target_include_directories(UnitTests PRIVATE ${INCLS})
