@@ -7,10 +7,6 @@
 // clang-format off
 TEST_GROUP(ReadingStorageTest)  // NOLINT
 {   
-    void teardown() override{
-        // mock().checkExpectations();
-        // mock().clear();
-    }
 };
 // clang-format on
 

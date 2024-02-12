@@ -1,7 +1,6 @@
 #pragma once
 
-#include <Arduino.h>
-
+#include <ArduinoAdp.hpp>
 #include <cstddef>
 #include <functional>
 
@@ -18,7 +17,7 @@ public:
     void start(std::size_t timeoutMillis, bool repeat = false)
     {
         m_period = timeoutMillis;
-        m_startTime = millis();
+        m_startTime = ArduinoAdp::millis();
 
         m_stopped = false;
         m_repeat = repeat;
@@ -31,13 +30,13 @@ public:
 
     void update()
     {
-        if (!m_stopped && m_period + m_startTime < millis())
+        if (!m_stopped && m_period + m_startTime < ArduinoAdp::millis())
         {
             m_function();
 
             if (m_repeat)
             {
-                m_startTime = millis();
+                m_startTime = ArduinoAdp::millis();
             }
             else
             {
