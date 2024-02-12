@@ -98,7 +98,7 @@ void App::update()
 
     if (isPairButtonPressed())
     {
-        m_pairingManager->enablePairing();
+        m_pairingManager->enablePairingForPeriod();
     }
 
     m_pairingManager->update();

@@ -27,3 +27,8 @@ uint8_t ArduinoAdp::getLedBuiltin()
 {
     return 0;
 }
+
+unsigned long ArduinoAdp::millis()
+{
+    return ::millis();
+}

@@ -9,7 +9,7 @@ EspNowPairingManager::EspNowPairingManager(std::shared_ptr<IConfStorage> confSto
 {
 }
 
-void EspNowPairingManager::enablePairing()
+void EspNowPairingManager::enablePairingForPeriod(std::size_t timeout)
 {
     if (isPairingEnabled())
     {
@@ -31,7 +31,7 @@ void EspNowPairingManager::enablePairing()
             }
             m_pairingEnabled = false;
         });
-    m_pairingTimer.start(m_pairingTimeout);
+    m_pairingTimer.start(timeout);
 }
 
 void EspNowPairingManager::disablePairing()

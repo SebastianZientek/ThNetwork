@@ -33,3 +33,8 @@ uint8_t ArduinoAdp::getLedBuiltin()
 {
     return mock().actualCall("ArduinoAdp::getLedBuiltin").returnIntValueOrDefault(0);
 }
+
+unsigned long ArduinoAdp::millis()
+{
+    return mock().actualCall("ArduinoAdp::millis").returnIntValueOrDefault(0);
+}

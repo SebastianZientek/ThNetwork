@@ -12,9 +12,9 @@ class EspNowPairingManager
 {
 public:
     explicit EspNowPairingManager(std::shared_ptr<IConfStorage> confStorage,
-                                std::shared_ptr<LedIndicator> pairingLed = nullptr);
+                                  std::shared_ptr<LedIndicator> pairingLed = nullptr);
 
-    void enablePairing();
+    void enablePairingForPeriod(std::size_t timeout = m_pairingDefaultTimeout);
     void disablePairing();
     [[nodiscard]] bool isPairingEnabled() const;
     bool isPaired(IDType identifier);
@@ -22,9 +22,8 @@ public:
     void unpairSensor(IDType identifier);
     void update();
 
-
 private:
-    constexpr static auto m_pairingTimeout = 1000 * 60 * 2;  // 2 minutes
+    constexpr static auto m_pairingDefaultTimeout = 1000 * 60 * 2;  // 2 minutes
 
     std::shared_ptr<IConfStorage> m_confStorage;
     std::shared_ptr<LedIndicator> m_pairingLed;
