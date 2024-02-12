@@ -5,6 +5,7 @@
 #include "EspNowAdp.hpp"
 #include "WiFiAdp.hpp"
 #include "adapters/EspAdp.hpp"
+#include "adapters/ArduinoAdp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
@@ -158,7 +159,7 @@ void EspNow::sendDataToHost(std::size_t ID, MacAddr mac, float temperature, floa
     {
         logger::logWrn("esp_now_send error, code: %d", errCode);
     }
-    delay(1);  // Give board time to invoke onDataSent callback
+    ArduinoAdp::delay(1);  // Give board time to invoke onDataSent callback
 }
 
 config::TransmitterConfig EspNow::getTransmitterConfig()

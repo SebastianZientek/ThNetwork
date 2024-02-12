@@ -23,6 +23,3 @@ public:
 };
 
 extern SerialStub Serial;  // NOLINT
-
-void delay(int time);
-int millis();

@@ -38,3 +38,8 @@ unsigned long ArduinoAdp::millis()
 {
     return mock().actualCall("ArduinoAdp::millis").returnIntValueOrDefault(0);
 }
+
+void ArduinoAdp::delay(unsigned long milliseconds)
+{
+    mock().actualCall("ArduinoAdp::delay").withParameter("milliseconds", milliseconds);
+}
