@@ -8,6 +8,11 @@ int EspNowAdp::init()
     return esp_now_init();
 }
 
+void EspNowAdp::deinit()
+{
+    esp_now_deinit();
+}
+
 void EspNowAdp::setComboRole()
 {
     esp_now_set_self_role(ESP_NOW_ROLE_COMBO);

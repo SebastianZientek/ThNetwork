@@ -10,6 +10,10 @@
 #include "common/serializer.hpp"
 #include "esp_now.h"
 
+#include "adapters/esp32/EspNowAdp.hpp"
+
+EspNowAdp adp; // TODO: remove
+
 constexpr auto macSize = 6;
 constexpr auto msgSignatureSize = 4;
 constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
