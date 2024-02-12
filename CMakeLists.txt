@@ -69,11 +69,10 @@ set(TRANSMITTER_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestEspNow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestUtils.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpStub.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/WifiAdpMock.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspNowAdpMock.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspAdpStub.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/Arduino.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpMock.cpp
 )
 
 buildTests(HostUTs "${HOST_TEST_SRCS}" "${INCLS}")

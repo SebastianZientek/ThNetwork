@@ -32,3 +32,8 @@ unsigned long ArduinoAdp::millis()
 {
     return ::millis();
 }
+
+void ArduinoAdp::delay(unsigned long milliseconds)
+{
+    return ::delay(milliseconds);
+}

@@ -9,6 +9,7 @@ struct ArduinoAdp
     static void digitalWrite(uint8_t pin, uint8_t val);
     static uint8_t getLedBuiltin();
     static unsigned long millis();
+    static void delay(unsigned long milliseconds);
 
     static const uint8_t LVL_HI;
     static const uint8_t LVL_LO;
