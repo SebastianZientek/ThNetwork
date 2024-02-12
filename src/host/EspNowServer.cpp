@@ -5,14 +5,13 @@
 #include <array>
 
 #include "NTPClient.h"
+#include "adapters/esp32/EspNowAdp.hpp"
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
 #include "common/serializer.hpp"
 #include "esp_now.h"
 
-#include "adapters/esp32/EspNowAdp.hpp"
-
-EspNowAdp adp; // TODO: remove
+EspNowAdp adp;  // TODO: remove
 
 constexpr auto macSize = 6;
 constexpr auto msgSignatureSize = 4;
@@ -21,17 +20,19 @@ constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 
 EspNowServer::OnSendCb EspNowServer::m_onSend;  // NOLINT
 EspNowServer::OnRecvCb EspNowServer::m_onRecv;  // NOLINT
 
-EspNowServer::EspNowServer(std::shared_ptr<EspNowPairingManager> pairingManager,
-               std::shared_ptr<NTPClient> ntpClient)
-    : m_ntpClient(ntpClient)
+EspNowServer::EspNowServer(std::unique_ptr<IEspNowAdp> espNowAdp,
+                           std::shared_ptr<EspNowPairingManager> pairingManager,
+                           std::shared_ptr<NTPClient> ntpClient)
+    : m_espNowAdp(std::move(espNowAdp))
+    , m_ntpClient(ntpClient)
     , m_sensorUpdatePeriodMins(1)
     , m_pairingManager(pairingManager)
 {
 }
 
 void EspNowServer::init(const NewReadingsCb &newReadingsCb,
-                  const NewPeerCb &newPeerCb,
-                  uint8_t sensorUpdatePeriodMins)
+                        const NewPeerCb &newPeerCb,
+                        uint8_t sensorUpdatePeriodMins)
 {
     if (esp_now_init() != ESP_OK)
     {

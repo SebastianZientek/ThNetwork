@@ -19,6 +19,8 @@
 #include "common/types.hpp"
 #include "webserver/WebServer.hpp"
 
+#include "adapters/esp32/EspNowAdp.hpp"
+
 void App::init()
 {
     if (auto initState = systemInit(); initState == State::FAIL)
@@ -129,8 +131,10 @@ App::State App::systemInit()
     m_timeClient->begin();
     m_timeClient->update();
 
+    auto espNowAdp = std::make_unique<EspNowAdp>();
+
     m_pairingManager = std::make_unique<EspNowPairingManager>(m_confStorage, m_ledIndicator);
-    m_espNow = std::make_unique<EspNowServer>(m_pairingManager, m_timeClient);
+    m_espNow = std::make_unique<EspNowServer>(std::move(espNowAdp), m_pairingManager, m_timeClient);
     m_webPageMain = std::make_unique<WebPageMain>(std::make_unique<WebServer>(),
                                                   std::make_unique<Resources>(), m_confStorage);
 

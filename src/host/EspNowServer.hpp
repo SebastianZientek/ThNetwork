@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "EspNowPairingManager.hpp"
+#include "adapters/esp32/IEspNowAdp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
 #include "common/types.hpp"
@@ -19,8 +20,9 @@ public:
         = std::function<void(float temp, float hum, IDType identifier, unsigned long epochTime)>;
     using NewPeerCb = std::function<bool(IDType identifier)>;
 
-    EspNowServer(std::shared_ptr<EspNowPairingManager> pairingManager,
-           std::shared_ptr<NTPClient> ntpClient);
+    EspNowServer(std::unique_ptr<IEspNowAdp> espNowAdp,
+                 std::shared_ptr<EspNowPairingManager> pairingManager,
+                 std::shared_ptr<NTPClient> ntpClient);
     ~EspNowServer() = default;
     EspNowServer(const EspNowServer &) = delete;
     EspNowServer(EspNowServer &&) = delete;
@@ -42,6 +44,8 @@ private:
 
     NewReadingsCb m_newReadingsCb;
     NewPeerCb m_newPeerCb;
+
+    std::unique_ptr<IEspNowAdp> m_espNowAdp;
     std::shared_ptr<NTPClient> m_ntpClient;
     std::shared_ptr<EspNowPairingManager> m_pairingManager;
     uint8_t m_sensorUpdatePeriodMins;
