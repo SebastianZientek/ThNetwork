@@ -77,12 +77,13 @@ set(CM_TESTS
 
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestMacAddr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestSerializer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpMock.cpp
 )
 
 
-# buildTests(TransmitterUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${TR_TESTS}")
+buildTests(TransmitterUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${TR_TESTS}")
 buildTests(HostUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${HS_TESTS}")
-# buildTests(CommonUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${CM_TESTS}")
+buildTests(CommonUTs "${SRCS}" "${INCLS}" "${MOCKS}" "${CM_TESTS}")
 
 # add_executable(UnitTests ${SRCS} ${MOCKS} ${TESTS})
 # target_include_directories(UnitTests PRIVATE ${INCLS})
