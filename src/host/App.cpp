@@ -13,7 +13,7 @@
 #include "RaiiFile.hpp"
 #include "Resources.hpp"
 #include "WebPageMain.hpp"
-#include "WiFi.h"
+#include <WiFi.h>
 #include "adapters/esp32/EspNow32Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
@@ -106,7 +106,7 @@ App::State App::systemInit()
     }
 
     m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
-    m_timeClient->begin();
+    m_timeClient->begin();Status
     m_timeClient->update();
 
     auto espNowAdp = std::make_unique<EspNow32Adp>();
