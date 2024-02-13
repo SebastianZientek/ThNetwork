@@ -5,7 +5,7 @@
 
 #include "common/MacAddr.hpp"
 
-class IEspNowAdp
+class IEspNow32Adp
 {
 public:
     enum class Status
@@ -18,14 +18,14 @@ public:
     using OnRecvCb
         = std::function<void(const MacAddr &mac, const uint8_t *incomingData, uint8_t len)>;
 
-    IEspNowAdp() = default;
-    virtual ~IEspNowAdp() = default;
-    IEspNowAdp(const IEspNowAdp &) = default;
-    IEspNowAdp(IEspNowAdp &&) noexcept = default;
-    IEspNowAdp &operator=(const IEspNowAdp &) = default;
-    IEspNowAdp &operator=(IEspNowAdp &&) noexcept = default;
+    IEspNow32Adp() = default;
+    virtual ~IEspNow32Adp() = default;
+    IEspNow32Adp(const IEspNow32Adp &) = default;
+    IEspNow32Adp(IEspNow32Adp &&) noexcept = default;
+    IEspNow32Adp &operator=(const IEspNow32Adp &) = default;
+    IEspNow32Adp &operator=(IEspNow32Adp &&) noexcept = default;
 
-    virtual int init() = 0;
+    virtual Status init() = 0;
     virtual void deinit() = 0;
     virtual void registerOnSendCb(const OnSendCb &onSendCb) = 0;
     virtual void registerOnRecvCb(const OnRecvCb &onRecvCb) = 0;

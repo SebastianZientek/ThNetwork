@@ -4,13 +4,13 @@
 
 #include <cstring>  // TODO: move to .cpp
 
-#include "IEspNowAdp.hpp"
-class EspNowAdp : public IEspNowAdp
+#include "IEspNow32Adp.hpp"
+class EspNow32Adp : public IEspNow32Adp
 {
 public:
-    int init() override
+    Status init() override
     {
-        return esp_now_init();
+        return esp_now_init() == ESP_OK ? Status::OK : Status::FAIL;
     }
     void deinit() override
     {
@@ -52,7 +52,7 @@ public:
     {
         esp_now_del_peer(mac.data());
     }
-    Status sendData(const MacAddr &mac, uint8_t* buffer, size_t length) override
+    Status sendData(const MacAddr &mac, uint8_t *buffer, size_t length) override
     {
         auto state = esp_now_send(mac.data(), buffer, length);
         return state == ESP_OK ? Status::OK : Status::FAIL;

@@ -5,26 +5,17 @@
 #include <array>
 
 #include "NTPClient.h"
-#include "adapters/esp32/EspNowAdp.hpp"
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
 #include "common/serializer.hpp"
-#include "esp_now.h"
-
-EspNowAdp adp;  // TODO: remove
 
 constexpr auto macSize = 6;
 constexpr auto msgSignatureSize = 4;
 constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
-EspNowServer::OnSendCb EspNowServer::m_onSend;  // NOLINT
-EspNowServer::OnRecvCb EspNowServer::m_onRecv;  // NOLINT
-
-EspNowServer::EspNowServer(std::unique_ptr<IEspNowAdp> espNowAdp,
-                           std::shared_ptr<EspNowPairingManager> pairingManager,
-                           std::shared_ptr<NTPClient> ntpClient)
+EspNowServer::EspNowServer(std::unique_ptr<IEspNow32Adp> espNowAdp,
+                           std::shared_ptr<EspNowPairingManager> pairingManager)
     : m_espNowAdp(std::move(espNowAdp))
-    , m_ntpClient(ntpClient)
     , m_sensorUpdatePeriodMins(1)
     , m_pairingManager(pairingManager)
 {
@@ -34,7 +25,7 @@ void EspNowServer::init(const NewReadingsCb &newReadingsCb,
                         const NewPeerCb &newPeerCb,
                         uint8_t sensorUpdatePeriodMins)
 {
-    if (esp_now_init() != ESP_OK)
+    if (m_espNowAdp->init() == IEspNow32Adp::Status::FAIL)
     {
         logger::logErr("Init ESP NOW issue");
         return;
@@ -49,7 +40,7 @@ void EspNowServer::init(const NewReadingsCb &newReadingsCb,
 
 void EspNowServer::deinit()
 {
-    esp_now_deinit();
+    m_espNowAdp->deinit();
 }
 
 void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
@@ -84,9 +75,9 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
             pairReqMsg.deserialize(incomingData, len);
             if (m_newPeerCb(pairReqMsg.ID))
             {
-                addPeer(mac, WiFi.channel());
+                m_espNowAdp->addPeer(mac, WiFi.channel());
                 sendPairOK(mac);
-                esp_now_del_peer(mac.data());
+                m_espNowAdp->deletePeer(mac);
             }
         }
         else
@@ -105,11 +96,7 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
 
         if (m_pairingManager->isPaired(sDataMsg.ID))
         {
-            logger::logInf("[%u %s] T: %.1f, H: %.1f", sDataMsg.ID, m_ntpClient->getFormattedTime(),
-                           sDataMsg.temperature, sDataMsg.humidity);
-
-            m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, sDataMsg.ID,
-                            m_ntpClient->getEpochTime());
+            m_newReadingsCb(sDataMsg.temperature, sDataMsg.humidity, sDataMsg.ID);
         }
         else
         {
@@ -122,10 +109,10 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
     }
 }
 
-void EspNowServer::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
+void EspNowServer::onDataSend(const MacAddr &mac, IEspNow32Adp::Status status)
 {
     logger::logInf("Last Packet Send Status: ");
-    if (status == 0)
+    if (status == IEspNow32Adp::Status::OK)
     {
         logger::logInf("Delivery success: %s", mac.str());
     }
@@ -137,44 +124,21 @@ void EspNowServer::onDataSend(const MacAddr &mac, esp_now_send_status_t status)
 
 void EspNowServer::setOnDataSendCb()
 {
-    m_onSend = [this](const MacAddr &mac, esp_now_send_status_t status)
+    auto onSend = [this](const MacAddr &mac, IEspNow32Adp::Status status)
     {
         this->onDataSend(mac, status);
     };
-    auto onDataSend = [](const uint8_t *rawMac, esp_now_send_status_t status)
-    {
-        MacAddr macAddr{};
-        std::memcpy(macAddr.data(), rawMac, MacAddr::macAddrDigits);
-
-        m_onSend(macAddr, status);
-    };
-
-    esp_now_register_send_cb(onDataSend);
+    m_espNowAdp->registerOnSendCb(onSend);
 }
 
 void EspNowServer::setOnDataRecvCb()
 {
-    m_onRecv = [this](MacAddr mac, const uint8_t *incomingData, int len)
+    auto onRecv = [this](MacAddr mac, const uint8_t *incomingData, int len)
     {
         this->onDataRecv(mac, incomingData, len);
     };
-    auto onDataRecv = [](const uint8_t *rawMac, const uint8_t *incomingData, int len)
-    {
-        MacAddr macAddr{};
-        std::memcpy(macAddr.data(), rawMac, MacAddr::macAddrDigits);
 
-        m_onRecv(macAddr, incomingData, len);
-    };
-
-    esp_now_register_recv_cb(onDataRecv);
-}
-
-void EspNowServer::addPeer(const MacAddr &mac, uint8_t channel)
-{
-    esp_now_peer_info_t peer = {};
-    memcpy(&peer.peer_addr[0], mac.data(), ESP_NOW_ETH_ALEN);
-    peer.channel = channel;
-    esp_now_add_peer(&peer);
+    m_espNowAdp->registerOnRecvCb(onRecv);
 }
 
 void EspNowServer::sendPairOK(const MacAddr &mac) const
@@ -184,10 +148,10 @@ void EspNowServer::sendPairOK(const MacAddr &mac) const
     WiFi.softAPmacAddress(pairRespMsg.hostMacAddr.data());
     auto buffer = pairRespMsg.serialize();
 
-    auto state = esp_now_send(mac.data(), buffer.data(), buffer.size());
+    auto state = m_espNowAdp->sendData(mac, buffer.data(), buffer.size());
 
-    if (state != ESP_OK)
+    if (state == IEspNow32Adp::Status::FAIL)
     {
-        logger::logWrn("esp_now_send error, code: %d", state);
+        logger::logWrn("EspNow32Adp send error");
     }
 }

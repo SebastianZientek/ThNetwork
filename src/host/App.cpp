@@ -14,12 +14,11 @@
 #include "Resources.hpp"
 #include "WebPageMain.hpp"
 #include "WiFi.h"
+#include "adapters/esp32/EspNow32Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
 #include "webserver/WebServer.hpp"
-
-#include "adapters/esp32/EspNowAdp.hpp"
 
 void App::init()
 {
@@ -38,12 +37,10 @@ void App::init()
     }
     else
     {
-        auto newReadingCallback
-            = [this](float temp, float hum, IDType identifier, unsigned long epochTime)
+        auto newReadingCallback = [this](float temp, float hum, IDType identifier)
         {
-            m_readingsStorage.addReading(identifier, temp, hum, epochTime);
+            m_readingsStorage.addReading(identifier, temp, hum, m_timeClient->getEpochTime());
 
-            logger::logInf("New reading sending");
             auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
             m_webPageMain->sendEvent(reading.c_str(), "newReading", millis());
         };
@@ -131,10 +128,10 @@ App::State App::systemInit()
     m_timeClient->begin();
     m_timeClient->update();
 
-    auto espNowAdp = std::make_unique<EspNowAdp>();
+    auto espNowAdp = std::make_unique<EspNow32Adp>();
 
     m_pairingManager = std::make_unique<EspNowPairingManager>(m_confStorage, m_ledIndicator);
-    m_espNow = std::make_unique<EspNowServer>(std::move(espNowAdp), m_pairingManager, m_timeClient);
+    m_espNow = std::make_unique<EspNowServer>(std::move(espNowAdp), m_pairingManager);
     m_webPageMain = std::make_unique<WebPageMain>(std::make_unique<WebServer>(),
                                                   std::make_unique<Resources>(), m_confStorage);
 
