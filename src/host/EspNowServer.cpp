@@ -4,7 +4,6 @@
 
 #include <array>
 
-#include "NTPClient.h"
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
 #include "common/serializer.hpp"
@@ -73,7 +72,7 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
             logger::logInf("PAIR_REQ received");
             PairReqMsg pairReqMsg;
             pairReqMsg.deserialize(incomingData, len);
-            if (m_newPeerCb(pairReqMsg.ID))
+            if (m_pairingManager->addNewSensorToStorage(pairReqMsg.ID))
             {
                 m_espNowAdp->addPeer(mac, WiFi.channel());
                 sendPairOK(mac);

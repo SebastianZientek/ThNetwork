@@ -48,7 +48,7 @@ TEST(EspNowPairingManagerTest, PairingEnabledForPeriod)  // NOLINT
     CHECK_FALSE(espNowPairingManager.isPairingEnabled());
 }
 
-TEST(EspNowPairingManagerTest, PairSensorWhenItPossibe)  // NOLINT
+TEST(EspNowPairingManagerTest, AddSensorToStorageWhenItPossibe)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
     EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
@@ -59,10 +59,10 @@ TEST(EspNowPairingManagerTest, PairSensorWhenItPossibe)  // NOLINT
     mock().expectOneCall("ConfStorageMock::addSensor").withParameter("identifier", 123).ignoreOtherParameters();
     mock().ignoreOtherCalls();
 
-    espNowPairingManager.pairSensor(123);
+    espNowPairingManager.addNewSensorToStorage(123);
 }
 
-TEST(EspNowPairingManagerTest, NotPairSensorWhenSensorIsAlreadyMapped)  // NOLINT
+TEST(EspNowPairingManagerTest, NotAddSensorToStorageWhenSensorIsAlreadyMapped)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
     EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
@@ -72,10 +72,10 @@ TEST(EspNowPairingManagerTest, NotPairSensorWhenSensorIsAlreadyMapped)  // NOLIN
     mock().expectNoCall("ConfStorageMock::addSensor");
     mock().ignoreOtherCalls();
 
-    espNowPairingManager.pairSensor(123);
+    espNowPairingManager.addNewSensorToStorage(123);
 }
 
-TEST(EspNowPairingManagerTest, NotPairSensorWhenThereIsNoMoreSpaceForSensors)  // NOLINT
+TEST(EspNowPairingManagerTest, NotAddSensorToStorageWhenThereIsNoMoreSpaceForSensors)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
     EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
@@ -86,10 +86,10 @@ TEST(EspNowPairingManagerTest, NotPairSensorWhenThereIsNoMoreSpaceForSensors)  /
     mock().expectNoCall("ConfStorageMock::addSensor");
     mock().ignoreOtherCalls();
 
-    espNowPairingManager.pairSensor(123);
+    espNowPairingManager.addNewSensorToStorage(123);
 }
 
-TEST(EspNowPairingManagerTest, UnpairSensor)  // NOLINT
+TEST(EspNowPairingManagerTest, UnaddNewSensorToStorage)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
     EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
