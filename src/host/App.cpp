@@ -13,8 +13,8 @@
 #include "RaiiFile.hpp"
 #include "Resources.hpp"
 #include "WebPageMain.hpp"
-#include <WiFi.h>
 #include "adapters/esp32/EspNow32Adp.hpp"
+#include "adapters/esp32/Wifi32Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
@@ -22,6 +22,7 @@
 
 void App::init()
 {
+    m_wifiAdp = std::make_shared<Wifi32Adp>();
     if (auto initState = systemInit(); initState == State::FAIL)
     {
         constexpr auto msInSecond = 1000;
@@ -106,13 +107,13 @@ App::State App::systemInit()
     }
 
     m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
-    m_timeClient->begin();Status
+    m_timeClient->begin();
     m_timeClient->update();
 
     auto espNowAdp = std::make_unique<EspNow32Adp>();
 
     m_pairingManager = std::make_unique<EspNowPairingManager>(m_confStorage, m_ledIndicator);
-    m_espNow = std::make_unique<EspNowServer>(std::move(espNowAdp), m_pairingManager);
+    m_espNow = std::make_unique<EspNowServer>(std::move(espNowAdp), m_pairingManager, m_wifiAdp);
     m_webPageMain = std::make_unique<WebPageMain>(std::make_unique<WebServer>(),
                                                   std::make_unique<Resources>(), m_confStorage);
 
@@ -149,7 +150,7 @@ App::State App::connectWiFi()
     constexpr auto delayBetweenConnectionTiresMs = 1000;
     constexpr auto waitBeforeRebootMs = 1000;
 
-    WiFi.mode(WIFI_AP_STA);
+    m_wifiAdp->setMode(Wifi32Adp::Mode::AP_STA);
 
     auto wifiConfig = m_confStorage->getWifiConfig();
     if (!wifiConfig)
@@ -159,10 +160,10 @@ App::State App::connectWiFi()
     }
 
     auto [ssid, pass] = wifiConfig.value();
-    WiFi.begin(ssid.c_str(), pass.c_str());
+    m_wifiAdp->init(ssid, pass);
 
     uint8_t wifiConnectionTries = 0;
-    while (WiFi.status() != WL_CONNECTED)
+    while (m_wifiAdp->getStatus() != Wifi32Adp::Status::CONNECTED)
     {
         if (isWifiButtonPressed())
         {
@@ -181,8 +182,8 @@ App::State App::connectWiFi()
         }
     }
 
-    logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", WiFi.SSID(),
-                   WiFi.localIP().toString().c_str(), WiFi.macAddress().c_str(), WiFi.channel());
+    logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", m_wifiAdp->getSsid(),
+                   m_wifiAdp->getLocalIp(), m_wifiAdp->getMacAddr(), m_wifiAdp->getChannel());
 
     return State::OK;
 }
@@ -201,9 +202,10 @@ void App::wifiSettingsMode()
     {
         m_webPageMain->stopServer();
     }
-    WiFi.disconnect();
+    m_wifiAdp->disconnect();
 
-    m_webPageMainWifiConfig = std::make_unique<WebWifiConfigType>(std::make_unique<Resources>());
+    m_webPageMainWifiConfig
+        = std::make_unique<WebWifiConfigType>(m_wifiAdp, std::make_unique<Resources>());
     m_webPageMainWifiConfig->startConfiguration(m_confStorage);
 }
 

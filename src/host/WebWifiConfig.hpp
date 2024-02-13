@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "RaiiFile.hpp"
+#include "adapters/esp32/IWifi32Adp.hpp"
 #include "common/logger.hpp"
 #include "interfaces/IResources.hpp"
 
@@ -13,8 +14,9 @@ template <typename ConfStorageType, typename AsyncWebServerType>
 class WebWifiConfig
 {
 public:
-    WebWifiConfig(std::unique_ptr<IResources> resources)
+    WebWifiConfig(std::shared_ptr<IWifi32Adp> wifiAdp, std::unique_ptr<IResources> resources)
         : m_server(80)
+        , m_wifiAdp(wifiAdp)
         , m_resources(std::move(resources))
     {
     }
@@ -24,16 +26,16 @@ public:
         m_confStorage = confStorage;
         constexpr auto HTML_OK = 200;
 
-        WiFi.softAP("TH-NETWORK", nullptr);
-        IPAddress IP = WiFi.softAPIP();
-
-        logger::logInf("IP addr: %s", IP.toString().c_str());
+        m_wifiAdp->softAp("TH-NETWORK");
+        logger::logInf("IP addr: %s", m_wifiAdp->getSoftApIp());
 
         delay(1000);
 
         m_server.on("/", HTTP_GET,
                     [this](AsyncWebServerRequest *request)
-                    { request->send_P(HTML_OK, "text/html", m_resources->getWifiSettingsHtml()); });
+                    {
+                        request->send_P(HTML_OK, "text/html", m_resources->getWifiSettingsHtml());
+                    });
 
         m_server.on("/setWifi", HTTP_POST,
                     [this](AsyncWebServerRequest *request)
@@ -69,6 +71,7 @@ public:
 
 private:
     AsyncWebServerType m_server;
+    std::shared_ptr<IWifi32Adp> m_wifiAdp{};
     std::shared_ptr<ConfStorageType> m_confStorage;
     std::unique_ptr<IResources> m_resources;
 };

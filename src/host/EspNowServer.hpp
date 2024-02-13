@@ -8,6 +8,7 @@
 
 #include "EspNowPairingManager.hpp"
 #include "adapters/esp32/IEspNow32Adp.hpp"
+#include "adapters/esp32/IWifi32Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
 #include "common/types.hpp"
@@ -19,7 +20,8 @@ public:
     using NewPeerCb = std::function<bool(IDType identifier)>;
 
     EspNowServer(std::unique_ptr<IEspNow32Adp> espNowAdp,
-                 std::shared_ptr<EspNowPairingManager> pairingManager);
+                 std::shared_ptr<EspNowPairingManager> pairingManager,
+                 std::shared_ptr<IWifi32Adp> wifiAdp);
     ~EspNowServer() = default;
     EspNowServer(const EspNowServer &) = delete;
     EspNowServer(EspNowServer &&) = delete;
@@ -34,6 +36,7 @@ private:
 
     std::unique_ptr<IEspNow32Adp> m_espNowAdp;
     std::shared_ptr<EspNowPairingManager> m_pairingManager;
+    std::shared_ptr<IWifi32Adp> m_wifiAdp;
     uint8_t m_sensorUpdatePeriodMins;
     bool m_pairingEnabled = false;
 
