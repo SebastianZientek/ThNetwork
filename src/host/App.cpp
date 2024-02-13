@@ -45,29 +45,10 @@ void App::init()
             m_webPageMain->sendEvent(reading.c_str(), "newReading", millis());
         };
 
-        auto newSensorCallback = [this](IDType identifier)
-        {
-            if (!m_confStorage->isAvailableSpaceForNextSensor())
-            {
-                logger::logWrn("No space for more sensors");
-                return false;
-            }
-
-            logger::logInf("Paired sensor with ID: %u", identifier);
-            m_confStorage->addSensor(identifier);
-
-            RaiiFile configFile(SPIFFS.open("/config.json", "w"));
-            m_confStorage->save(configFile);
-
-            return true;
-        };
-
-        m_espNow->init(newReadingCallback, newSensorCallback,
-                       m_confStorage->getSensorUpdatePeriodMins());
+        m_espNow->init(newReadingCallback, m_confStorage->getSensorUpdatePeriodMins());
 
         auto getSensorData = [this](const std::size_t &identifier)
         {
-            logger::logInf("getSensorData");
             auto data = m_readingsStorage.getReadingsAsJsonStr(identifier);
             return data;
         };

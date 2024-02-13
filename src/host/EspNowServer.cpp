@@ -20,9 +20,7 @@ EspNowServer::EspNowServer(std::unique_ptr<IEspNow32Adp> espNowAdp,
 {
 }
 
-void EspNowServer::init(const NewReadingsCb &newReadingsCb,
-                        const NewPeerCb &newPeerCb,
-                        uint8_t sensorUpdatePeriodMins)
+void EspNowServer::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriodMins)
 {
     if (m_espNowAdp->init() == IEspNow32Adp::Status::FAIL)
     {
@@ -31,7 +29,6 @@ void EspNowServer::init(const NewReadingsCb &newReadingsCb,
     }
 
     m_newReadingsCb = newReadingsCb;
-    m_newPeerCb = newPeerCb;
     m_sensorUpdatePeriodMins = sensorUpdatePeriodMins;
     setOnDataRecvCb();
     setOnDataSendCb();
@@ -74,6 +71,7 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
             pairReqMsg.deserialize(incomingData, len);
             if (m_pairingManager->addNewSensorToStorage(pairReqMsg.ID))
             {
+                logger::logInf("Paired new sensor: %u", pairReqMsg.ID);
                 m_espNowAdp->addPeer(mac, WiFi.channel());
                 sendPairOK(mac);
                 m_espNowAdp->deletePeer(mac);

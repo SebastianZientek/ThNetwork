@@ -26,14 +26,11 @@ public:
     EspNowServer &operator=(const EspNowServer &) = delete;
     EspNowServer &operator=(EspNowServer &&) = delete;
 
-    void init(const NewReadingsCb &newReadingsCb,
-              const NewPeerCb &newPeerCb,
-              uint8_t sensorUpdatePeriodMins);
+    void init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriodMins);
     void deinit();
 
 private:
     NewReadingsCb m_newReadingsCb;
-    NewPeerCb m_newPeerCb;
 
     std::unique_ptr<IEspNow32Adp> m_espNowAdp;
     std::shared_ptr<EspNowPairingManager> m_pairingManager;
