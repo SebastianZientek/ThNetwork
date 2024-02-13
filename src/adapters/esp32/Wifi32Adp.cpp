@@ -68,7 +68,7 @@ std::string Wifi32Adp::getMacAddr()
     return WiFi.macAddress().c_str();
 }
 
-std::size_t getChannel() 
+std::size_t Wifi32Adp::getChannel() 
 {
     return WiFi.channel();
 }

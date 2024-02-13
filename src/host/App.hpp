@@ -7,13 +7,14 @@
 #include <memory>
 
 #include "ConfStorage.hpp"
+#include "EspNowPairingManager.hpp"
 #include "EspNowServer.hpp"
 #include "LedIndicator.hpp"
 #include "ReadingsStorage.hpp"
 #include "Timer.hpp"
 #include "WebPageMain.hpp"
 #include "WebWifiConfig.hpp"
-#include "EspNowPairingManager.hpp"
+#include "adapters/esp32/IWifi32Adp.hpp"
 
 class App
 {
@@ -77,5 +78,6 @@ private:
     std::shared_ptr<NTPClient> m_timeClient{};
     std::shared_ptr<EspNowPairingManager> m_pairingManager{};
     std::unique_ptr<EspNowServer> m_espNow{};
+    std::shared_ptr<IWifi32Adp> m_wifiAdp{};
     ReadingsStorage m_readingsStorage{};
 };
