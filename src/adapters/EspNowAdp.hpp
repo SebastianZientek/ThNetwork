@@ -8,6 +8,7 @@ struct EspNowAdp
     using SendCB = void (*)(uint8_t *mac_addr, uint8_t status);
 
     static int init();
+    static void deinit();
     static void setComboRole();
     static int registerRecvCB(RecvCB callback);
     static int registerSendCB(SendCB callback);

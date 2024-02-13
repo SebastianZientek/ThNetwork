@@ -49,11 +49,11 @@ bool EspNowPairingManager::isPaired(IDType identifier)
     return m_confStorage->isSensorMapped(identifier);
 }
 
-bool EspNowPairingManager::pairSensor(IDType identifier)
+bool EspNowPairingManager::addNewSensorToStorage(IDType identifier)
 {
     if (isPaired(identifier))
     {
-        return true;
+        return false;
     }
 
     if (!m_confStorage->isAvailableSpaceForNextSensor())

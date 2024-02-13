@@ -14,6 +14,7 @@
 #include "Resources.hpp"
 #include "WebPageMain.hpp"
 #include "WiFi.h"
+#include "adapters/esp32/EspNow32Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
@@ -36,39 +37,18 @@ void App::init()
     }
     else
     {
-        auto newReadingCallback
-            = [this](float temp, float hum, IDType identifier, unsigned long epochTime)
+        auto newReadingCallback = [this](float temp, float hum, IDType identifier)
         {
-            m_readingsStorage.addReading(identifier, temp, hum, epochTime);
+            m_readingsStorage.addReading(identifier, temp, hum, m_timeClient->getEpochTime());
 
-            logger::logInf("New reading sending");
             auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
             m_webPageMain->sendEvent(reading.c_str(), "newReading", millis());
         };
 
-        auto newSensorCallback = [this](IDType identifier)
-        {
-            if (!m_confStorage->isAvailableSpaceForNextSensor())
-            {
-                logger::logWrn("No space for more sensors");
-                return false;
-            }
-
-            logger::logInf("Paired sensor with ID: %u", identifier);
-            m_confStorage->addSensor(identifier);
-
-            RaiiFile configFile(SPIFFS.open("/config.json", "w"));
-            m_confStorage->save(configFile);
-
-            return true;
-        };
-
-        m_espNow->init(newReadingCallback, newSensorCallback,
-                       m_confStorage->getSensorUpdatePeriodMins());
+        m_espNow->init(newReadingCallback, m_confStorage->getSensorUpdatePeriodMins());
 
         auto getSensorData = [this](const std::size_t &identifier)
         {
-            logger::logInf("getSensorData");
             auto data = m_readingsStorage.getReadingsAsJsonStr(identifier);
             return data;
         };
@@ -129,8 +109,10 @@ App::State App::systemInit()
     m_timeClient->begin();
     m_timeClient->update();
 
+    auto espNowAdp = std::make_unique<EspNow32Adp>();
+
     m_pairingManager = std::make_unique<EspNowPairingManager>(m_confStorage, m_ledIndicator);
-    m_espNow = std::make_unique<EspNowServer>(m_pairingManager, m_timeClient);
+    m_espNow = std::make_unique<EspNowServer>(std::move(espNowAdp), m_pairingManager);
     m_webPageMain = std::make_unique<WebPageMain>(std::make_unique<WebServer>(),
                                                   std::make_unique<Resources>(), m_confStorage);
 

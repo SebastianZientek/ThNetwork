@@ -124,7 +124,6 @@ public:
         m_server->onGet("/sensorData",
                         [this](IWebRequest &request)
                         {
-                            logger::logInf("sensorsData");
                             auto params = request.getParams();
                             if (params.find("identifier") != params.end())
                             {

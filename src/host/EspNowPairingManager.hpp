@@ -18,7 +18,7 @@ public:
     void disablePairing();
     [[nodiscard]] bool isPairingEnabled() const;
     bool isPaired(IDType identifier);
-    bool pairSensor(IDType identifier);
+    bool addNewSensorToStorage(IDType identifier);
     void unpairSensor(IDType identifier);
     void update();
 
