@@ -5,6 +5,7 @@
 
 #include "LedIndicator.hpp"
 #include "RaiiFile.hpp"
+#include "adapters/esp32/IArduino32Adp.hpp"
 #include "common/types.hpp"
 #include "interfaces/IConfStorage.hpp"
 
@@ -12,6 +13,7 @@ class EspNowPairingManager
 {
 public:
     explicit EspNowPairingManager(std::shared_ptr<IConfStorage> confStorage,
+                                  std::shared_ptr<IArduino32Adp> arduinoAdp,
                                   std::shared_ptr<LedIndicator> pairingLed = nullptr);
 
     void enablePairingForPeriod(std::size_t timeout = m_pairingDefaultTimeout);
@@ -29,5 +31,5 @@ private:
     std::shared_ptr<LedIndicator> m_pairingLed;
 
     bool m_pairingEnabled = false;
-    Timer m_pairingTimer{};
+    Timer m_pairingTimer;
 };

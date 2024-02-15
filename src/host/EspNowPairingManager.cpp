@@ -3,9 +3,11 @@
 #include <SPIFFS.h>
 
 EspNowPairingManager::EspNowPairingManager(std::shared_ptr<IConfStorage> confStorage,
+                                           std::shared_ptr<IArduino32Adp> arduinoAdp,
                                            std::shared_ptr<LedIndicator> pairingLed)
     : m_confStorage(confStorage)
     , m_pairingLed(pairingLed)
+    , m_pairingTimer(arduinoAdp)
 {
 }
 

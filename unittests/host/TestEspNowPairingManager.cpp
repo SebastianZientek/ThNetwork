@@ -1,8 +1,9 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-#include "EspNowPairingManager.hpp"
+#include "Arduino32AdpMock.hpp"
 #include "ConfStorageMock.hpp"
+#include "EspNowPairingManager.hpp"
 
 // clang-format off
 TEST_GROUP(EspNowPairingManagerTest)  // NOLINT
@@ -17,7 +18,9 @@ TEST_GROUP(EspNowPairingManagerTest)  // NOLINT
 TEST(EspNowPairingManagerTest, EnableAndDisablePairing)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
-    EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
+    auto arduino32AdpMock = std::make_shared<Arduino32AdpMock>();
+
+    EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
     mock().ignoreOtherCalls();
@@ -32,18 +35,20 @@ TEST(EspNowPairingManagerTest, EnableAndDisablePairing)  // NOLINT
 TEST(EspNowPairingManagerTest, PairingEnabledForPeriod)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
-    EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
+    auto arduino32AdpMock = std::make_shared<Arduino32AdpMock>();
+
+    EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
-    mock().expectOneCall("ArduinoAdp::millis").andReturnValue(0);
+    mock().expectOneCall("Arduino32Adp::millis").andReturnValue(0);
     espNowPairingManager.enablePairingForPeriod(pairingTimeoutMilis);
     CHECK_TRUE(espNowPairingManager.isPairingEnabled());
 
-    mock().expectOneCall("ArduinoAdp::millis").andReturnValue(5);
+    mock().expectOneCall("Arduino32Adp::millis").andReturnValue(5);
     espNowPairingManager.update();
     CHECK_TRUE(espNowPairingManager.isPairingEnabled());
 
-    mock().expectOneCall("ArduinoAdp::millis").andReturnValue(15);
+    mock().expectOneCall("Arduino32Adp::millis").andReturnValue(15);
     espNowPairingManager.update();
     CHECK_FALSE(espNowPairingManager.isPairingEnabled());
 }
@@ -51,12 +56,20 @@ TEST(EspNowPairingManagerTest, PairingEnabledForPeriod)  // NOLINT
 TEST(EspNowPairingManagerTest, AddSensorToStorageWhenItPossibe)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
-    EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
+    auto arduino32AdpMock = std::make_shared<Arduino32AdpMock>();
+
+    EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
-    mock().expectOneCall("ConfStorageMock::isSensorMapped").withParameter("identifier", 123).andReturnValue(false);
+    mock()
+        .expectOneCall("ConfStorageMock::isSensorMapped")
+        .withParameter("identifier", 123)
+        .andReturnValue(false);
     mock().expectOneCall("ConfStorageMock::isAvailableSpaceForNextSensor").andReturnValue(true);
-    mock().expectOneCall("ConfStorageMock::addSensor").withParameter("identifier", 123).ignoreOtherParameters();
+    mock()
+        .expectOneCall("ConfStorageMock::addSensor")
+        .withParameter("identifier", 123)
+        .ignoreOtherParameters();
     mock().ignoreOtherCalls();
 
     espNowPairingManager.addNewSensorToStorage(123);
@@ -65,10 +78,15 @@ TEST(EspNowPairingManagerTest, AddSensorToStorageWhenItPossibe)  // NOLINT
 TEST(EspNowPairingManagerTest, NotAddSensorToStorageWhenSensorIsAlreadyMapped)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
-    EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
+    auto arduino32AdpMock = std::make_shared<Arduino32AdpMock>();
+
+    EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
-    mock().expectOneCall("ConfStorageMock::isSensorMapped").withParameter("identifier", 123).andReturnValue(true);
+    mock()
+        .expectOneCall("ConfStorageMock::isSensorMapped")
+        .withParameter("identifier", 123)
+        .andReturnValue(true);
     mock().expectNoCall("ConfStorageMock::addSensor");
     mock().ignoreOtherCalls();
 
@@ -78,10 +96,15 @@ TEST(EspNowPairingManagerTest, NotAddSensorToStorageWhenSensorIsAlreadyMapped)  
 TEST(EspNowPairingManagerTest, NotAddSensorToStorageWhenThereIsNoMoreSpaceForSensors)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
-    EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
+    auto arduino32AdpMock = std::make_shared<Arduino32AdpMock>();
+
+    EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
-    mock().expectOneCall("ConfStorageMock::isSensorMapped").withParameter("identifier", 123).andReturnValue(false);
+    mock()
+        .expectOneCall("ConfStorageMock::isSensorMapped")
+        .withParameter("identifier", 123)
+        .andReturnValue(false);
     mock().expectOneCall("ConfStorageMock::isAvailableSpaceForNextSensor").andReturnValue(false);
     mock().expectNoCall("ConfStorageMock::addSensor");
     mock().ignoreOtherCalls();
@@ -92,7 +115,9 @@ TEST(EspNowPairingManagerTest, NotAddSensorToStorageWhenThereIsNoMoreSpaceForSen
 TEST(EspNowPairingManagerTest, UnaddNewSensorToStorage)  // NOLINT
 {
     auto confStorageMock = std::make_shared<ConfStorageMock>();
-    EspNowPairingManager espNowPairingManager(confStorageMock, nullptr);
+    auto arduino32AdpMock = std::make_shared<Arduino32AdpMock>();
+
+    EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
     mock().expectOneCall("ConfStorageMock::removeSensor").withParameter("identifier", 123);

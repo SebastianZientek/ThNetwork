@@ -1,14 +1,21 @@
 #pragma once
 
-#include <ArduinoAdp.hpp>
 #include <cstddef>
 #include <functional>
+#include <memory>
+
+#include "adapters/esp32/IArduino32Adp.hpp"
 
 class Timer
 {
     using FunType = std::function<void()>;
 
 public:
+    Timer(std::shared_ptr<IArduino32Adp> arduinoAdp)
+        : m_arduinoAdp(arduinoAdp)
+    {
+    }
+
     void setCallback(const FunType &fun)
     {
         m_function = fun;
@@ -17,7 +24,7 @@ public:
     void start(std::size_t timeoutMillis, bool repeat = false)
     {
         m_period = timeoutMillis;
-        m_startTime = ArduinoAdp::millis();
+        m_startTime = m_arduinoAdp->millis();
 
         m_stopped = false;
         m_repeat = repeat;
@@ -30,13 +37,13 @@ public:
 
     void update()
     {
-        if (!m_stopped && m_period + m_startTime < ArduinoAdp::millis())
+        if (!m_stopped && m_period + m_startTime < m_arduinoAdp->millis())
         {
             m_function();
 
             if (m_repeat)
             {
-                m_startTime = ArduinoAdp::millis();
+                m_startTime = m_arduinoAdp->millis();
             }
             else
             {
@@ -46,11 +53,11 @@ public:
     }
 
 private:
-    FunType m_function = []
-    {
-    };
+    FunType m_function;
     bool m_stopped = false;
     bool m_repeat = false;
     std::size_t m_period = 0;
     std::size_t m_startTime = 0;
+
+    std::shared_ptr<IArduino32Adp> m_arduinoAdp;
 };
