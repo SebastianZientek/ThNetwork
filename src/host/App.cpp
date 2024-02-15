@@ -62,14 +62,16 @@ void App::init()
         // TODO: STUB, remove after implementation ready
         m_confStorage->addSensor(2506682365, "Some sensor name");
     }
+
+    logger::logInf("System initialized");
 }
 
 void App::update()
 {
-    static decltype(millis()) wifiModeStartTime = 0;
+    static decltype(m_arduinoAdp->millis()) wifiModeStartTime = 0;
     if (m_mode != Mode::WIFI_SETTINGS && isWifiButtonPressed())
     {
-        wifiModeStartTime = millis();
+        wifiModeStartTime = m_arduinoAdp->millis();
         wifiSettingsMode();
     }
 
@@ -220,10 +222,10 @@ void App::setupButtons()
 
 bool App::isWifiButtonPressed()
 {
-    return digitalRead(wifiButton) == LOW;
+    return m_arduinoAdp->digitalRead(wifiButton) == false;
 }
 
 bool App::isPairButtonPressed()
 {
-    return digitalRead(pairButton) == LOW;
+    return m_arduinoAdp->digitalRead(pairButton) == false;
 }

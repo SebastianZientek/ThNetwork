@@ -53,7 +53,9 @@ public:
     }
 
 private:
-    FunType m_function;
+    FunType m_function = []
+    {
+    };
     bool m_stopped = false;
     bool m_repeat = false;
     std::size_t m_period = 0;
