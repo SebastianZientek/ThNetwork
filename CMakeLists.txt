@@ -35,6 +35,14 @@ set(INCLS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host
 )
 
+set(HOST_INCLS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/common
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host
+)
+
 set(HOST_TEST_SRCS 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ConfStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ReadingsStorage.cpp
@@ -76,7 +84,7 @@ set(TRANSMITTER_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpMock.cpp
 )
 
-buildTests(HostUTs "${HOST_TEST_SRCS}" "${INCLS}")
+buildTests(HostUTs "${HOST_TEST_SRCS}" "${HOST_INCLS}")
 buildTests(CommonUTs "${COMMON_TEST_SRCS}" "${INCLS}")
 buildTests(TransmitterUTs "${TRANSMITTER_TEST_SRCS}" "${INCLS}")
 
