@@ -4,6 +4,7 @@
 #include <nlohmann/json.hpp>
 #include <string_view>
 
+#include "adapters/esp32/IArduino32Adp.hpp"
 #include "common/logger.hpp"
 #include "interfaces/IConfStorage.hpp"
 #include "interfaces/IResources.hpp"
@@ -14,10 +15,12 @@ class WebPageMain
     using GetSensorDataCb = std::function<std::string(const std::size_t &)>;
 
 public:
-    WebPageMain(std::unique_ptr<IWebServer> webServer,
+    WebPageMain(std::shared_ptr<IArduino32Adp> arduinoAdp,
+                std::unique_ptr<IWebServer> webServer,
                 std::unique_ptr<IResources> resources,
                 std::shared_ptr<IConfStorage> confStorage)
-        : m_server(std::move(webServer))
+        : m_arduinoAdp(arduinoAdp)
+        , m_server(std::move(webServer))
         , m_confStorage(confStorage)
         , m_resources(std::move(resources))
     {
@@ -138,17 +141,17 @@ public:
                             }
                         });
 
-        m_server->setupEventsSource("/events",
-                                    [this](IEventSrcClient &client)
-                                    {
-                                        logger::logInf("Client connected");
-                                        if (client.lastId() != 0)
-                                        {
-                                            logger::logInf("Client reconnected, last ID: %u\n",
-                                                           client.lastId());
-                                        }
-                                        client.send("init", nullptr, millis(), RECONNECT_TIMEOUT);
-                                    });
+        m_server->setupEventsSource(
+            "/events",
+            [this](IEventSrcClient &client)
+            {
+                logger::logInf("Client connected");
+                if (client.lastId() != 0)
+                {
+                    logger::logInf("Client reconnected, last ID: %u\n", client.lastId());
+                }
+                client.send("init", nullptr, m_arduinoAdp->millis(), RECONNECT_TIMEOUT);
+            });
 
         m_server->start();
     }
@@ -159,6 +162,7 @@ public:
     }
 
 private:
+    std::shared_ptr<IArduino32Adp> m_arduinoAdp;
     std::unique_ptr<IWebServer> m_server;
     std::unique_ptr<IResources> m_resources;
     std::shared_ptr<IConfStorage> m_confStorage;

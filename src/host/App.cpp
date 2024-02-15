@@ -13,6 +13,7 @@
 #include "RaiiFile.hpp"
 #include "Resources.hpp"
 #include "WebPageMain.hpp"
+#include "adapters/esp32/Arduino32Adp.hpp"
 #include "adapters/esp32/EspNow32Adp.hpp"
 #include "adapters/esp32/Wifi32Adp.hpp"
 #include "common/MacAddr.hpp"
@@ -23,6 +24,8 @@
 void App::init()
 {
     m_wifiAdp = std::make_shared<Wifi32Adp>();
+    m_arduinoAdp = std::make_shared<Arduino32Adp>();
+
     if (auto initState = systemInit(); initState == State::FAIL)
     {
         constexpr auto msInSecond = 1000;
@@ -43,7 +46,7 @@ void App::init()
             m_readingsStorage.addReading(identifier, temp, hum, m_timeClient->getEpochTime());
 
             auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
-            m_webPageMain->sendEvent(reading.c_str(), "newReading", millis());
+            m_webPageMain->sendEvent(reading.c_str(), "newReading", m_arduinoAdp->millis());
         };
 
         m_espNow->init(newReadingCallback, m_confStorage->getSensorUpdatePeriodMins());
@@ -59,19 +62,21 @@ void App::init()
         // TODO: STUB, remove after implementation ready
         m_confStorage->addSensor(2506682365, "Some sensor name");
     }
+
+    logger::logInf("System initialized");
 }
 
 void App::update()
 {
-    static decltype(millis()) wifiModeStartTime = 0;
+    static decltype(m_arduinoAdp->millis()) wifiModeStartTime = 0;
     if (m_mode != Mode::WIFI_SETTINGS && isWifiButtonPressed())
     {
-        wifiModeStartTime = millis();
+        wifiModeStartTime = m_arduinoAdp->millis();
         wifiSettingsMode();
     }
 
     if (m_mode == Mode::WIFI_SETTINGS
-        && millis() > wifiConfigServerTimeoutMillis + wifiModeStartTime)
+        && m_arduinoAdp->millis() > wifiConfigServerTimeoutMillis + wifiModeStartTime)
     {
         logger::logInf("Wifi configuration timeout. Reboot...");
         ESP.restart();
@@ -93,7 +98,7 @@ App::State App::systemInit()
     delay(waitBeforeInitializationMs);
     setupButtons();
 
-    m_ledIndicator = std::make_shared<LedIndicator>(ledIndicator);
+    m_ledIndicator = std::make_shared<LedIndicator>(m_arduinoAdp, m_ledIndicatorPin);
     m_ledIndicator->switchOn(false);
 
     logger::init();
@@ -112,9 +117,10 @@ App::State App::systemInit()
 
     auto espNowAdp = std::make_unique<EspNow32Adp>();
 
-    m_pairingManager = std::make_unique<EspNowPairingManager>(m_confStorage, m_ledIndicator);
+    m_pairingManager
+        = std::make_unique<EspNowPairingManager>(m_confStorage, m_arduinoAdp, m_ledIndicator);
     m_espNow = std::make_unique<EspNowServer>(std::move(espNowAdp), m_pairingManager, m_wifiAdp);
-    m_webPageMain = std::make_unique<WebPageMain>(std::make_unique<WebServer>(),
+    m_webPageMain = std::make_unique<WebPageMain>(m_arduinoAdp, std::make_unique<WebServer>(),
                                                   std::make_unique<Resources>(), m_confStorage);
 
     return State::OK;
@@ -211,16 +217,16 @@ void App::wifiSettingsMode()
 
 void App::setupButtons()
 {
-    pinMode(wifiButton, INPUT_PULLUP);
-    pinMode(pairButton, INPUT_PULLUP);
+    m_arduinoAdp->pinMode(wifiButton, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
+    m_arduinoAdp->pinMode(pairButton, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
 }
 
 bool App::isWifiButtonPressed()
 {
-    return digitalRead(wifiButton) == LOW;
+    return m_arduinoAdp->digitalRead(wifiButton) == false;
 }
 
 bool App::isPairButtonPressed()
 {
-    return digitalRead(pairButton) == LOW;
+    return m_arduinoAdp->digitalRead(pairButton) == false;
 }

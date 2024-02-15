@@ -15,6 +15,7 @@
 #include "WebPageMain.hpp"
 #include "WebWifiConfig.hpp"
 #include "adapters/esp32/IWifi32Adp.hpp"
+#include "adapters/esp32/IArduino32Adp.hpp"
 
 class App
 {
@@ -62,7 +63,7 @@ private:
     bool isWifiButtonPressed();
     bool isPairButtonPressed();
 
-    constexpr static auto ledIndicator = 23;
+    constexpr static auto m_ledIndicatorPin = 23;
     constexpr static auto wifiButton = 14;
     constexpr static auto pairButton = 18;
     constexpr static auto wifiConfigServerTimeoutMillis = 1000 * 60 * 10;  // 10 minutes
@@ -79,5 +80,6 @@ private:
     std::shared_ptr<EspNowPairingManager> m_pairingManager{};
     std::unique_ptr<EspNowServer> m_espNow{};
     std::shared_ptr<IWifi32Adp> m_wifiAdp{};
+    std::shared_ptr<IArduino32Adp> m_arduinoAdp;
     ReadingsStorage m_readingsStorage{};
 };

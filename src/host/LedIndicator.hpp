@@ -1,30 +1,33 @@
 #pragma once
 
 #include <cstddef>
+#include <memory>
 
 #include "Timer.hpp"
+#include "adapters/esp32/IArduino32Adp.hpp"
 #include "common/logger.hpp"
-#include "adapters/ArduinoAdp.hpp"
 
 class LedIndicator
 {
 public:
-    LedIndicator(std::size_t pin)
+    LedIndicator(std::shared_ptr<IArduino32Adp> arduinoAdp, std::size_t pin)
         : m_ledPin(pin)
+        , m_arduinoAdp(arduinoAdp)
+        , m_blinkTimer(arduinoAdp)
     {
-        ArduinoAdp::pinMode(m_ledPin, ArduinoAdp::MODE_OUT);
+        m_arduinoAdp->pinMode(m_ledPin, IArduino32Adp::Mode::PIN_OUTPUT);
         m_blinkTimer.setCallback(
             [this, ledOn = false]() mutable
             {
                 ledOn = !ledOn;
-                ArduinoAdp::digitalWrite(m_ledPin, ledOn ? ArduinoAdp::LVL_HI : ArduinoAdp::LVL_LO);
+                m_arduinoAdp->digitalWrite(m_ledPin, ledOn);
             });
     }
 
     void switchOn(bool state)
     {
         m_blinkTimer.stop();
-        ArduinoAdp::digitalWrite(m_ledPin, state ? ArduinoAdp::LVL_HI : ArduinoAdp::LVL_LO);
+        m_arduinoAdp->digitalWrite(m_ledPin, state);
     }
 
     void blinking()
@@ -41,5 +44,6 @@ private:
     constexpr static auto m_periodMilis = 200;
 
     std::size_t m_ledPin;
+    std::shared_ptr<IArduino32Adp> m_arduinoAdp;
     Timer m_blinkTimer;
 };
