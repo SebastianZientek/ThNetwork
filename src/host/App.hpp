@@ -14,8 +14,8 @@
 #include "Timer.hpp"
 #include "WebPageMain.hpp"
 #include "WebWifiConfig.hpp"
-#include "adapters/esp32/IWifi32Adp.hpp"
-#include "adapters/esp32/IArduino32Adp.hpp"
+#include "adapters/IWifi32Adp.hpp"
+#include "adapters/IArduino32Adp.hpp"
 
 class App
 {

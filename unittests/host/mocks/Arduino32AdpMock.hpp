@@ -6,7 +6,7 @@
 
 #include <cinttypes>
 
-#include "adapters/esp32/IArduino32Adp.hpp"
+#include "adapters/IArduino32Adp.hpp"
 
 class Arduino32AdpMock : public IArduino32Adp
 {

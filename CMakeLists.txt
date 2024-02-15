@@ -32,6 +32,7 @@ set(INCLS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host
 )
 
 set(HOST_TEST_SRCS 
@@ -41,13 +42,13 @@ set(HOST_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRingBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestRaiiFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestConfStorage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestReadingsStorage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/TestEspNowPairingManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestRingBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestRaiiFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestConfStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestReadingsStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestEspNowPairingManager.cpp
 
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpMock.cpp
+    # ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/mocks/ArduinoAdpMock.cpp
 )
 
 set(COMMON_TEST_SRCS

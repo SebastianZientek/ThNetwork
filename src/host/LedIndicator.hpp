@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "Timer.hpp"
-#include "adapters/esp32/IArduino32Adp.hpp"
+#include "adapters/IArduino32Adp.hpp"
 #include "common/logger.hpp"
 
 class LedIndicator

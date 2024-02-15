@@ -4,7 +4,7 @@
 #include <functional>
 #include <memory>
 
-#include "adapters/esp32/IArduino32Adp.hpp"
+#include "adapters/IArduino32Adp.hpp"
 
 class Timer
 {

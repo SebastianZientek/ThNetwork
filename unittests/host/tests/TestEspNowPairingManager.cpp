@@ -1,8 +1,8 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
-#include "Arduino32AdpMock.hpp"
-#include "ConfStorageMock.hpp"
+#include "mocks/Arduino32AdpMock.hpp"
+#include "mocks/ConfStorageMock.hpp"
 #include "EspNowPairingManager.hpp"
 
 // clang-format off
