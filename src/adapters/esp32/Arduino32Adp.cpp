@@ -4,7 +4,6 @@
 
 void Arduino32Adp::pinMode(uint8_t pin, Mode mode)
 {
-    // ::pinMode(pin, mode == Mode::PIN_INPUT ? INPUT : OUTPUT);
     switch (mode)
     {
     case Mode::PIN_OUTPUT:
