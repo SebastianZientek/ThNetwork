@@ -46,7 +46,7 @@ void App::init()
             m_readingsStorage.addReading(identifier, temp, hum, m_timeClient->getEpochTime());
 
             auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
-            m_webPageMain->sendEvent(reading.c_str(), "newReading", millis());
+            m_webPageMain->sendEvent(reading.c_str(), "newReading", m_arduinoAdp->millis());
         };
 
         m_espNow->init(newReadingCallback, m_confStorage->getSensorUpdatePeriodMins());
@@ -76,7 +76,7 @@ void App::update()
     }
 
     if (m_mode == Mode::WIFI_SETTINGS
-        && millis() > wifiConfigServerTimeoutMillis + wifiModeStartTime)
+        && m_arduinoAdp->millis() > wifiConfigServerTimeoutMillis + wifiModeStartTime)
     {
         logger::logInf("Wifi configuration timeout. Reboot...");
         ESP.restart();
@@ -117,9 +117,10 @@ App::State App::systemInit()
 
     auto espNowAdp = std::make_unique<EspNow32Adp>();
 
-    m_pairingManager = std::make_unique<EspNowPairingManager>(m_confStorage, m_arduinoAdp, m_ledIndicator);
+    m_pairingManager
+        = std::make_unique<EspNowPairingManager>(m_confStorage, m_arduinoAdp, m_ledIndicator);
     m_espNow = std::make_unique<EspNowServer>(std::move(espNowAdp), m_pairingManager, m_wifiAdp);
-    m_webPageMain = std::make_unique<WebPageMain>(std::make_unique<WebServer>(),
+    m_webPageMain = std::make_unique<WebPageMain>(m_arduinoAdp, std::make_unique<WebServer>(),
                                                   std::make_unique<Resources>(), m_confStorage);
 
     return State::OK;
