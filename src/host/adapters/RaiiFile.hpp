@@ -2,7 +2,7 @@
 
 #include <FS.h>
 
-#include "adapters/IRaiiFile.hpp"
+#include "IRaiiFile.hpp"
 
 class RaiiFile : public IRaiiFile
 {
@@ -31,11 +31,6 @@ public:
     {
         m_file.print(str.c_str());
     }
-
-    // fs::File *operator->() override
-    // {
-    //     return &m_file;
-    // }
 
 private:
     fs::File m_file;

@@ -9,7 +9,6 @@
 #include "ConfStorage.hpp"
 #include "EspNowPairingManager.hpp"
 #include "LedIndicator.hpp"
-#include "RaiiFile.hpp"
 #include "Resources.hpp"
 #include "WebPageMain.hpp"
 #include "adapters/Arduino32Adp.hpp"

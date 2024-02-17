@@ -4,7 +4,6 @@
 
 #include <memory>
 
-#include "RaiiFile.hpp"
 #include "adapters/IWifi32Adp.hpp"
 #include "common/logger.hpp"
 #include "interfaces/IResources.hpp"

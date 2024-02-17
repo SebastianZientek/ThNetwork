@@ -5,7 +5,6 @@
 #include <optional>
 #include <memory>
 
-#include "RaiiFile.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
 #include "interfaces/IConfStorage.hpp"

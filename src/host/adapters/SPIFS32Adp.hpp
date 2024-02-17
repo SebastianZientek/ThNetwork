@@ -2,6 +2,7 @@
 
 #include "IFileSystem32Adp.hpp"
 #include "IRaiiFile.hpp"
+#include "RaiiFile.hpp"
 #include <SPIFFS.h>  // TODO: move to cpp
 
 class SPIFFS32Adp : public IFileSystem32Adp

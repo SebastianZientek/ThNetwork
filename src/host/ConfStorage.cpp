@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <optional>
 
-#include "RaiiFile.hpp"
+#include "adapters/IRaiiFile.hpp"
 #include "common/logger.hpp"
 #include "host/adapters/IFileSystem32Adp.hpp"
 
