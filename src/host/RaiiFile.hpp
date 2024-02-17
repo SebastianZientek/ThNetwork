@@ -2,9 +2,9 @@
 
 #include <FS.h>
 
-#include "interfaces/IRaiiFile.hpp"
+#include "adapters/IRaiiFile.hpp"
 
-class RaiiFile: public IRaiiFile
+class RaiiFile : public IRaiiFile
 {
 public:
     explicit RaiiFile(const fs::File &file)
@@ -22,10 +22,20 @@ public:
         m_file.close();
     }
 
-    fs::File *operator->() override
+    std::string readString() override
     {
-        return &m_file;
+        return m_file.readString().c_str();
     }
+
+    void print(const std::string &str) override
+    {
+        m_file.print(str.c_str());
+    }
+
+    // fs::File *operator->() override
+    // {
+    //     return &m_file;
+    // }
 
 private:
     fs::File m_file;

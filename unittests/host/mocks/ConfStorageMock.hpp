@@ -5,19 +5,19 @@
 
 class ConfStorageMock : public IConfStorage
 {
-    State load(IRaiiFile &file) override
+    State load() override
     {
         static auto defaultState = State::OK;
-        mock().actualCall("ConfStorageMock::load").withPointerParameter("file", &file);
+        mock().actualCall("ConfStorageMock::load");
         auto *returnVal = mock().returnPointerValueOrDefault(&defaultState);
 
         return *static_cast<State *>(returnVal);
     }
 
-    State save(IRaiiFile &file) override
+    State save() override
     {
         static auto defaultState = State::OK;
-        mock().actualCall("ConfStorageMock::save").withPointerParameter("file", &file);
+        mock().actualCall("ConfStorageMock::save");
         auto *returnVal = mock().returnPointerValueOrDefault(&defaultState);
 
         return *static_cast<State *>(returnVal);

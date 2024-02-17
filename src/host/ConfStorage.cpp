@@ -5,10 +5,18 @@
 
 #include "RaiiFile.hpp"
 #include "common/logger.hpp"
+#include "host/adapters/IFileSystem32Adp.hpp"
 
-ConfStorage::State ConfStorage::load(IRaiiFile &file)
+ConfStorage::ConfStorage(std::shared_ptr<IFileSystem32Adp> fileSystem, const std::string &path)
+    : m_fileSystem(fileSystem)
+    , m_path(path)
 {
-    std::string data = file->readString().c_str();
+}
+
+ConfStorage::State ConfStorage::load()
+{
+    auto file = m_fileSystem->open(m_path, IFileSystem32Adp::Mode::F_READ);
+    std::string data = file->readString();
     try
     {
         m_jsonData = nlohmann::json::parse(data);
@@ -22,8 +30,9 @@ ConfStorage::State ConfStorage::load(IRaiiFile &file)
     return State::OK;
 }
 
-ConfStorage::State ConfStorage::save(IRaiiFile &file)
+ConfStorage::State ConfStorage::save()
 {
+    auto file = m_fileSystem->open(m_path, IFileSystem32Adp::Mode::F_WRITE);
     try
     {
         auto data = m_jsonData.dump();

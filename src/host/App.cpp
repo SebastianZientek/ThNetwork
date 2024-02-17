@@ -1,7 +1,6 @@
 #include "App.hpp"
 
 #include <Arduino.h>
-#include <SPIFFS.h>
 
 #include <algorithm>
 #include <memory>
@@ -19,12 +18,15 @@
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
+#include "host/adapters/SPIFS32Adp.hpp"
 #include "webserver/WebServer.hpp"
 
 void App::init()
 {
+    m_internalFS = std::make_shared<SPIFFS32Adp>();
     m_wifiAdp = std::make_shared<Wifi32Adp>();
     m_arduinoAdp = std::make_shared<Arduino32Adp>();
+    m_confStorage = std::make_shared<ConfStorage>(m_internalFS, "/config.json");
 
     if (auto initState = systemInit(); initState == State::FAIL)
     {
@@ -48,7 +50,7 @@ void App::init()
             auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
             m_webPageMain->sendEvent(reading.c_str(), "newReading", m_arduinoAdp->millis());
         };
-
+    
         m_espNow->init(newReadingCallback, m_confStorage->getSensorUpdatePeriodMins());
 
         auto getSensorData = [this](const std::size_t &identifier)
@@ -128,17 +130,13 @@ App::State App::systemInit()
 
 App::State App::initConfig()
 {
-    SPIFFS.begin(true);
-    RaiiFile configFile(SPIFFS.open("/config.json"));
-
-    m_confStorage = std::make_shared<ConfStorage>();
-    auto state = m_confStorage->load(configFile);
+    auto state = m_confStorage->load();
 
     if (state == ConfStorage::State::FAIL)
     {
         logger::logWrn("File not exists, setting and saving defaults");
         m_confStorage->setDefault();
-        if (m_confStorage->save(configFile) == ConfStorage::State::FAIL)
+        if (m_confStorage->save() == ConfStorage::State::FAIL)
         {
             logger::logErr("Can't save settings");
             return State::FAIL;

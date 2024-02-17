@@ -1,7 +1,5 @@
 #include "EspNowPairingManager.hpp"
 
-#include <SPIFFS.h>
-
 EspNowPairingManager::EspNowPairingManager(std::shared_ptr<IConfStorage> confStorage,
                                            std::shared_ptr<IArduino32Adp> arduinoAdp,
                                            std::shared_ptr<LedIndicator> pairingLed)
@@ -66,9 +64,7 @@ bool EspNowPairingManager::addNewSensorToStorage(IDType identifier)
 
     logger::logInf("Paired sensor with ID: %u", identifier);
     m_confStorage->addSensor(identifier);
-
-    RaiiFile configFile(SPIFFS.open("/config.json", "w"));
-    m_confStorage->save(configFile);
+    m_confStorage->save();
 
     return true;
 }

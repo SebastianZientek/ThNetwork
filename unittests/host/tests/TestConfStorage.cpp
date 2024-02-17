@@ -4,6 +4,8 @@
 #include "FS.h"
 #include "FileSystemMock.hpp"
 #include "RaiiFile.hpp"
+#include "mocks/FileSystem32AdpMock.hpp"
+#include "mocks/RaiiFileMock.hpp"
 
 // clang-format off
 TEST_GROUP(ConfStorageTest)  // NOLINT
@@ -18,62 +20,74 @@ TEST_GROUP(ConfStorageTest)  // NOLINT
 
 TEST(ConfStorageTest, ShouldLoadCorrectConfiguration)  // NOLINT
 {
-    fs::File fileMock;
-    ConfStorage confStorage;
-    RaiiFile file(fileMock);
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "/config.json");
+    auto file = std::make_unique<RaiiFileMock>();
 
     std::string fileContent = R"({"user":"admin"})";
-    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
-    mock().ignoreOtherCalls();
+    mock("RaiiFileMock").expectOneCall("readString").andReturnValue(fileContent.c_str());
+    mock("FileSystem32AdpMock")
+        .expectOneCall("open")
+        .withStringParameter("path", "/config.json")
+        .withParameter("mode", static_cast<int>(IFileSystem32Adp::Mode::F_READ))
+        .andReturnValue(file.release());
 
-    auto state = confStorage.load(file);
+    auto state = confStorage.load();
     CHECK_TRUE(ConfStorage::State::OK == state);
 }
 
 TEST(ConfStorageTest, ShouldntLoadIncorrectConfiguration)  // NOLINT
 {
-    fs::File fileMock;
-    ConfStorage confStorage;
-    RaiiFile file(fileMock);
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "/config.json");
+    auto file = std::make_unique<RaiiFileMock>();
 
     std::string fileContent = R"(brokenjsonfile:"admin"})";
-    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
-    mock().ignoreOtherCalls();
+    mock("RaiiFileMock").expectOneCall("readString").andReturnValue(fileContent.c_str());
+    mock("FileSystem32AdpMock")
+        .expectOneCall("open")
+        .ignoreOtherParameters()
+        .andReturnValue(file.release());
 
-    auto state = confStorage.load(file);
+    auto state = confStorage.load();
     CHECK_TRUE(ConfStorage::State::FAIL == state);
 }
 
 TEST(ConfStorageTest, ShouldSaveDefaultConfiguration)
 {
-    fs::File fileMock;
-    ConfStorage confStorage;
-    RaiiFile file(fileMock);
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "/config.json");
+    auto file = std::make_unique<RaiiFileMock>();
 
     std::string expectedStringToSave
         = R"({"admin":{"passwd":"passwd","user":"admin"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80})";
 
-    mock()
-        .expectOneCall("File::print")
-        .withStringParameter("data", expectedStringToSave.c_str());
-    mock().ignoreOtherCalls();
+    mock("RaiiFileMock").expectOneCall("print").withParameter("str", expectedStringToSave.c_str());
+    mock("FileSystem32AdpMock")
+        .expectOneCall("open")
+        .withStringParameter("path", "/config.json")
+        .withParameter("mode", static_cast<int>(IFileSystem32Adp::Mode::F_WRITE))
+        .andReturnValue(file.release());
 
     confStorage.setDefault();
-    auto state = confStorage.save(file);
+    auto state = confStorage.save();
     CHECK_TRUE(ConfStorage::State::OK == state);
 }
 
 TEST(ConfStorageTest, ShouldParseFileAndReadWifiConfig)
 {
-    fs::File fileMock;
-    ConfStorage confStorage;
-    RaiiFile file(fileMock);
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "/config.json");
+    auto file = std::make_unique<RaiiFileMock>();
 
     std::string fileContent = R"({"wifi":{"ssid": "test", "pass": "testPass"}})";
-    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
-    mock().ignoreOtherCalls();
+    mock("RaiiFileMock").expectOneCall("readString").andReturnValue(fileContent.c_str());
+    mock("FileSystem32AdpMock")
+        .expectOneCall("open")
+        .ignoreOtherParameters()
+        .andReturnValue(file.release());
 
-    auto state = confStorage.load(file);
+    auto state = confStorage.load();
     CHECK_TRUE(ConfStorage::State::OK == state);
 
     auto wifiConfig = confStorage.getWifiConfig();
@@ -86,15 +100,18 @@ TEST(ConfStorageTest, ShouldParseFileAndReadWifiConfig)
 
 TEST(ConfStorageTest, ShouldReturnNulloptWhenWifiConfigIsIncompleteOrWrong)
 {
-    fs::File fileMock;
-    ConfStorage confStorage;
-    RaiiFile file(fileMock);
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "/config.json");
+    auto file = std::make_unique<RaiiFileMock>();
 
     std::string fileContent = R"({"wifi":{"pass": "testPass"}})";
-    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
-    mock().ignoreOtherCalls();
+    mock("RaiiFileMock").expectOneCall("readString").andReturnValue(fileContent.c_str());
+    mock("FileSystem32AdpMock")
+        .expectOneCall("open")
+        .ignoreOtherParameters()
+        .andReturnValue(file.release());
 
-    auto state = confStorage.load(file);
+    auto state = confStorage.load();
     CHECK_TRUE(ConfStorage::State::OK == state);
 
     auto wifiConfig = confStorage.getWifiConfig();
@@ -103,32 +120,36 @@ TEST(ConfStorageTest, ShouldReturnNulloptWhenWifiConfigIsIncompleteOrWrong)
 
 TEST(ConfStorageTest, ShouldSaveWifiConfiguration)
 {
-    fs::File fileMock;
-    ConfStorage confStorage;
-    RaiiFile file(fileMock);
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "/config.json");
+    auto file = std::make_unique<RaiiFileMock>();
 
     std::string expectedFileContent = R"({"wifi":{"pass":"thing","ssid":"some"}})";
-    mock()
-        .expectOneCall("File::print")
-        .withStringParameter("data", expectedFileContent.c_str());
-    mock().ignoreOtherCalls();
+    mock("RaiiFileMock").expectOneCall("print").withParameter("str", expectedFileContent.c_str());
+    mock("FileSystem32AdpMock")
+        .expectOneCall("open")
+        .ignoreOtherParameters()
+        .andReturnValue(file.release());
 
     confStorage.setWifiConfig("some", "thing");
-    auto state = confStorage.save(file);
+    auto state = confStorage.save();
     CHECK_TRUE(ConfStorage::State::OK == state);
 }
 
 TEST(ConfStorageTest, ShouldParseFileAndReadAdminCredentials)
 {
-    fs::File fileMock;
-    ConfStorage confStorage;
-    RaiiFile file(fileMock);
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "/config.json");
+    auto file = std::make_unique<RaiiFileMock>();
 
     std::string fileContent = R"({"admin": {"passwd":"dark","user":"tranquillity"}})";
-    mock().expectOneCall("File::readString").andReturnValue(&fileContent);
-    mock().ignoreOtherCalls();
+    mock("RaiiFileMock").expectOneCall("readString").andReturnValue(fileContent.c_str());
+    mock("FileSystem32AdpMock")
+        .expectOneCall("open")
+        .ignoreOtherParameters()
+        .andReturnValue(file.release());
 
-    auto state = confStorage.load(file);
+    auto state = confStorage.load();
     CHECK_TRUE(ConfStorage::State::OK == state);
 
     auto credentials = confStorage.getAdminCredentials();
@@ -141,24 +162,27 @@ TEST(ConfStorageTest, ShouldParseFileAndReadAdminCredentials)
 
 TEST(ConfStorageTest, ShouldSaveAdminCredentials)
 {
-    fs::File fileMock;
-    ConfStorage confStorage;
-    RaiiFile file(fileMock);
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "/config.json");
+    auto file = std::make_unique<RaiiFileMock>();
 
     std::string expectedFileContent = R"({"admin":{"pass":"in","user":"flames"}})";
-    mock()
-        .expectOneCall("File::print")
-        .withStringParameter("data", expectedFileContent.c_str());
-    mock().ignoreOtherCalls();
+
+    mock("RaiiFileMock").expectOneCall("print").withParameter("str", expectedFileContent.c_str());
+    mock("FileSystem32AdpMock")
+        .expectOneCall("open")
+        .ignoreOtherParameters()
+        .andReturnValue(file.release());
 
     confStorage.setAdminCredentials("flames", "in");
-    auto state = confStorage.save(file);
+    auto state = confStorage.save();
     CHECK_TRUE(ConfStorage::State::OK == state);
 }
 
 TEST(ConfStorageTest, ShouldAllowAddingSensorsIfThereIsEnoughSpace)
 {
-    ConfStorage confStorage;
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "NotImportantInThisTest");
 
     CHECK_TRUE(confStorage.isAvailableSpaceForNextSensor());
 
@@ -178,7 +202,8 @@ TEST(ConfStorageTest, ShouldAllowAddingSensorsIfThereIsEnoughSpace)
 
 TEST(ConfStorageTest, ShouldReturnSensorsMapping)
 {
-    ConfStorage confStorage;
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "NotImportantInThisTest");
 
     confStorage.addSensor(1);
     confStorage.addSensor(2, "Aa");
@@ -206,7 +231,8 @@ TEST(ConfStorageTest, ShouldReturnSensorsMapping)
 
 TEST(ConfStorageTest, ShouldBeAbleToRemoveSensor)
 {
-    ConfStorage confStorage;
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "NotImportantInThisTest");
 
     confStorage.addSensor(1);
     confStorage.addSensor(2, "Aa");
@@ -224,7 +250,8 @@ TEST(ConfStorageTest, ShouldBeAbleToRemoveSensor)
 
 TEST(ConfStorageTest, ShouldNotRemoveSensorWithWrongIdentifier)
 {
-    ConfStorage confStorage;
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "NotImportantInThisTest");
 
     confStorage.addSensor(1);
     confStorage.addSensor(2, "Aa");
@@ -243,7 +270,8 @@ TEST(ConfStorageTest, ShouldNotRemoveSensorWithWrongIdentifier)
 
 TEST(ConfStorageTest, CheckSimpleParameters)
 {
-    ConfStorage confStorage;
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "NotImportantInThisTest");
 
     confStorage.setSensorUpdatePeriodMins(123);
     CHECK_TRUE(confStorage.getSensorUpdatePeriodMins() == 123);
@@ -253,9 +281,10 @@ TEST(ConfStorageTest, CheckSimpleParameters)
 
 TEST(ConfStorageTest, ShouldReturnConfigWithoutCredentials)
 {
-    ConfStorage confStorage;
-    confStorage.setDefault();
+    auto fileSystemMock = std::make_shared<FileSystem32AdpMock>();
+    ConfStorage confStorage(fileSystemMock, "NotImportantInThisTest");
 
+    confStorage.setDefault();
     confStorage.setWifiConfig("blabla", "test");
     confStorage.setAdminCredentials("asd", "fgh");
 

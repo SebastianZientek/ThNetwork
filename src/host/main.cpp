@@ -2,8 +2,6 @@
 
 #include "App.hpp"
 
-#include <SPIFFS.h>
-
 App app;  // NOLINT
 void setup()
 {

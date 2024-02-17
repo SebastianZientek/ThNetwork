@@ -16,6 +16,7 @@
 #include "WebWifiConfig.hpp"
 #include "adapters/IWifi32Adp.hpp"
 #include "adapters/IArduino32Adp.hpp"
+#include "adapters/IFileSystem32Adp.hpp"
 
 class App
 {
@@ -81,5 +82,6 @@ private:
     std::unique_ptr<EspNowServer> m_espNow{};
     std::shared_ptr<IWifi32Adp> m_wifiAdp{};
     std::shared_ptr<IArduino32Adp> m_arduinoAdp;
+    std::shared_ptr<IFileSystem32Adp> m_internalFS;
     ReadingsStorage m_readingsStorage{};
 };
