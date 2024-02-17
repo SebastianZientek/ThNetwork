@@ -2,7 +2,7 @@
 
 #include "FS.h"
 #include "FileSystemStub.hpp"
-#include "RaiiFile.hpp"
+#include "adapters/RaiiFile.hpp"
 
 // clang-format off
 TEST_GROUP(RaiiFileTest)  // NOLINT

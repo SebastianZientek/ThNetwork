@@ -55,8 +55,6 @@ set(HOST_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestConfStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestReadingsStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestEspNowPairingManager.cpp
-
-    # ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/mocks/ArduinoAdpMock.cpp
 )
 
 set(COMMON_TEST_SRCS

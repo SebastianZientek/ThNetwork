@@ -3,7 +3,6 @@
 #include "ConfStorage.hpp"
 #include "FS.h"
 #include "FileSystemMock.hpp"
-#include "RaiiFile.hpp"
 #include "mocks/FileSystem32AdpMock.hpp"
 #include "mocks/RaiiFileMock.hpp"
 
