@@ -4,8 +4,7 @@
 #include <memory>
 
 #include "LedIndicator.hpp"
-#include "RaiiFile.hpp"
-#include "adapters/esp32/IArduino32Adp.hpp"
+#include "adapters/IArduino32Adp.hpp"
 #include "common/types.hpp"
 #include "interfaces/IConfStorage.hpp"
 

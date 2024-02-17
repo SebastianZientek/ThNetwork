@@ -1,12 +1,10 @@
 #pragma once
 
 #include <ESPAsyncWebServer.h>
-#include <SPIFFS.h>
 
 #include <memory>
 
-#include "RaiiFile.hpp"
-#include "adapters/esp32/IWifi32Adp.hpp"
+#include "adapters/IWifi32Adp.hpp"
 #include "common/logger.hpp"
 #include "interfaces/IResources.hpp"
 
@@ -57,10 +55,8 @@ public:
                         }
 
                         m_confStorage->setWifiConfig(ssid, pass);
-                        {
-                            RaiiFile configFile(SPIFFS.open("/config.json", "w"));
-                            m_confStorage->save(configFile);
-                        }
+                        m_confStorage->save();
+
                         request->redirect("/");
 
                         ESP.restart();

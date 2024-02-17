@@ -7,8 +7,8 @@
 #include <memory>
 
 #include "EspNowPairingManager.hpp"
-#include "adapters/esp32/IEspNow32Adp.hpp"
-#include "adapters/esp32/IWifi32Adp.hpp"
+#include "adapters/IEspNow32Adp.hpp"
+#include "adapters/IWifi32Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
 #include "common/types.hpp"

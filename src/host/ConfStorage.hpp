@@ -3,17 +3,20 @@
 #include <array>
 #include <nlohmann/json.hpp>
 #include <optional>
+#include <memory>
 
-#include "RaiiFile.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
 #include "interfaces/IConfStorage.hpp"
+#include "adapters/IFileSystem32Adp.hpp"
 
 class ConfStorage : public IConfStorage
 {
 public:
-    State load(IRaiiFile &file) override;
-    State save(IRaiiFile &file) override;
+    ConfStorage(std::shared_ptr<IFileSystem32Adp> fileSystem, const std::string &path);
+
+    State load() override;
+    State save() override;
 
     void setDefault();
 
@@ -40,4 +43,7 @@ private:
     constexpr static auto defaultSrvPortNumber = 80;
     constexpr static auto defaultSensorUpdateMins = 1;
     nlohmann::json m_jsonData{};
+    std::shared_ptr<IFileSystem32Adp> m_fileSystem;
+    std::string m_path;
+
 };

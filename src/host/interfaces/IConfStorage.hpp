@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-#include "IRaiiFile.hpp"
+#include "../adapters/IRaiiFile.hpp"
 #include "common/types.hpp"
 
 class IConfStorage
@@ -24,8 +24,8 @@ public:
     IConfStorage &operator=(const IConfStorage &) = default;
     IConfStorage &operator=(IConfStorage &&) = default;
 
-    virtual State load(IRaiiFile &file) = 0;
-    virtual State save(IRaiiFile &file) = 0;
+    virtual State load() = 0;
+    virtual State save() = 0;
 
     virtual void setSensorUpdatePeriodMins(std::size_t minutes) = 0;
     virtual std::size_t getSensorUpdatePeriodMins() = 0;

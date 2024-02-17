@@ -4,7 +4,6 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
-#include "RaiiFile.hpp"
 #include "common/logger.hpp"
 
 void ReadingsStorage::addReading(IDType identifier,
