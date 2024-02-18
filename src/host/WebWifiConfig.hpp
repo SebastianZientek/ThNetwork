@@ -36,28 +36,28 @@ public:
         delay(m_initializationTimeMs);
 
         m_server->onGet("/",
-                    [this](IWebRequest &request)
-                    {
-                        request.send(HTML_OK, "text/html", m_resources->getWifiSettingsHtml());
-                    });
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "text/html", m_resources->getWifiSettingsHtml());
+                        });
 
         m_server->onPost("/setWifi",
-                    [this](IWebRequest &request)
-                    {
-                        logger::logDbg("Request to set wifi config");
-                        auto params = request.getParams();
-                        // TODO: make it safer
-                        std::string ssid = params["ssid"];
-                        std::string pass = params["password"];
+                         [this](IWebRequest &request)
+                         {
+                             logger::logDbg("Request to set wifi config");
+                             auto params = request.getParams();
+                             // TODO: make it safer
+                             std::string ssid = params["ssid"];
+                             std::string pass = params["password"];
 
-                        logger::logDbg("Ssid: %s", ssid);
+                             logger::logDbg("Ssid: %s", ssid);
 
-                        m_confStorage->setWifiConfig(ssid, pass);
-                        m_confStorage->save();
+                             m_confStorage->setWifiConfig(ssid, pass);
+                             m_confStorage->save();
 
-                        request.redirect("/");
-                        m_espAdp->restart();
-                    });
+                             request.redirect("/");
+                             m_espAdp->restart();
+                         });
 
         m_server->start();
     }
