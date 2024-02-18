@@ -33,6 +33,7 @@ set(INCLS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter
 )
 
 set(HOST_INCLS
@@ -63,8 +64,6 @@ set(COMMON_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestMacAddr.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestSerializer.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpMock.cpp
 )
 
 set(TRANSMITTER_TEST_SRCS
@@ -73,13 +72,12 @@ set(TRANSMITTER_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestEspNow.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/TestUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/tests/TestEspNow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/tests/TestUtils.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/WifiAdpMock.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspNowAdpMock.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspAdpStub.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/ArduinoAdpMock.cpp
 )
 
 buildTests(HostUTs "${HOST_TEST_SRCS}" "${HOST_INCLS}")

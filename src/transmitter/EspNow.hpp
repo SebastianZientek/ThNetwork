@@ -7,11 +7,14 @@
 #include "common/Messages.hpp"
 #include "common/serializer.hpp"
 #include "config.hpp"
+#include "adapters/IArduino8266Adp.hpp"
+
+#include <memory>
 
 class EspNow
 {
 public:
-    EspNow() = default;
+    EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp);
     ~EspNow() = default;
     EspNow(const EspNow &) = delete;
     EspNow(EspNow &&) = delete;
@@ -25,6 +28,9 @@ public:
 
 private:
     constexpr static std::array<uint8_t, 4> msgSignature{'T', 'H', 'D', 'T'};
+
+    std::shared_ptr<IArduino8266Adp> m_arduinoAdp;
+
     bool m_paired{false};
     config::TransmitterConfig m_transmitterConfig{};
 
