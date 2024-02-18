@@ -80,8 +80,8 @@ set(TRANSMITTER_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspAdpStub.cpp
 )
 
-# buildTests(HostUTs "${HOST_TEST_SRCS}" "${HOST_INCLS}")
-# buildTests(CommonUTs "${COMMON_TEST_SRCS}" "${INCLS}")
+buildTests(HostUTs "${HOST_TEST_SRCS}" "${HOST_INCLS}")
+buildTests(CommonUTs "${COMMON_TEST_SRCS}" "${INCLS}")
 buildTests(TransmitterUTs "${TRANSMITTER_TEST_SRCS}" "${INCLS}")
 
 # add_executable(UnitTests ${SRCS} ${MOCKS} ${TESTS})
