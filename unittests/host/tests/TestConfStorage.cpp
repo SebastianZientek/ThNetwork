@@ -123,7 +123,10 @@ TEST(ConfStorageTest, ShouldSaveWifiConfiguration)
     ConfStorage confStorage(fileSystemMock, "/config.json");
     auto file = std::make_unique<RaiiFileMock>();
 
-    std::string expectedFileContent = R"({"wifi":{"pass":"thing","ssid":"some"}})";
+    std::string expectedFileContent
+        = R"({"admin":{"passwd":"passwd","user":"admin"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80,"wifi":{"pass":"thing","ssid":"some"}})";
+    auto expectedWifiJsonContent = nlohmann::json::parse(expectedFileContent)["wifi"];
+
     mock("RaiiFileMock").expectOneCall("print").withParameter("str", expectedFileContent.c_str());
     mock("FileSystem32AdpMock")
         .expectOneCall("open")
@@ -132,6 +135,7 @@ TEST(ConfStorageTest, ShouldSaveWifiConfiguration)
 
     confStorage.setWifiConfig("some", "thing");
     auto state = confStorage.save();
+
     CHECK_TRUE(ConfStorage::State::OK == state);
 }
 
@@ -165,7 +169,8 @@ TEST(ConfStorageTest, ShouldSaveAdminCredentials)
     ConfStorage confStorage(fileSystemMock, "/config.json");
     auto file = std::make_unique<RaiiFileMock>();
 
-    std::string expectedFileContent = R"({"admin":{"pass":"in","user":"flames"}})";
+    std::string expectedFileContent
+        = R"({"admin":{"pass":"in","passwd":"passwd","user":"flames"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80})";
 
     mock("RaiiFileMock").expectOneCall("print").withParameter("str", expectedFileContent.c_str());
     mock("FileSystem32AdpMock")

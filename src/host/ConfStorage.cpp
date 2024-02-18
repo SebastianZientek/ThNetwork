@@ -11,7 +11,8 @@ ConfStorage::ConfStorage(std::shared_ptr<IFileSystem32Adp> fileSystem, const std
     : m_fileSystem(fileSystem)
     , m_path(path)
 {
-}
+    setDefault();
+} 
 
 ConfStorage::State ConfStorage::load()
 {
