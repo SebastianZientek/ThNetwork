@@ -8,16 +8,18 @@
 #include "adapters/IWifi32Adp.hpp"
 #include "common/logger.hpp"
 #include "interfaces/IResources.hpp"
+#include "webserver/IWebServer.hpp"
 
 template <typename ConfStorageType, typename AsyncWebServerType>
 class WebWifiConfig
 {
 public:
     WebWifiConfig(std::shared_ptr<IWifi32Adp> wifiAdp,
+                  std::unique_ptr<IWebServer> server,
                   std::shared_ptr<IESP32Adp> espAdp,
                   std::unique_ptr<IResources> resources)
-        : m_server(80)
-        , m_wifiAdp(wifiAdp)
+        : m_wifiAdp(wifiAdp)
+        , m_server(std::move(server))
         , m_espAdp(espAdp)
         , m_resources(std::move(resources))
     {
@@ -31,47 +33,40 @@ public:
         m_wifiAdp->softAp("TH-NETWORK");
         logger::logInf("IP addr: %s", m_wifiAdp->getSoftApIp());
 
-        delay(1000);
+        delay(m_initializationTimeMs);
 
-        m_server.on("/", HTTP_GET,
-                    [this](AsyncWebServerRequest *request)
-                    {
-                        request->send_P(HTML_OK, "text/html", m_resources->getWifiSettingsHtml());
-                    });
-
-        m_server.on("/setWifi", HTTP_POST,
-                    [this](AsyncWebServerRequest *request)
-                    {
-                        auto params = request->params();
-                        std::string ssid{};
-                        std::string pass{};
-                        for (int i = 0; i < params; i++)
+        m_server->onGet("/",
+                        [this](IWebRequest &request)
                         {
-                            AsyncWebParameter *param = request->getParam(i);
-                            if (param->name() == "ssid")
-                            {
-                                ssid = param->value().c_str();
-                            }
-                            else if (param->name() == "password")
-                            {
-                                pass = param->value().c_str();
-                            }
-                        }
+                            request.send(HTML_OK, "text/html", m_resources->getWifiSettingsHtml());
+                        });
 
-                        m_confStorage->setWifiConfig(ssid, pass);
-                        m_confStorage->save();
+        m_server->onPost("/setWifi",
+                         [this](IWebRequest &request)
+                         {
+                             logger::logDbg("Request to set wifi config");
+                             auto params = request.getParams();
+                             // TODO: make it safer
+                             std::string ssid = params["ssid"];
+                             std::string pass = params["password"];
 
-                        request->redirect("/");
+                             logger::logDbg("Ssid: %s", ssid);
 
-                        m_espAdp->restart();
-                    });
+                             m_confStorage->setWifiConfig(ssid, pass);
+                             m_confStorage->save();
 
-        m_server.begin();
+                             request.redirect("/");
+                             m_espAdp->restart();
+                         });
+
+        m_server->start();
     }
 
 private:
-    AsyncWebServerType m_server;
-    std::shared_ptr<IWifi32Adp> m_wifiAdp{};
+    constexpr static auto m_initializationTimeMs = 1000;
+
+    std::shared_ptr<IWifi32Adp> m_wifiAdp;
+    std::unique_ptr<IWebServer> m_server;
     std::shared_ptr<ConfStorageType> m_confStorage;
     std::unique_ptr<IResources> m_resources;
     std::shared_ptr<IESP32Adp> m_espAdp;
