@@ -1,7 +1,5 @@
 #include "App.hpp"
 
-#include <Arduino.h>
-
 #include <algorithm>
 #include <memory>
 #include <numeric>
@@ -14,11 +12,11 @@
 #include "adapters/Arduino32Adp.hpp"
 #include "adapters/ESP32Adp.hpp"
 #include "adapters/EspNow32Adp.hpp"
+#include "adapters/SPIFS32Adp.hpp"
 #include "adapters/Wifi32Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
-#include "host/adapters/SPIFS32Adp.hpp"
 #include "webserver/WebServer.hpp"
 
 void App::init()
@@ -28,6 +26,14 @@ void App::init()
     m_arduinoAdp = std::make_shared<Arduino32Adp>();
     m_confStorage = std::make_shared<ConfStorage>(m_internalFS, "/config.json");
     m_espAdp = std::make_shared<ESP32Adp>();
+    m_ledIndicator = std::make_shared<LedIndicator>(m_arduinoAdp, m_ledIndicatorPin);
+    m_pairingManager
+        = std::make_unique<EspNowPairingManager>(m_confStorage, m_arduinoAdp, m_ledIndicator);
+    m_espNow = std::make_unique<EspNowServer>(std::make_unique<EspNow32Adp>(), m_pairingManager,
+                                              m_wifiAdp);
+    m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
+    m_webPageMain = std::make_unique<WebPageMain>(m_arduinoAdp, std::make_unique<WebServer>(),
+                                                  std::make_unique<Resources>(), m_confStorage);
 
     if (auto initState = systemInit(); initState == State::FAIL)
     {
@@ -99,12 +105,11 @@ App::State App::systemInit()
     // Let the board be electrically ready before initialization
     constexpr auto waitBeforeInitializationMs = 1000;
     delay(waitBeforeInitializationMs);
-    setupButtons();
+    logger::init();
 
-    m_ledIndicator = std::make_shared<LedIndicator>(m_arduinoAdp, m_ledIndicatorPin);
+    setupButtons();
     m_ledIndicator->switchOn(false);
 
-    logger::init();
     if (auto state = initConfig(); state != State::OK)
     {
         return state;
@@ -114,17 +119,8 @@ App::State App::systemInit()
         return state;
     }
 
-    m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
     m_timeClient->begin();
     m_timeClient->update();
-
-    auto espNowAdp = std::make_unique<EspNow32Adp>();
-
-    m_pairingManager
-        = std::make_unique<EspNowPairingManager>(m_confStorage, m_arduinoAdp, m_ledIndicator);
-    m_espNow = std::make_unique<EspNowServer>(std::move(espNowAdp), m_pairingManager, m_wifiAdp);
-    m_webPageMain = std::make_unique<WebPageMain>(m_arduinoAdp, std::make_unique<WebServer>(),
-                                                  std::make_unique<Resources>(), m_confStorage);
 
     return State::OK;
 }
@@ -132,16 +128,9 @@ App::State App::systemInit()
 App::State App::initConfig()
 {
     auto state = m_confStorage->load();
-
     if (state == ConfStorage::State::FAIL)
     {
-        logger::logWrn("File not exists, setting and saving defaults");
-        m_confStorage->setDefault();
-        if (m_confStorage->save() == ConfStorage::State::FAIL)
-        {
-            logger::logErr("Can't save settings");
-            return State::FAIL;
-        }
+        logger::logWrn("File not exists, using default values");
     }
 
     return State::OK;
