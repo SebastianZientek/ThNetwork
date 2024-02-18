@@ -14,6 +14,7 @@ public:
     void send(int code, std::string contentType, const uint8_t *content, size_t len) override;
     void send(int code, std::string contentType, const char *content) override;
     void send(int code) override;
+    void redirect(std::string url) override;
     bool authenticate(const std::string &user, const std::string &passwd) override;
     void requestAuthentication() override;
     std::map<std::string, std::string> getParams() override;

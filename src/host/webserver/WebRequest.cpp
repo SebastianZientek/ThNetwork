@@ -20,6 +20,11 @@ void WebRequest::send(int code)
     m_WebRequest->send(code);
 }
 
+void WebRequest::redirect(std::string url)
+{
+    m_WebRequest->redirect(url.c_str());
+}
+
 bool WebRequest::authenticate(const std::string &user, const std::string &passwd)
 {
     return m_WebRequest->authenticate(user.c_str(), passwd.c_str());

@@ -198,9 +198,9 @@ void App::wifiSettingsMode()
     }
     m_wifiAdp->disconnect();
 
-    m_webPageMainWifiConfig
-        = std::make_unique<WebWifiConfigType>(m_wifiAdp, m_espAdp, std::make_unique<Resources>());
-    m_webPageMainWifiConfig->startConfiguration(m_confStorage);
+    m_webWifiConfig = std::make_unique<WebWifiConfigType>(m_wifiAdp, std::make_unique<WebServer>(),
+                                                          m_espAdp, std::make_unique<Resources>());
+    m_webWifiConfig->startConfiguration(m_confStorage);
 }
 
 void App::setupButtons()
