@@ -4,6 +4,7 @@
 
 #include <memory>
 
+#include "adapters/IESP32Adp.hpp"
 #include "adapters/IWifi32Adp.hpp"
 #include "common/logger.hpp"
 #include "interfaces/IResources.hpp"
@@ -12,9 +13,12 @@ template <typename ConfStorageType, typename AsyncWebServerType>
 class WebWifiConfig
 {
 public:
-    WebWifiConfig(std::shared_ptr<IWifi32Adp> wifiAdp, std::unique_ptr<IResources> resources)
+    WebWifiConfig(std::shared_ptr<IWifi32Adp> wifiAdp,
+                  std::shared_ptr<IESP32Adp> espAdp,
+                  std::unique_ptr<IResources> resources)
         : m_server(80)
         , m_wifiAdp(wifiAdp)
+        , m_espAdp(espAdp)
         , m_resources(std::move(resources))
     {
     }
@@ -59,7 +63,7 @@ public:
 
                         request->redirect("/");
 
-                        ESP.restart();
+                        m_espAdp->restart();
                     });
 
         m_server.begin();
@@ -70,4 +74,5 @@ private:
     std::shared_ptr<IWifi32Adp> m_wifiAdp{};
     std::shared_ptr<ConfStorageType> m_confStorage;
     std::unique_ptr<IResources> m_resources;
+    std::shared_ptr<IESP32Adp> m_espAdp;
 };

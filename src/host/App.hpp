@@ -17,6 +17,7 @@
 #include "adapters/IWifi32Adp.hpp"
 #include "adapters/IArduino32Adp.hpp"
 #include "adapters/IFileSystem32Adp.hpp"
+#include "adapters/IESP32Adp.hpp"
 
 class App
 {
@@ -83,5 +84,6 @@ private:
     std::shared_ptr<IWifi32Adp> m_wifiAdp{};
     std::shared_ptr<IArduino32Adp> m_arduinoAdp;
     std::shared_ptr<IFileSystem32Adp> m_internalFS;
+    std::shared_ptr<IESP32Adp> m_espAdp;
     ReadingsStorage m_readingsStorage{};
 };

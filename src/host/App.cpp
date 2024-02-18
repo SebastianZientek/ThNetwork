@@ -12,6 +12,7 @@
 #include "Resources.hpp"
 #include "WebPageMain.hpp"
 #include "adapters/Arduino32Adp.hpp"
+#include "adapters/ESP32Adp.hpp"
 #include "adapters/EspNow32Adp.hpp"
 #include "adapters/Wifi32Adp.hpp"
 #include "common/MacAddr.hpp"
@@ -26,6 +27,7 @@ void App::init()
     m_wifiAdp = std::make_shared<Wifi32Adp>();
     m_arduinoAdp = std::make_shared<Arduino32Adp>();
     m_confStorage = std::make_shared<ConfStorage>(m_internalFS, "/config.json");
+    m_espAdp = std::make_shared<ESP32Adp>();
 
     if (auto initState = systemInit(); initState == State::FAIL)
     {
@@ -34,7 +36,7 @@ void App::init()
 
         logger::logErr("System will be rebooted in %ds", waitBeforeRebootSec);
         delay(waitBeforeRebootSec * msInSecond);
-        ESP.restart();
+        m_espAdp->restart();
     }
     else if (initState == State::WIFI_CONFIGURATION_NEEDED)
     {
@@ -49,7 +51,7 @@ void App::init()
             auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
             m_webPageMain->sendEvent(reading.c_str(), "newReading", m_arduinoAdp->millis());
         };
-    
+
         m_espNow->init(newReadingCallback, m_confStorage->getSensorUpdatePeriodMins());
 
         auto getSensorData = [this](const std::size_t &identifier)
@@ -80,7 +82,7 @@ void App::update()
         && m_arduinoAdp->millis() > wifiConfigServerTimeoutMillis + wifiModeStartTime)
     {
         logger::logInf("Wifi configuration timeout. Reboot...");
-        ESP.restart();
+        m_espAdp->restart();
     }
 
     if (isPairButtonPressed())
@@ -181,7 +183,7 @@ App::State App::connectWiFi()
         {
             logger::logErr("WiFi connection issue, reboot.");
             delay(waitBeforeRebootMs);
-            ESP.restart();
+            m_espAdp->restart();
         }
     }
 
@@ -208,7 +210,7 @@ void App::wifiSettingsMode()
     m_wifiAdp->disconnect();
 
     m_webPageMainWifiConfig
-        = std::make_unique<WebWifiConfigType>(m_wifiAdp, std::make_unique<Resources>());
+        = std::make_unique<WebWifiConfigType>(m_wifiAdp, m_espAdp, std::make_unique<Resources>());
     m_webPageMainWifiConfig->startConfiguration(m_confStorage);
 }
 
