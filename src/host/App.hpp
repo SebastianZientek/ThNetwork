@@ -34,21 +34,6 @@ class App
         WIFI_SETTINGS
     };
 
-    struct WebViewComponentTypes
-    {
-        using AsyncWebSvrType = AsyncWebServer;
-        using AsyncEventSrcType = AsyncEventSource;
-        using AsyncWebSrvReq = AsyncWebServerRequest;
-        using AsyncEventSrcClient = AsyncEventSourceClient;
-        using AsyncWebParam = AsyncWebParameter;
-
-        enum ReqMethod
-        {
-            GET = HTTP_GET,
-            POST = HTTP_POST
-        };
-    };
-
     using WebWifiConfigType = WebWifiConfig<ConfStorage, AsyncWebServer>;
 
 public:
