@@ -2,7 +2,6 @@
 
 #include "adapters/EspAdp.hpp"
 #include "adapters/WiFiAdp.hpp"
-#include "adapters/ArduinoAdp.hpp"
 #include "boardsettings.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
@@ -17,7 +16,7 @@ void App::setup()
     pinMode(boardsettings::pairButton, INPUT_PULLUP);
     pinMode(LED_BUILTIN, OUTPUT);
 
-    utils::switchOffLed();
+    utils::switchOffLed(m_arduinoAdp);
 
     if (EspAdp::isResetReasonDeepSleepAwake())
     {

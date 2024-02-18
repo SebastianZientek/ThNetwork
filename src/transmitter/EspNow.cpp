@@ -5,7 +5,6 @@
 #include "EspNowAdp.hpp"
 #include "WiFiAdp.hpp"
 #include "adapters/EspAdp.hpp"
-#include "adapters/ArduinoAdp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
@@ -13,6 +12,11 @@
 
 EspNow::OnSendCb EspNow::m_onSend;  // NOLINT
 EspNow::OnRecvCb EspNow::m_onRecv;  // NOLINT
+
+EspNow::EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp)
+    : m_arduinoAdp(arduinoAdp)
+{
+}
 
 void EspNow::init(uint8_t channel)
 {
@@ -98,7 +102,9 @@ void EspNow::onDataSend(const MacAddr &mac, uint8_t status)
 void EspNow::setOnDataRecvCb()
 {
     m_onRecv = [this](const MacAddr &mac, const uint8_t *incomingData, uint8_t len)
-    { this->onDataRecv(mac, incomingData, len); };
+    {
+        this->onDataRecv(mac, incomingData, len);
+    };
     auto onDataRecv = [](uint8_t *rawMac, uint8_t *incomingData, uint8_t len)  // NOLINT
     {
         MacAddr macAddr{};
@@ -111,7 +117,10 @@ void EspNow::setOnDataRecvCb()
 
 void EspNow::setOnDataSendCb()
 {
-    m_onSend = [this](const MacAddr &mac, uint8_t status) { this->onDataSend(mac, status); };
+    m_onSend = [this](const MacAddr &mac, uint8_t status)
+    {
+        this->onDataSend(mac, status);
+    };
 
     auto onDataSend = [](uint8_t *rawMac, uint8_t status)
     {
@@ -125,7 +134,7 @@ void EspNow::setOnDataSendCb()
 
 std::optional<config::TransmitterConfig> EspNow::pair()
 {
-    utils::switchOnLed();
+    utils::switchOnLed(m_arduinoAdp);
     constexpr auto maxChannels = 12;
     constexpr auto timeout = 500;
     m_paired = false;
@@ -143,7 +152,7 @@ std::optional<config::TransmitterConfig> EspNow::pair()
             return m_transmitterConfig;
         }
     }
-    utils::switchOffLed();
+    utils::switchOffLed(m_arduinoAdp);
 
     return std::nullopt;
 }
@@ -159,7 +168,7 @@ void EspNow::sendDataToHost(std::size_t ID, MacAddr mac, float temperature, floa
     {
         logger::logWrn("esp_now_send error, code: %d", errCode);
     }
-    ArduinoAdp::delay(1);  // Give board time to invoke onDataSent callback
+    m_arduinoAdp->delay(1);  // Give board time to invoke onDataSent callback
 }
 
 config::TransmitterConfig EspNow::getTransmitterConfig()

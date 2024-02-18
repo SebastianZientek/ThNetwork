@@ -1,20 +1,18 @@
 #include "utils.hpp"
 
-#include "adapters/ArduinoAdp.hpp"
-
 namespace utils
 {
 
-void switchOnLed()
+void switchOnLed(std::shared_ptr<IArduino8266Adp> arduinoAdp)
 {
-    auto ledPin = ArduinoAdp::getLedBuiltin();
-    ArduinoAdp::digitalWrite(ledPin, ArduinoAdp::LVL_LO);
+    auto ledPin = arduinoAdp->getLedBuiltin();
+    arduinoAdp->digitalWrite(ledPin, false);
 }
 
-void switchOffLed()
+void switchOffLed(std::shared_ptr<IArduino8266Adp> arduinoAdp)
 {
-    auto ledPin = ArduinoAdp::getLedBuiltin();
-    ArduinoAdp::digitalWrite(ledPin, ArduinoAdp::LVL_HI);
+    auto ledPin = arduinoAdp->getLedBuiltin();
+    arduinoAdp->digitalWrite(ledPin, true);
 }
 
 }  // namespace utils
