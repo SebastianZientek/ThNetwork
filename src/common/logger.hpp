@@ -14,10 +14,11 @@ enum LogLevel
 {
     INF = 0,
     WRN = 1,
-    ERR = 2
+    ERR = 2,
+    DBG = 3,
 };
 
-constexpr std::array<const char *, 3> logCString = {"INF: ", "WRN: ", "ERR: "};
+constexpr std::array<const char *, 4> logCString = {"INF: ", "WRN: ", "ERR: ", "DBG: "};
 
 template <typename T>
 decltype(auto) stdStrToCStr(const T &arg)
@@ -67,6 +68,12 @@ template <typename... Ts>
 void logInf(const Ts &...args)
 {
     log(logger::INF, args...);
+}
+
+template <typename... Ts>
+void logDbg(const Ts &...args)
+{
+    log(logger::DBG, args...);
 }
 
 }  // namespace logger
