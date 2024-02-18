@@ -1,9 +1,9 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
+#include "EspNowPairingManager.hpp"
 #include "mocks/Arduino32AdpMock.hpp"
 #include "mocks/ConfStorageMock.hpp"
-#include "EspNowPairingManager.hpp"
 
 // clang-format off
 TEST_GROUP(EspNowPairingManagerTest)  // NOLINT
@@ -40,15 +40,15 @@ TEST(EspNowPairingManagerTest, PairingEnabledForPeriod)  // NOLINT
     EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
-    mock().expectOneCall("Arduino32Adp::millis").andReturnValue(0);
+    mock("Arduino32Adp").expectOneCall("millis").andReturnValue(0);
     espNowPairingManager.enablePairingForPeriod(pairingTimeoutMilis);
     CHECK_TRUE(espNowPairingManager.isPairingEnabled());
 
-    mock().expectOneCall("Arduino32Adp::millis").andReturnValue(5);
+    mock("Arduino32Adp").expectOneCall("millis").andReturnValue(5);
     espNowPairingManager.update();
     CHECK_TRUE(espNowPairingManager.isPairingEnabled());
 
-    mock().expectOneCall("Arduino32Adp::millis").andReturnValue(15);
+    mock("Arduino32Adp").expectOneCall("millis").andReturnValue(15);
     espNowPairingManager.update();
     CHECK_FALSE(espNowPairingManager.isPairingEnabled());
 }
@@ -61,13 +61,13 @@ TEST(EspNowPairingManagerTest, AddSensorToStorageWhenItPossibe)  // NOLINT
     EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
-    mock()
-        .expectOneCall("ConfStorageMock::isSensorMapped")
+    mock("ConfStorageMock")
+        .expectOneCall("isSensorMapped")
         .withParameter("identifier", 123)
         .andReturnValue(false);
-    mock().expectOneCall("ConfStorageMock::isAvailableSpaceForNextSensor").andReturnValue(true);
-    mock()
-        .expectOneCall("ConfStorageMock::addSensor")
+    mock("ConfStorageMock").expectOneCall("isAvailableSpaceForNextSensor").andReturnValue(true);
+    mock("ConfStorageMock")
+        .expectOneCall("addSensor")
         .withParameter("identifier", 123)
         .ignoreOtherParameters();
     mock().ignoreOtherCalls();
@@ -83,11 +83,11 @@ TEST(EspNowPairingManagerTest, NotAddSensorToStorageWhenSensorIsAlreadyMapped)  
     EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
-    mock()
-        .expectOneCall("ConfStorageMock::isSensorMapped")
+    mock("ConfStorageMock")
+        .expectOneCall("isSensorMapped")
         .withParameter("identifier", 123)
         .andReturnValue(true);
-    mock().expectNoCall("ConfStorageMock::addSensor");
+    mock("ConfStorageMock").expectNoCall("addSensor");
     mock().ignoreOtherCalls();
 
     espNowPairingManager.addNewSensorToStorage(123);
@@ -101,12 +101,12 @@ TEST(EspNowPairingManagerTest, NotAddSensorToStorageWhenThereIsNoMoreSpaceForSen
     EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
-    mock()
-        .expectOneCall("ConfStorageMock::isSensorMapped")
+    mock("ConfStorageMock")
+        .expectOneCall("isSensorMapped")
         .withParameter("identifier", 123)
         .andReturnValue(false);
-    mock().expectOneCall("ConfStorageMock::isAvailableSpaceForNextSensor").andReturnValue(false);
-    mock().expectNoCall("ConfStorageMock::addSensor");
+    mock("ConfStorageMock").expectOneCall("isAvailableSpaceForNextSensor").andReturnValue(false);
+    mock("ConfStorageMock").expectNoCall("addSensor");
     mock().ignoreOtherCalls();
 
     espNowPairingManager.addNewSensorToStorage(123);
@@ -120,7 +120,7 @@ TEST(EspNowPairingManagerTest, UnaddNewSensorToStorage)  // NOLINT
     EspNowPairingManager espNowPairingManager(confStorageMock, arduino32AdpMock, nullptr);
     constexpr auto pairingTimeoutMilis = 10;
 
-    mock().expectOneCall("ConfStorageMock::removeSensor").withParameter("identifier", 123);
+    mock("ConfStorageMock").expectOneCall("removeSensor").withParameter("identifier", 123);
     mock().ignoreOtherCalls();
 
     espNowPairingManager.unpairSensor(123);

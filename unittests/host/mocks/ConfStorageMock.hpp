@@ -8,8 +8,8 @@ class ConfStorageMock : public IConfStorage
     State load() override
     {
         static auto defaultState = State::OK;
-        mock().actualCall("ConfStorageMock::load");
-        auto *returnVal = mock().returnPointerValueOrDefault(&defaultState);
+        mock("ConfStorageMock").actualCall("load");
+        auto *returnVal = mock("ConfStorageMock").returnPointerValueOrDefault(&defaultState);
 
         return *static_cast<State *>(returnVal);
     }
@@ -17,42 +17,42 @@ class ConfStorageMock : public IConfStorage
     State save() override
     {
         static auto defaultState = State::OK;
-        mock().actualCall("ConfStorageMock::save");
-        auto *returnVal = mock().returnPointerValueOrDefault(&defaultState);
+        mock("ConfStorageMock").actualCall("save");
+        auto *returnVal = mock("ConfStorageMock").returnPointerValueOrDefault(&defaultState);
 
         return *static_cast<State *>(returnVal);
     }
 
     void setSensorUpdatePeriodMins(std::size_t minutes) override
     {
-        mock()
-            .actualCall("ConfStorageMock::setSensorUpdatePeriodMins")
+        mock("ConfStorageMock")
+            .actualCall("setSensorUpdatePeriodMins")
             .withParameter("minutes", minutes);
     }
 
     std::size_t getSensorUpdatePeriodMins() override
     {
-        return mock()
-            .actualCall("ConfStorageMock::getSensorUpdatePeriodMins")
+        return mock("ConfStorageMock")
+            .actualCall("getSensorUpdatePeriodMins")
             .returnUnsignedLongIntValueOrDefault(0);
     }
 
     void setServerPort(std::size_t port) override
     {
-        mock().actualCall("ConfStorageMock::setServerPort").withParameter("port", port);
+        mock("ConfStorageMock").actualCall("setServerPort").withParameter("port", port);
     }
 
     std::size_t getServerPort() override
     {
-        return mock()
-            .actualCall("ConfStorageMock::getServerPort")
+        return mock("ConfStorageMock")
+            .actualCall("getServerPort")
             .returnUnsignedLongIntValueOrDefault(0);
     }
 
     void setWifiConfig(std::string ssid, std::string pass) override
     {
-        mock()
-            .actualCall("ConfStorageMock::setWifiConfig")
+        mock("ConfStorageMock")
+            .actualCall("setWifiConfig")
             .withStringParameter("ssid", ssid.c_str())
             .withStringParameter("pass", pass.c_str());
     }
@@ -61,16 +61,16 @@ class ConfStorageMock : public IConfStorage
     {
         using ReturnType = std::optional<std::pair<std::string, std::string>>;
         static auto defaultState = std::nullopt;
-        mock().actualCall("ConfStorageMock::getWifiConfig");
-        auto *returnVal = mock().returnPointerValueOrDefault(&defaultState);
+        mock("ConfStorageMock").actualCall("getWifiConfig");
+        auto *returnVal = mock("ConfStorageMock").returnPointerValueOrDefault(&defaultState);
 
         return *static_cast<ReturnType *>(returnVal);
     }
 
     void setAdminCredentials(std::string user, std::string pass) override
     {
-        mock()
-            .actualCall("ConfStorageMock::setAdminCredentials")
+        mock("ConfStorageMock")
+            .actualCall("setAdminCredentials")
             .withStringParameter("user", user.c_str())
             .withStringParameter("pass", pass.c_str());
     }
@@ -79,30 +79,30 @@ class ConfStorageMock : public IConfStorage
     {
         using ReturnType = std::optional<std::pair<std::string, std::string>>;
         static auto defaultState = std::nullopt;
-        mock().actualCall("ConfStorageMock::getAdminCredentials");
-        auto *returnVal = mock().returnPointerValueOrDefault(&defaultState);
+        mock("ConfStorageMock").actualCall("getAdminCredentials");
+        auto *returnVal = mock("ConfStorageMock").returnPointerValueOrDefault(&defaultState);
 
         return *static_cast<ReturnType *>(returnVal);
     }
 
     std::string getConfigWithoutCredentials() override
     {
-        return mock()
-            .actualCall("ConfStorageMock::getConfigWithoutCredentials")
+        return mock("ConfStorageMock")
+            .actualCall("getConfigWithoutCredentials")
             .returnStringValueOrDefault("{}");
     }
 
     bool isAvailableSpaceForNextSensor() override
     {
-        return mock()
-            .actualCall("ConfStorageMock::isAvailableSpaceForNextSensor")
+        return mock("ConfStorageMock")
+            .actualCall("isAvailableSpaceForNextSensor")
             .returnBoolValueOrDefault(true);
     }
 
     bool addSensor(IDType identifier, const std::string &name = "Unnamed") override
     {
-        return mock()
-            .actualCall("ConfStorageMock::addSensor")
+        return mock("ConfStorageMock")
+            .actualCall("addSensor")
             .withUnsignedIntParameter("identifier", identifier)
             .withStringParameter("name", name.c_str())
             .returnBoolValueOrDefault(true);
@@ -110,23 +110,23 @@ class ConfStorageMock : public IConfStorage
 
     bool removeSensor(IDType identifier) override
     {
-        return mock()
-            .actualCall("ConfStorageMock::removeSensor")
+        return mock("ConfStorageMock")
+            .actualCall("removeSensor")
             .withUnsignedIntParameter("identifier", identifier)
             .returnBoolValueOrDefault(true);
     }
 
     std::string getSensorsMapping() override
     {
-        return mock()
-            .actualCall("ConfStorageMock::getSensorsMapping")
+        return mock("ConfStorageMock")
+            .actualCall("getSensorsMapping")
             .returnStringValueOrDefault("");
     }
 
     bool isSensorMapped(IDType identifier) override
     {
-        return mock()
-            .actualCall("ConfStorageMock::isSensorMapped")
+        return mock("ConfStorageMock")
+            .actualCall("isSensorMapped")
             .withUnsignedIntParameter("identifier", identifier)
             .returnBoolValueOrDefault(true);
     }
