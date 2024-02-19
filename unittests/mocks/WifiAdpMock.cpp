@@ -20,6 +20,6 @@ void WiFiAdp::disconnect()
 
 uint8_t *WiFiAdp::macAddress(uint8_t *mac)
 {
-    // mock().actualCall("WiFiAdp::macAddress").withParameter("mac", mac);
+    mock().actualCall("WiFiAdp::macAddress");
     return nullptr;
 }
