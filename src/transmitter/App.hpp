@@ -5,6 +5,7 @@
 #include "adapters/Arduino8266Adp.hpp"
 #include "adapters/EspNow8266Adp.hpp"
 #include "adapters/IArduino8266Adp.hpp"
+#include "adapters/Esp8266Adp.hpp"
 #include "config.hpp"
 
 class App
@@ -19,7 +20,8 @@ private:
     config::TransmitterConfig m_currentConfiguration;
 
     std::shared_ptr<IArduino8266Adp> m_arduinoAdp{std::make_shared<Arduino8266Adp>()};
+    std::shared_ptr<IEsp8266Adp> m_espAdp{std::make_shared<Esp8266Adp>()};
 
-    EspNow m_espNow{m_arduinoAdp, std::make_shared<EspNow8266Adp>()};
+    EspNow m_espNow{m_arduinoAdp, m_espAdp, std::make_shared<EspNow8266Adp>()};
     Sensor m_sensor;
 };

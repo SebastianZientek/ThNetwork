@@ -3,10 +3,10 @@
 
 #include <memory>
 
-#include "EspAdp.hpp"
 #include "EspNow.hpp"
 #include "Messages.hpp"
 #include "mocks/Arduino8266AdpMock.hpp"
+#include "mocks/Esp8266AdpMock.hpp"
 #include "mocks/EspNow8266AdpMock.hpp"
 
 TEST_GROUP(TestEspNow)  // NOLINT
@@ -37,19 +37,20 @@ TEST_GROUP(TestEspNow)  // NOLINT
 
     std::shared_ptr<IArduino8266Adp> arduinoAdp{std::make_shared<Arduino8266AdpMock>()};
     std::shared_ptr<EspNow8266AdpMock> espNowAdp{std::make_shared<EspNow8266AdpMock>()};
+    std::shared_ptr<Esp8266AdpMock> espAdp{std::make_shared<Esp8266AdpMock>()};
     constexpr static auto LED_BUILTIN = 9;
 };
 
 TEST(TestEspNow, ShouldInitEspNow)  // NOLINT
 {
-    EspNow espNow{arduinoAdp, espNowAdp};
+    EspNow espNow{arduinoAdp, espAdp, espNowAdp};
     setInitMocks();
     espNow.init(0);
 }
 
 TEST(TestEspNow, ShouldAccepttPairResp)  // NOLINT
 {
-    EspNow espNow{arduinoAdp, espNowAdp};
+    EspNow espNow{arduinoAdp, espAdp, espNowAdp};
     setInitMocks();
 
     mock().expectOneCall("WiFiAdp::macAddress");
@@ -69,7 +70,7 @@ TEST(TestEspNow, ShouldAccepttPairResp)  // NOLINT
 
 TEST(TestEspNow, ShouldDoNothingOnNotSupportedMessages)  // NOLINT
 {
-    EspNow espNow{arduinoAdp, espNowAdp};
+    EspNow espNow{arduinoAdp, espAdp, espNowAdp};
     setInitMocks();
     espNow.init(0);
 
@@ -94,7 +95,7 @@ TEST(TestEspNow, ShouldDoNothingOnNotSupportedMessages)  // NOLINT
 
 TEST(TestEspNow, ShouldReturnNulloptIfCantPair)  // NOLINT
 {
-    EspNow espNow{arduinoAdp, espNowAdp};
+    EspNow espNow{arduinoAdp, espAdp, espNowAdp};
     setInitMocks();
     espNow.init(0);
 
@@ -113,7 +114,7 @@ TEST(TestEspNow, ShouldReturnNulloptIfCantPair)  // NOLINT
 // TODO: NOT TESTABLE, NEEDS REDESIGN CLASS TO BE ABLE TO INJECT BETWEEN CALLS
 // TEST(TestEspNow, ShouldSetupAfterPairMsg)  // NOLINT
 // {
-//     EspNow espNow{arduinoAdp, espNowAdp};
+//     EspNow espNow{arduinoAdp, espAdp, espNowAdp};
 //     setInitMocks();
 //     espNow.init(0);
 

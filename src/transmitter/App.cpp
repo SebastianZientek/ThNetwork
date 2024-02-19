@@ -1,6 +1,5 @@
 #include "App.hpp"
 
-#include "adapters/EspAdp.hpp"
 #include "adapters/WiFiAdp.hpp"
 #include "boardsettings.hpp"
 #include "common/MacAddr.hpp"
@@ -18,7 +17,7 @@ void App::setup()
 
     utils::switchOffLed(m_arduinoAdp);
 
-    if (EspAdp::isResetReasonDeepSleepAwake())
+    if (m_espAdp->isResetReasonDeepSleepAwake())
     {
         m_currentConfiguration = config::readFromRTC();
     }
