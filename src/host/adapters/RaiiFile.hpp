@@ -1,8 +1,11 @@
 #pragma once
 
-#include <FS.h>
-
 #include "IRaiiFile.hpp"
+
+namespace fs
+{
+class File;
+}
 
 class RaiiFile : public IRaiiFile
 {

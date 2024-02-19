@@ -69,13 +69,12 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
             logger::logInf("PAIR_REQ received");
             PairReqMsg pairReqMsg;
             pairReqMsg.deserialize(incomingData, len);
-            if (m_pairingManager->addNewSensorToStorage(pairReqMsg.ID))
-            {
-                logger::logInf("Paired new sensor: %u", pairReqMsg.ID);
-                m_espNowAdp->addPeer(mac, m_wifiAdp->getChannel());
-                sendPairOK(mac);
-                m_espNowAdp->deletePeer(mac);
-            }
+            m_pairingManager->addNewSensorToStorage(pairReqMsg.ID);
+
+            logger::logInf("Paired sensor: %u", pairReqMsg.ID);
+            m_espNowAdp->addPeer(mac, m_wifiAdp->getChannel());
+            sendPairOK(mac);
+            m_espNowAdp->deletePeer(mac);
         }
         else
         {

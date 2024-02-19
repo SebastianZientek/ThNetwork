@@ -13,10 +13,12 @@ public:
     {
         mock("Esp8266Adp").actualCall("feedWatchdog");
     }
+
     void yield()
     {
         mock("Esp8266Adp").actualCall("yield");
     }
+    
     bool isResetReasonDeepSleepAwake()
     {
         return mock("Esp8266Adp")

@@ -1,6 +1,6 @@
 #include "App.hpp"
 
-#include "adapters/WiFiAdp.hpp"
+
 #include "boardsettings.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
@@ -10,7 +10,7 @@
 void App::setup()
 {
     logger::init();
-    logger::logInf(WiFiAdp::macAddress().c_str());
+    logger::logInf(m_wifiAdp->macAddress().c_str());
 
     pinMode(boardsettings::pairButton, INPUT_PULLUP);
     pinMode(LED_BUILTIN, OUTPUT);

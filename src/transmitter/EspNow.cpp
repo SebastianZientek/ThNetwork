@@ -2,7 +2,6 @@
 
 #include <optional>
 
-#include "WiFiAdp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
@@ -10,9 +9,11 @@
 #include "utils.hpp"
 
 EspNow::EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp,
+               std::shared_ptr<IWifi8266Adp> wifiAdp,
                std::shared_ptr<IEsp8266Adp> espAdp,
                std::shared_ptr<IEspNow8266Adp> espNowAdp)
     : m_arduinoAdp(arduinoAdp)
+    , m_wifiAdp(wifiAdp)
     , m_espAdp(espAdp)
     , m_espNowAdp(espNowAdp)
 {
@@ -20,9 +21,9 @@ EspNow::EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp,
 
 void EspNow::init(uint8_t channel)
 {
-    WiFiAdp::setModeSta();
-    WiFiAdp::setChannel(channel);
-    WiFiAdp::disconnect();
+    m_wifiAdp->setModeSta();
+    m_wifiAdp->setChannel(channel);
+    m_wifiAdp->disconnect();
 
     if (m_espNowAdp->init() != IEspNow8266Adp::Status::OK)
     {
@@ -71,7 +72,7 @@ IEspNow8266Adp::MsgHandleStatus EspNow::onDataRecv(const MacAddr &mac,
         m_paired = true;
 
         auto myMac = MacAddr{};
-        WiFiAdp::macAddress(myMac.data());
+        m_wifiAdp->macAddress(myMac.data());
 
         m_transmitterConfig.sensorUpdatePeriodMins = pairRespMsg.updatePeriodMins;
         m_transmitterConfig.channel = pairRespMsg.channel;
@@ -134,10 +135,10 @@ std::optional<config::TransmitterConfig> EspNow::pair()
     constexpr auto timeout = 500;
     m_paired = false;
 
-    for (int channel = 9; channel <= maxChannels; ++channel)
+    for (int channel = 0; channel <= maxChannels; ++channel)
     {
         logger::logInf("Pairing, try channel: %d", channel);
-        WiFiAdp::setChannel(channel);
+        m_wifiAdp->setChannel(channel);
         sendPairMsg();
         m_arduinoAdp->delay(timeout);
         m_espAdp->feedWatchdog();
@@ -174,7 +175,7 @@ config::TransmitterConfig EspNow::getTransmitterConfig()
 void EspNow::sendPairMsg()
 {
     auto pairReqMsg = PairReqMsg::create();
-    WiFiAdp::macAddress(pairReqMsg.transmitterMacAddr.data());
+    m_wifiAdp->macAddress(pairReqMsg.transmitterMacAddr.data());
     pairReqMsg.ID = pairReqMsg.transmitterMacAddr.toUniqueID();
     auto buffer = pairReqMsg.serialize();
 

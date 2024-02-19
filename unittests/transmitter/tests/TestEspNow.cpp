@@ -6,6 +6,7 @@
 #include "EspNow.hpp"
 #include "Messages.hpp"
 #include "mocks/Arduino8266AdpMock.hpp"
+#include "mocks/Wifi8266AdpMock.hpp"
 #include "mocks/Esp8266AdpMock.hpp"
 #include "mocks/EspNow8266AdpMock.hpp"
 
@@ -30,12 +31,13 @@ TEST_GROUP(TestEspNow)  // NOLINT
         mock("EspNow8266AdpMock").expectOneCall("registerOnRecvCb");
         mock("EspNow8266AdpMock").expectOneCall("registerOnSendCb");
 
-        mock().expectOneCall("WiFiAdp::setModeSta");
-        mock().expectOneCall("WiFiAdp::setChannel").withParameter("channel", 0);
-        mock().expectOneCall("WiFiAdp::disconnect");
+        mock("Wifi8266AdpMock").expectOneCall("setModeSta");
+        mock("Wifi8266AdpMock").expectOneCall("setChannel").withParameter("channel", 0);
+        mock("Wifi8266AdpMock").expectOneCall("disconnect");
     }
 
     std::shared_ptr<IArduino8266Adp> arduinoAdp{std::make_shared<Arduino8266AdpMock>()};
+    std::shared_ptr<IWifi8266Adp> wifiAdp{std::make_shared<Wifi8266AdpMock>()};
     std::shared_ptr<EspNow8266AdpMock> espNowAdp{std::make_shared<EspNow8266AdpMock>()};
     std::shared_ptr<Esp8266AdpMock> espAdp{std::make_shared<Esp8266AdpMock>()};
     constexpr static auto LED_BUILTIN = 9;
@@ -43,17 +45,17 @@ TEST_GROUP(TestEspNow)  // NOLINT
 
 TEST(TestEspNow, ShouldInitEspNow)  // NOLINT
 {
-    EspNow espNow{arduinoAdp, espAdp, espNowAdp};
+    EspNow espNow{arduinoAdp, wifiAdp, espAdp, espNowAdp};
     setInitMocks();
     espNow.init(0);
 }
 
 TEST(TestEspNow, ShouldAccepttPairResp)  // NOLINT
 {
-    EspNow espNow{arduinoAdp, espAdp, espNowAdp};
+    EspNow espNow{arduinoAdp, wifiAdp, espAdp, espNowAdp};
     setInitMocks();
 
-    mock().expectOneCall("WiFiAdp::macAddress");
+    mock("Wifi8266AdpMock").expectOneCall("macAddress");
 
     espNow.init(0);
 
@@ -70,7 +72,7 @@ TEST(TestEspNow, ShouldAccepttPairResp)  // NOLINT
 
 TEST(TestEspNow, ShouldDoNothingOnNotSupportedMessages)  // NOLINT
 {
-    EspNow espNow{arduinoAdp, espAdp, espNowAdp};
+    EspNow espNow{arduinoAdp, wifiAdp, espAdp, espNowAdp};
     setInitMocks();
     espNow.init(0);
 
@@ -95,7 +97,7 @@ TEST(TestEspNow, ShouldDoNothingOnNotSupportedMessages)  // NOLINT
 
 TEST(TestEspNow, ShouldReturnNulloptIfCantPair)  // NOLINT
 {
-    EspNow espNow{arduinoAdp, espAdp, espNowAdp};
+    EspNow espNow{arduinoAdp, wifiAdp, espAdp, espNowAdp};
     setInitMocks();
     espNow.init(0);
 
@@ -104,7 +106,7 @@ TEST(TestEspNow, ShouldReturnNulloptIfCantPair)  // NOLINT
 
     for (int i = 0; i <= maxChannelNum; ++i)
     {
-        mock().expectOneCall("WiFiAdp::setChannel").withParameter("channel", i);
+        mock("Wifi8266AdpMock").expectOneCall("setChannel").withParameter("channel", i);
         mock().ignoreOtherCalls();
     }
 
@@ -114,7 +116,7 @@ TEST(TestEspNow, ShouldReturnNulloptIfCantPair)  // NOLINT
 // TODO: NOT TESTABLE, NEEDS REDESIGN CLASS TO BE ABLE TO INJECT BETWEEN CALLS
 // TEST(TestEspNow, ShouldSetupAfterPairMsg)  // NOLINT
 // {
-//     EspNow espNow{arduinoAdp, espAdp, espNowAdp};
+//     EspNow espNow{arduinoAdp, wifiAdp, espAdp, espNowAdp};
 //     setInitMocks();
 //     espNow.init(0);
 
