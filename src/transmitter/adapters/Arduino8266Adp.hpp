@@ -11,4 +11,5 @@ public:
     uint8_t getLedBuiltin() override;
     unsigned long millis() override;
     void delay(unsigned long milliseconds) override;
+    void setupWire(int sda, int scl) override;
 };

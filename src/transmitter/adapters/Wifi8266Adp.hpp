@@ -4,7 +4,7 @@
 
 #include "IWifi8266Adp.hpp"
 
-class Wifi8266Adp : IWifi8266Adp
+class Wifi8266Adp : public IWifi8266Adp
 {
 public:
     void setModeSta() override
