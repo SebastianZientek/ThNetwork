@@ -1,20 +1,20 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <optional>
 
+#include "adapters/IArduino8266Adp.hpp"
+#include "adapters/IEspNow8266Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
 #include "common/serializer.hpp"
 #include "config.hpp"
-#include "adapters/IArduino8266Adp.hpp"
-
-#include <memory>
 
 class EspNow
 {
 public:
-    EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp);
+    EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp, std::shared_ptr<IEspNow8266Adp> espNowAdp);
     ~EspNow() = default;
     EspNow(const EspNow &) = delete;
     EspNow(EspNow &&) = delete;
@@ -30,19 +30,13 @@ private:
     constexpr static std::array<uint8_t, 4> msgSignature{'T', 'H', 'D', 'T'};
 
     std::shared_ptr<IArduino8266Adp> m_arduinoAdp;
+    std::shared_ptr<IEspNow8266Adp> m_espNowAdp;
 
     bool m_paired{false};
     config::TransmitterConfig m_transmitterConfig{};
 
-    using OnSendCb = std::function<void(const MacAddr &mac, uint8_t status)>;
-    using OnRecvCb
-        = std::function<void(const MacAddr &mac, const uint8_t *incomingData, uint8_t len)>;
-
-    static OnSendCb m_onSend;  // NOLINT
-    static OnRecvCb m_onRecv;  // NOLINT
-
-    void onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len);
-    void onDataSend(const MacAddr &mac, uint8_t status);
+    IEspNow8266Adp::MsgHandleStatus onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len);
+    void onDataSend(const MacAddr &mac, IEspNow8266Adp::Status status);
     void setOnDataRecvCb();
     void setOnDataSendCb();
     void sendPairMsg();

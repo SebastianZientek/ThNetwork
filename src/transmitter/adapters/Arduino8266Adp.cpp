@@ -1,6 +1,7 @@
 #include "Arduino8266Adp.hpp"
 
 #include <Arduino.h>
+#include "pins_arduino.h"
 
 void Arduino8266Adp::pinMode(uint8_t pin, Mode mode)
 {
@@ -45,7 +46,7 @@ void Arduino8266Adp::digitalWrite(uint8_t pin, bool val)
 
 uint8_t Arduino8266Adp::getLedBuiltin()
 {
-    return 0;
+    return LED_BUILTIN;
 }
 
 unsigned long Arduino8266Adp::millis()
@@ -55,5 +56,5 @@ unsigned long Arduino8266Adp::millis()
 
 void Arduino8266Adp::delay(unsigned long milliseconds)
 {
-    return delay(milliseconds);
+    return ::delay(milliseconds);
 }

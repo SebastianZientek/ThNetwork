@@ -2,19 +2,18 @@
 
 #include <optional>
 
-#include "EspNowAdp.hpp"
 #include "WiFiAdp.hpp"
 #include "adapters/EspAdp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
+#include "transmitter/adapters/EspNow8266Adp.hpp"
 #include "utils.hpp"
 
-EspNow::OnSendCb EspNow::m_onSend;  // NOLINT
-EspNow::OnRecvCb EspNow::m_onRecv;  // NOLINT
-
-EspNow::EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp)
+EspNow::EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp,
+               std::shared_ptr<IEspNow8266Adp> espNowAdp)
     : m_arduinoAdp(arduinoAdp)
+    , m_espNowAdp(espNowAdp)
 {
 }
 
@@ -24,26 +23,26 @@ void EspNow::init(uint8_t channel)
     WiFiAdp::setChannel(channel);
     WiFiAdp::disconnect();
 
-    if (EspNowAdp::init() != 0)
+    if (m_espNowAdp->init() != IEspNow8266Adp::Status::OK)
     {
         logger::logInf("Error initializing ESP-NOW");
         return;
     }
 
-    EspNowAdp::setComboRole();
+    m_espNowAdp->setRole(IEspNow8266Adp::Role::COMBO);
 
     setOnDataRecvCb();
     setOnDataSendCb();
 }
 
-void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
+IEspNow8266Adp::MsgHandleStatus EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
 {
     auto msgAndSignature = serializer::partialDeserialize<MsgType, Signature>(incomingData, len);
 
     if (!msgAndSignature)
     {
         logger::logWrn("Can't deserialize received message");
-        return;
+        return IEspNow8266Adp::MsgHandleStatus::REJECTED;
     }
 
     auto [msgType, signature] = msgAndSignature.value();
@@ -51,13 +50,14 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     if (signature != signatureTemplate)
     {
         logger::logWrn("Received message with wrong signature");
-        return;
+        return IEspNow8266Adp::MsgHandleStatus::REJECTED;
     }
 
     switch (msgType)
     {
     case MsgType::PAIR_REQ:
         logger::logWrn("PAIR_REQ is unsupported by transmitter");
+        return IEspNow8266Adp::MsgHandleStatus::REJECTED;
         break;
     case MsgType::PAIR_RESP:
     {
@@ -79,17 +79,21 @@ void EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len
     break;
     case MsgType::SENSOR_DATA:
         logger::logWrn("SENSOR_DATA is unsupported by transmitter");
+        return IEspNow8266Adp::MsgHandleStatus::REJECTED;
         break;
     case MsgType::UNKNOWN:
         [[fallthrough]];
     default:
         logger::logWrn("Wrong message type");
+        return IEspNow8266Adp::MsgHandleStatus::REJECTED;
     }
+
+    return IEspNow8266Adp::MsgHandleStatus::ACCEPTED;
 }
 
-void EspNow::onDataSend(const MacAddr &mac, uint8_t status)
+void EspNow::onDataSend(const MacAddr &mac, IEspNow8266Adp::Status status)
 {
-    if (status == 0)
+    if (status == IEspNow8266Adp::Status::OK)
     {
         logger::logInf("Delivery success: %s", mac.str());
     }
@@ -101,35 +105,22 @@ void EspNow::onDataSend(const MacAddr &mac, uint8_t status)
 
 void EspNow::setOnDataRecvCb()
 {
-    m_onRecv = [this](const MacAddr &mac, const uint8_t *incomingData, uint8_t len)
+    auto onRecv = [this](MacAddr mac, const uint8_t *incomingData, int len)
     {
-        this->onDataRecv(mac, incomingData, len);
-    };
-    auto onDataRecv = [](uint8_t *rawMac, uint8_t *incomingData, uint8_t len)  // NOLINT
-    {
-        MacAddr macAddr{};
-        std::memcpy(macAddr.data(), rawMac, MacAddr::macAddrDigits);
-        m_onRecv(macAddr, incomingData, len);
+        return this->onDataRecv(mac, incomingData, len);
     };
 
-    EspNowAdp::registerRecvCB(onDataRecv);
+    m_espNowAdp->registerOnRecvCb(onRecv);
 }
 
 void EspNow::setOnDataSendCb()
 {
-    m_onSend = [this](const MacAddr &mac, uint8_t status)
+    auto onSend = [this](const MacAddr &mac, IEspNow8266Adp::Status status)
     {
         this->onDataSend(mac, status);
     };
 
-    auto onDataSend = [](uint8_t *rawMac, uint8_t status)
-    {
-        MacAddr macAddr{};
-        std::memcpy(macAddr.data(), rawMac, MacAddr::macAddrDigits);
-        m_onSend(macAddr, status);
-    };
-
-    EspNowAdp::registerSendCB(onDataSend);
+    m_espNowAdp->registerOnSendCb(onSend);
 }
 
 std::optional<config::TransmitterConfig> EspNow::pair()
@@ -144,7 +135,7 @@ std::optional<config::TransmitterConfig> EspNow::pair()
         logger::logInf("Pairing, try channel: %d", channel);
         WiFiAdp::setChannel(channel);
         sendPairMsg();
-        EspAdp::wait(timeout);
+        m_arduinoAdp->delay(timeout);
         EspAdp::feedWatchdog();
 
         if (m_paired)
@@ -164,9 +155,9 @@ void EspNow::sendDataToHost(std::size_t ID, MacAddr mac, float temperature, floa
     auto sDataMsg = SensorDataMsg::create(ID, temperature, humidity);
     auto buffer = sDataMsg.serialize();
 
-    if (auto errCode = EspNowAdp::send(mac.data(), buffer.data(), buffer.size()); errCode)
+    if (m_espNowAdp->sendData(mac, buffer.data(), buffer.size()) == IEspNow8266Adp::Status::FAIL)
     {
-        logger::logWrn("esp_now_send error, code: %d", errCode);
+        logger::logWrn("EspNowAdp send error");
     }
     m_arduinoAdp->delay(1);  // Give board time to invoke onDataSent callback
 }
@@ -183,10 +174,10 @@ void EspNow::sendPairMsg()
     pairReqMsg.ID = pairReqMsg.transmitterMacAddr.toUniqueID();
     auto buffer = pairReqMsg.serialize();
 
-    std::array<uint8_t, 6> broadcastAddr{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};  // NOLINT
-    if (auto errCode = EspNowAdp::send(broadcastAddr.data(), buffer.data(), buffer.size()); errCode)
+    MacAddr broadcastAddr{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}; // NOLINT
+    if (m_espNowAdp->sendData(broadcastAddr, buffer.data(), buffer.size()) == IEspNow8266Adp::Status::FAIL)
     {
-        logger::logErr("esp_now_send error, code: %d", errCode);
+        logger::logWrn("EspNowAdp send error");
     }
 }
 
