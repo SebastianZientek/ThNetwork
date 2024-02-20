@@ -1,10 +1,10 @@
 #include "App.hpp"
 
-
 #include "boardsettings.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "config.hpp"
+#include "pinout.hpp"
 #include "utils.hpp"
 
 void App::setup()
@@ -28,7 +28,7 @@ void App::setup()
     }
 
     m_espNow.init(m_currentConfiguration.channel);
-    m_sensor.init();
+    m_sensor.init(pinout::getSDA(), pinout::getSCL());
 
     if (digitalRead(boardsettings::pairButton) == LOW)
     {

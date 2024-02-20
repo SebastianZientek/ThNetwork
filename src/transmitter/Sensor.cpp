@@ -2,7 +2,6 @@
 
 #include <Adafruit_AHTX0.h>
 
-#include "PinsAdp.hpp"
 #include "common/logger.hpp"
 
 struct Sensor::Impl
@@ -11,16 +10,16 @@ struct Sensor::Impl
 };
 
 Sensor::Sensor(std::shared_ptr<IArduino8266Adp> arduinoAdp)
-    : m_arduinoAdp(arduinoAdp)
-    , m_impl{std::make_unique<Impl>()}
+    : m_impl{std::make_unique<Impl>()}
+    , m_arduinoAdp(arduinoAdp)
 {
 }
 
 Sensor::~Sensor() = default;
 
-void Sensor::init()
+void Sensor::init(int sda, int scl)
 {
-    m_arduinoAdp->setupWire(Pins::getSDA(), Pins::getSCL());
+    m_arduinoAdp->setupWire(sda, scl);
     if (m_impl->aht.begin())
     {
         logger::logInf("Found AHT20");

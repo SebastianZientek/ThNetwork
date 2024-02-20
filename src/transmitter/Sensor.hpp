@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <utility>
+
 #include "adapters/IArduino8266Adp.hpp"
 
 class Sensor
@@ -15,7 +16,7 @@ public:
     Sensor(const Sensor &&) = delete;
     Sensor &operator=(const Sensor &&) = delete;
 
-    void init();
+    void init(int sda, int scl);
     std::pair<float, float> getTempHum();
 
 private:
