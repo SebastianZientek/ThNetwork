@@ -2,8 +2,6 @@
 
 #include <optional>
 
-#include "WiFiAdp.hpp"
-#include "adapters/EspAdp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/Messages.hpp"
 #include "common/logger.hpp"
@@ -11,17 +9,21 @@
 #include "utils.hpp"
 
 EspNow::EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp,
+               std::shared_ptr<IWifi8266Adp> wifiAdp,
+               std::shared_ptr<IEsp8266Adp> espAdp,
                std::shared_ptr<IEspNow8266Adp> espNowAdp)
     : m_arduinoAdp(arduinoAdp)
+    , m_wifiAdp(wifiAdp)
+    , m_espAdp(espAdp)
     , m_espNowAdp(espNowAdp)
 {
 }
 
 void EspNow::init(uint8_t channel)
 {
-    WiFiAdp::setModeSta();
-    WiFiAdp::setChannel(channel);
-    WiFiAdp::disconnect();
+    m_wifiAdp->setModeSta();
+    m_wifiAdp->setChannel(channel);
+    m_wifiAdp->disconnect();
 
     if (m_espNowAdp->init() != IEspNow8266Adp::Status::OK)
     {
@@ -35,8 +37,11 @@ void EspNow::init(uint8_t channel)
     setOnDataSendCb();
 }
 
-IEspNow8266Adp::MsgHandleStatus EspNow::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, int len)
+IEspNow8266Adp::MsgHandleStatus EspNow::onDataRecv(const MacAddr &mac,
+                                                   const uint8_t *incomingData,
+                                                   int len)
 {
+    logger::logDbg("Received message");
     auto msgAndSignature = serializer::partialDeserialize<MsgType, Signature>(incomingData, len);
 
     if (!msgAndSignature)
@@ -67,7 +72,7 @@ IEspNow8266Adp::MsgHandleStatus EspNow::onDataRecv(const MacAddr &mac, const uin
         m_paired = true;
 
         auto myMac = MacAddr{};
-        WiFiAdp::macAddress(myMac.data());
+        m_wifiAdp->macAddress(myMac.data());
 
         m_transmitterConfig.sensorUpdatePeriodMins = pairRespMsg.updatePeriodMins;
         m_transmitterConfig.channel = pairRespMsg.channel;
@@ -133,10 +138,10 @@ std::optional<config::TransmitterConfig> EspNow::pair()
     for (int channel = 0; channel <= maxChannels; ++channel)
     {
         logger::logInf("Pairing, try channel: %d", channel);
-        WiFiAdp::setChannel(channel);
+        m_wifiAdp->setChannel(channel);
         sendPairMsg();
         m_arduinoAdp->delay(timeout);
-        EspAdp::feedWatchdog();
+        m_espAdp->feedWatchdog();
 
         if (m_paired)
         {
@@ -170,12 +175,13 @@ config::TransmitterConfig EspNow::getTransmitterConfig()
 void EspNow::sendPairMsg()
 {
     auto pairReqMsg = PairReqMsg::create();
-    WiFiAdp::macAddress(pairReqMsg.transmitterMacAddr.data());
+    m_wifiAdp->macAddress(pairReqMsg.transmitterMacAddr.data());
     pairReqMsg.ID = pairReqMsg.transmitterMacAddr.toUniqueID();
     auto buffer = pairReqMsg.serialize();
 
-    MacAddr broadcastAddr{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}; // NOLINT
-    if (m_espNowAdp->sendData(broadcastAddr, buffer.data(), buffer.size()) == IEspNow8266Adp::Status::FAIL)
+    MacAddr broadcastAddr{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};  // NOLINT
+    if (m_espNowAdp->sendData(broadcastAddr, buffer.data(), buffer.size())
+        == IEspNow8266Adp::Status::FAIL)
     {
         logger::logWrn("EspNowAdp send error");
     }

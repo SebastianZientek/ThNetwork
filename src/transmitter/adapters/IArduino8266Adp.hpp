@@ -30,4 +30,5 @@ public:
     virtual uint8_t getLedBuiltin() = 0;
     virtual unsigned long millis() = 0;
     virtual void delay(unsigned long milliseconds) = 0;
+    virtual void setupWire(int sda, int scl) = 0;
 };

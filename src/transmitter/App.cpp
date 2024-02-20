@@ -1,24 +1,23 @@
 #include "App.hpp"
 
-#include "adapters/EspAdp.hpp"
-#include "adapters/WiFiAdp.hpp"
 #include "boardsettings.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "config.hpp"
+#include "pinout.hpp"
 #include "utils.hpp"
 
 void App::setup()
 {
     logger::init();
-    logger::logInf(WiFiAdp::macAddress().c_str());
+    logger::logInf(m_wifiAdp->macAddress().c_str());
 
     pinMode(boardsettings::pairButton, INPUT_PULLUP);
     pinMode(LED_BUILTIN, OUTPUT);
 
     utils::switchOffLed(m_arduinoAdp);
 
-    if (EspAdp::isResetReasonDeepSleepAwake())
+    if (m_espAdp->isResetReasonDeepSleepAwake())
     {
         m_currentConfiguration = config::readFromRTC();
     }
@@ -29,7 +28,7 @@ void App::setup()
     }
 
     m_espNow.init(m_currentConfiguration.channel);
-    m_sensor.init();
+    m_sensor.init(pinout::getSDA(), pinout::getSCL());
 
     if (digitalRead(boardsettings::pairButton) == LOW)
     {

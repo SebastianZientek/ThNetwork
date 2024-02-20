@@ -49,4 +49,12 @@ public:
     {
         mock("Arduino8266Adp").actualCall("delay").withParameter("milliseconds", milliseconds);
     }
+
+    void setupWire(int sda, int scl) override
+    {
+        mock("Arduino8266Adp")
+            .actualCall("setupWire")
+            .withParameter("sda", sda)
+            .withParameter("scl", scl);
+    }
 };

@@ -1,6 +1,8 @@
 #include "Arduino8266Adp.hpp"
 
 #include <Arduino.h>
+#include <Wire.h>
+
 #include "pins_arduino.h"
 
 void Arduino8266Adp::pinMode(uint8_t pin, Mode mode)
@@ -57,4 +59,9 @@ unsigned long Arduino8266Adp::millis()
 void Arduino8266Adp::delay(unsigned long milliseconds)
 {
     return ::delay(milliseconds);
+}
+
+void Arduino8266Adp::setupWire(int sda, int scl)
+{
+    Wire.begin(sda, scl);
 }

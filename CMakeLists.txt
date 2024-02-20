@@ -31,7 +31,7 @@ set(INCLS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common
     ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/stubs
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter
 )
@@ -40,7 +40,7 @@ set(HOST_INCLS
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/stubs
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host
 )
 
@@ -74,9 +74,6 @@ set(TRANSMITTER_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/tests/TestEspNow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/tests/TestUtils.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/WifiAdpMock.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/mocks/EspAdpStub.cpp
 )
 
 buildTests(HostUTs "${HOST_TEST_SRCS}" "${HOST_INCLS}")

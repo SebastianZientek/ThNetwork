@@ -1,7 +1,6 @@
 #include <CppUTest/TestHarness.h>
 
-#include "FS.h"
-#include "FileSystemStub.hpp"
+#include "mocks/FileMock.hpp"
 #include "adapters/RaiiFile.hpp"
 
 // clang-format off
@@ -16,7 +15,7 @@ TEST_GROUP(RaiiFileTest)  // NOLINT
 
 TEST(RaiiFileTest, ShouldCloseFileAfterGoingOutOfTheScope)  // NOLINT
 {
-    mock().expectOneCall("File::close");
+    mock("File").expectOneCall("close");
     fs::File fileMock;
     RaiiFile someFile(fileMock);
 }
