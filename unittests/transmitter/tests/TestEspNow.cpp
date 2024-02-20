@@ -1,14 +1,35 @@
 #include <CppUTest/TestHarness.h>
 #include <CppUTestExt/MockSupport.h>
 
+#include <functional>
 #include <memory>
 
 #include "EspNow.hpp"
 #include "Messages.hpp"
 #include "mocks/Arduino8266AdpMock.hpp"
-#include "mocks/Wifi8266AdpMock.hpp"
 #include "mocks/Esp8266AdpMock.hpp"
 #include "mocks/EspNow8266AdpMock.hpp"
+#include "mocks/Wifi8266AdpMock.hpp"
+
+class Arduino8266AdpMockWithDelayCallback : public Arduino8266AdpMock
+{
+public:
+    void delay(unsigned long milliseconds) override
+    {
+        m_callback();
+        mock("Arduino8266Adp").actualCall("delay").withParameter("milliseconds", milliseconds);
+    }
+
+    void setDelayCallback(std::function<void()> callback)
+    {
+        m_callback = callback;
+    }
+
+private:
+    std::function<void()> m_callback = []
+    {
+    };
+};
 
 TEST_GROUP(TestEspNow)  // NOLINT
 {
@@ -113,23 +134,40 @@ TEST(TestEspNow, ShouldReturnNulloptIfCantPair)  // NOLINT
     CHECK_FALSE(espNow.pair());  // NOLINT
 }
 
-// TODO: NOT TESTABLE, NEEDS REDESIGN CLASS TO BE ABLE TO INJECT BETWEEN CALLS
-// TEST(TestEspNow, ShouldSetupAfterPairMsg)  // NOLINT
-// {
-//     EspNow espNow{arduinoAdp, wifiAdp, espAdp, espNowAdp};
-//     setInitMocks();
-//     espNow.init(0);
+TEST(TestEspNow, ShouldSetupAfterPairMsg)  // NOLINT
+{
+    auto arduinoAdpMock = std::make_shared<Arduino8266AdpMockWithDelayCallback>();
+    EspNow espNow{arduinoAdpMock, wifiAdp, espAdp, espNowAdp};
+    setInitMocks();
+    espNow.init(0);
 
-//     auto onWaitCb = EspAdp::createAndInjectOnWaitCb(
-//         [this, &espNow]
-//         {
-//             acceptPairRespMsg(espNow);
-//         });
-//     constexpr auto waitTime = 1000;
+    constexpr auto maxChannelNum = 12;
+    constexpr auto waitTime = 1000;
 
-//     mock().expectOneCall("WiFiAdp::setChannel").withParameter("channel", 0);
-//     mock().expectOneCall("EspNowAdp::send").andReturnValue(0);
-//     mock().ignoreOtherCalls();
+    arduinoAdpMock->setDelayCallback(
+        [this, channel = 0]() mutable
+        {
+            if (channel == 6)
+            {
+                MacAddr mac = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66};  // NOLINT
+                auto msg = PairRespMsg::create();
+                msg.channel = 6;
+                msg.hostMacAddr = mac;
+                msg.updatePeriodMins = 2;
+                auto serializedMsg = msg.serialize();
+                espNowAdp->testingCallOnRecv(mac, serializedMsg.data(), serializedMsg.size());
+            }
 
-//     CHECK_TRUE(espNow.pair());  // NOLINT
-// }
+            channel++;
+        });
+    for (int i = 0; i <= maxChannelNum; ++i)
+    {
+        mock("Wifi8266AdpMock").expectOneCall("setChannel").withParameter("channel", i);
+        mock().ignoreOtherCalls();
+    }
+
+    auto config = espNow.pair();
+
+    CHECK_TRUE(config);                      // NOLINT
+    CHECK_TRUE(config.value().channel = 6);  // NOLINT
+}
