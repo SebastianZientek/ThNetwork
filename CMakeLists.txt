@@ -25,16 +25,15 @@ function(buildTests suiteName srcs incls)
     target_link_options(${suiteName} PRIVATE -fsanitize=address)
 endfunction()
 
-set(COMMON_INCLS
+set(INCLS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/adapters
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common
-)
-
-set(COMMON_TEST_SRCS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestMacAddr.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestSerializer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/stubs
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter
 )
 
 set(HOST_INCLS
@@ -59,12 +58,12 @@ set(HOST_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestEspNowPairingManager.cpp
 )
 
-set(TRANSMITTER_INCLS
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/common
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/transmitter
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/stubs
-    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter
+set(COMMON_TEST_SRCS
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestMacAddr.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/common/TestSerializer.cpp
 )
 
 set(TRANSMITTER_TEST_SRCS
@@ -77,6 +76,33 @@ set(TRANSMITTER_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/transmitter/tests/TestUtils.cpp
 )
 
-buildTests(CommonUTs "${COMMON_TEST_SRCS}" "${COMMON_INCLS}")
 buildTests(HostUTs "${HOST_TEST_SRCS}" "${HOST_INCLS}")
-buildTests(TransmitterUTs "${TRANSMITTER_TEST_SRCS}" "${TRANSMITTER_INCLS}")
+buildTests(CommonUTs "${COMMON_TEST_SRCS}" "${INCLS}")
+buildTests(TransmitterUTs "${TRANSMITTER_TEST_SRCS}" "${INCLS}")
+
+# add_executable(UnitTests ${SRCS} ${MOCKS} ${TESTS})
+# target_include_directories(UnitTests PRIVATE ${INCLS})
+# target_compile_options(UnitTests PUBLIC -fsanitize=address -O0 -g)
+# target_link_libraries(UnitTests PRIVATE CppUTest::CppUTest CppUTest::CppUTestExt)
+# target_compile_features(UnitTests PRIVATE cxx_std_17)
+# target_compile_definitions(UnitTests PRIVATE UNIT_TESTS)
+# target_link_options(UnitTests PRIVATE -fsanitize=address)
+
+
+# # unit tests with coverage
+# add_executable(UnitTestsGcov ${SRCS} ${MOCKS} ${TESTS})
+# target_include_directories(UnitTestsGcov PRIVATE ${INCLS})
+# target_compile_options(UnitTestsGcov PUBLIC -fprofile-arcs -ftest-coverage -O0 -g)
+# target_link_libraries(UnitTestsGcov PRIVATE gcov CppUTest::CppUTest CppUTest::CppUTestExt)
+# target_compile_features(UnitTestsGcov PRIVATE cxx_std_17)
+# target_compile_definitions(UnitTestsGcov PRIVATE UNIT_TESTS)
+
+# add_custom_target(TestsGcovTarget
+#     COMMAND find . -name "*.gcda" -delete
+#     COMMAND lcov -i --exclude '/usr/*' --exclude '*unittests*' --exclude '*build*' -d ${CMAKE_BINARY_DIR} --capture --output-file coverage_initial.info --ignore-errors mismatch
+#     COMMAND $<TARGET_FILE:UnitTestsGcov>
+#     COMMAND lcov --exclude '/usr/*' --exclude '*unittests*' --exclude '*build*' -d ${CMAKE_BINARY_DIR} --capture --output-file coverage_test.info --ignore-errors mismatch
+#     COMMAND lcov -a coverage_initial.info -a coverage_test.info -o coverage.info
+#     COMMAND genhtml --function-coverage --branch-coverage coverage.info --output-directory coverage
+#     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+# )
