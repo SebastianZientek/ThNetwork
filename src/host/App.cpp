@@ -67,9 +67,6 @@ void App::init()
         };
 
         m_webPageMain->startServer(getSensorData);
-
-        // TODO: STUB, remove after implementation ready
-        m_confStorage->addSensor(2506682365, "Some sensor name");
     }
 
     logger::logInf("System initialized");

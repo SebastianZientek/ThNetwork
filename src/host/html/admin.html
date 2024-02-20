@@ -69,12 +69,6 @@
             word-break: normal;
         }
 
-        .sensors_tb .sensors_tb-0pky {
-            border-color: inherit;
-            text-align: left;
-            vertical-align: top
-        }
-
         .sensors_tb tr {
             border-bottom: 1px solid #93a1a1
         }
@@ -91,6 +85,11 @@
 
         .cred_button {
             float: right;
+        }
+
+        .submit_button {
+            margin-top: 10pt;
+            text-align: center;
         }
 
         .credentials label {
@@ -133,7 +132,6 @@
             var row = table.insertRow();
             var cellMac = row.insertCell(0);
             var cellName = row.insertCell(1);
-            var cellAction = row.insertCell(2);
 
             cellName.contentEditable = "true";
             row.id = mac;
@@ -141,6 +139,24 @@
             cellName.innerHTML = name;
 
             return row;
+        }
+
+        function sendSensorsMapping() {
+
+            let sensorsMapping = {};
+            let table = document.getElementById("sensorsTable");
+            for (let i = 1, row; row = table.rows[i]; i++) {
+                let id = row.cells[0].innerHTML;
+                let name = row.cells[1].innerHTML;
+                console.log(id, name);
+                sensorsMapping[id] = name;
+            }
+
+            fetch("/updateConfiguration", {
+                method: "POST",
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify(sensorsMapping)
+            });
         }
 
         window.addEventListener('load', function () {
@@ -171,16 +187,14 @@
         <h1>Configuration</h1>
         <hr>
         <table id="sensorsTable" class="sensors_tb">
-            <thead>
-                <tr>
-                    <th class="sensors_tb-0lax">Mac</th>
-                    <th class="sensors_tb-0lax">Name</th>
-                    <th class="sensors_tb-0lax">Action</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
+            <tr>
+                <th class="sensors_tb-0lax">Identifier</th>
+                <th class="sensors_tb-0lax">Name</th>
+            </tr>
         </table>
+        <div class="submit_button">
+            <button type="submit" onclick="sendSensorsMapping()">Submit</button>
+        </div>
     </div>
 
 </body>

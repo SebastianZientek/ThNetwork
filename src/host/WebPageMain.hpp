@@ -76,8 +76,28 @@ public:
         m_server->onPost("/setCredentials",
                          [this](IWebRequest &request)
                          {
+                             logger::logDbg("Set credentials");
                              for (auto [key, value] : request.getParams())
                              {
+                             }
+
+                             request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
+                         });
+
+        m_server->onPost("/updateConfiguration",
+                         [this](IWebRequest &request, std::string body)
+                         {
+                             logger::logDbg("Update configuration %s", body);
+                             auto sensorsMapping = nlohmann::json::parse(body);
+
+                             for (auto sensor : sensorsMapping.items())
+                             {
+                                 auto name = std::string(sensor.value());
+                                 auto id = std::stoull(sensor.key());
+
+                                //  logger::logDbg("id %u name %s", id, name);
+                                 m_confStorage->addSensor(id, name);
+                                 m_confStorage->save();
                              }
 
                              request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
