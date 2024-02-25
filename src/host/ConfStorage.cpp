@@ -104,8 +104,6 @@ void ConfStorage::setAdminCredentials(std::string user, std::string pass)
 {
     m_jsonData["admin"]["user"] = user;
     m_jsonData["admin"]["pass"] = pass;
-
-    logger::logDbg("setAdminCred: %s", m_jsonData.dump());
 }
 
 std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredentials()
