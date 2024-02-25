@@ -43,6 +43,7 @@ public:
         constexpr auto HTML_OK = 200;
         constexpr auto HTML_UNAUTH = 401;
         constexpr auto HTML_NOT_FOUND = 404;
+        constexpr auto HTML_INTERNAL_ERR = 500;
         constexpr auto RECONNECT_TIMEOUT = 10000;
 
         auto auth = [this](IWebRequest &request)
@@ -95,7 +96,7 @@ public:
                                  auto name = std::string(sensor.value());
                                  auto id = std::stoull(sensor.key());
 
-                                //  logger::logDbg("id %u name %s", id, name);
+                                 //  logger::logDbg("id %u name %s", id, name);
                                  m_confStorage->addSensor(id, name);
                                  m_confStorage->save();
                              }
@@ -103,10 +104,34 @@ public:
                              request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
                          });
 
+        m_server->onPost("/removeSensor",
+                         [this, auth](IWebRequest &request, std::string body)
+                         {
+                             if (!auth(request))
+                             {
+                                 request.send(HTML_UNAUTH);
+                             }
+
+                             else
+                             {
+                                 try
+                                 {
+                                     auto sensor = nlohmann::json::parse(body);
+                                     IDType sensorId = sensor["identifier"];
+                                     m_confStorage->removeSensor(sensorId);
+                                 }
+                                 catch (...)
+                                 {
+                                     request.send(HTML_INTERNAL_ERR);
+                                 }
+                                 request.send(HTML_OK);
+                             }
+                         });
+
         m_server->onGet("/logout",
                         [](IWebRequest &request)
                         {
-                            request.send(HTML_UNAUTH);
+                            request.redirect("/");
                         });
 
         m_server->onGet("/favicon.ico",
@@ -121,6 +146,12 @@ public:
                         {
                             request.send(HTML_OK, "application/javascript",
                                          m_resources->getMicroChart());
+                        });
+
+        m_server->onGet("/pico.min.css",
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "text/css", m_resources->getPicoCss());
                         });
 
         m_server->onGet("/sensorIDsToNames",
