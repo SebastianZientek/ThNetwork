@@ -41,6 +41,7 @@ public:
         m_getSensorDataCb = getSensorDataCb;
 
         constexpr auto HTML_OK = 200;
+        constexpr auto HTML_BAD_REQ = 400;
         constexpr auto HTML_UNAUTH = 401;
         constexpr auto HTML_NOT_FOUND = 404;
         constexpr auto HTML_INTERNAL_ERR = 500;
@@ -49,6 +50,7 @@ public:
         auto auth = [this](IWebRequest &request)
         {
             auto credentials = m_confStorage->getAdminCredentials();
+
             if (!credentials.has_value())
             {
                 return false;
@@ -75,17 +77,31 @@ public:
                         });
 
         m_server->onPost("/setCredentials",
-                         [this](IWebRequest &request)
+                         [this, auth](IWebRequest &request, std::string body)
                          {
-                             logger::logDbg("Set credentials");
-                             for (auto [key, value] : request.getParams())
+                             if (!auth(request))
                              {
+                                 return request.requestAuthentication();
                              }
+
+                             auto credentials = nlohmann::json::parse(body);
+                            request.send(HTML_BAD_REQ);
+                             if (credentials["password"] != credentials["re_password"]
+                                 || credentials["password"].empty()
+                                 || credentials["username"].empty())
+                             {
+                                 request.send(HTML_BAD_REQ);
+                                 return;
+                             }
+
+                             m_confStorage->setAdminCredentials(credentials["username"],
+                                                                credentials["password"]);
+                             m_confStorage->save();
 
                              request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
                          });
 
-        m_server->onPost("/updateConfiguration",
+        m_server->onPost("/updateSensorsMapping",
                          [this](IWebRequest &request, std::string body)
                          {
                              logger::logDbg("Update configuration %s", body);
@@ -129,9 +145,9 @@ public:
                          });
 
         m_server->onGet("/logout",
-                        [](IWebRequest &request)
+                        [this](IWebRequest &request)
                         {
-                            request.redirect("/");
+                            request.send(HTML_UNAUTH, "text/html", m_resources->getAdminHtml());
                         });
 
         m_server->onGet("/favicon.ico",
