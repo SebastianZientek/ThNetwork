@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "IEventSrcClient.hpp"
 #include "IWebRequest.hpp"
 
@@ -7,6 +9,7 @@ class IWebServer
 {
 public:
     using WebRequestClbk = std::function<void(IWebRequest &)>;
+    using WebRequestWithBodyClbk = std::function<void(IWebRequest &, std::string body)>;
     using EventClbk = std::function<void(IEventSrcClient &)>;
 
     IWebServer() = default;
@@ -21,6 +24,7 @@ public:
     virtual void stop() = 0;
     virtual void onGet(std::string url, WebRequestClbk clbk) = 0;
     virtual void onPost(std::string url, WebRequestClbk clbk) = 0;
+    virtual void onPost(std::string url, WebRequestWithBodyClbk clbk) = 0;
     virtual void setupEventsSource(const std::string &src, EventClbk onConnectClbk) = 0;
     virtual void sendEvent(const char *message,
                            const char *event,

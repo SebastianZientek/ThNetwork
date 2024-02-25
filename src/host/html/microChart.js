@@ -116,6 +116,10 @@ class MicroChart {
         let step = 0;
         for (const [sensor, payload] of Object.entries(data)) {
             const values = payload["values"];
+            if (values.length === 0) {
+                continue;
+            }
+
             const top = this.#topMargin + 10;
             const y = top + (15 * step)
 
@@ -139,9 +143,9 @@ class MicroChart {
     }
 
     #clearChart() {
-        this.#ctx.fillStyle = "#171a1e"
+        // this.#ctx.fillStyle = "#171a1e"
         this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
-        this.#ctx.fillRect(0, 0, this.#canvas.width, this.#canvas.height);
+        // this.#ctx.fillRect(0, 0, this.#canvas.width, this.#canvas.height);
     }
 
     #mapValueToTarget(value, srcMin, srcMax, tarMin, tarMax) {

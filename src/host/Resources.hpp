@@ -10,6 +10,7 @@ public:
     const char *getIndexHtml() override;
     const char *getAdminHtml() override;
     const char *getMicroChart() override;
+    const char *getPicoCss() override;
     const unsigned char *getFavicon() override;
     unsigned int getFaviconSize() override;
     const char *getWifiSettingsHtml() override;
