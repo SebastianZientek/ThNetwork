@@ -51,7 +51,7 @@ ConfStorage::State ConfStorage::save()
 void ConfStorage::setDefault()
 {
     m_jsonData["admin"]["user"] = "admin";
-    m_jsonData["admin"]["passwd"] = "passwd";
+    m_jsonData["admin"]["pass"] = "passwd";
     m_jsonData["sensors"] = {};
     m_jsonData["serverPort"] = defaultSrvPortNumber;
     m_jsonData["sensorUpdatePeriodMins"] = defaultSensorUpdateMins;
@@ -111,7 +111,7 @@ std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredenti
     try
     {
         auto admin = m_jsonData["admin"];
-        return std::make_pair(admin["user"], admin["passwd"]);
+        return std::make_pair(admin["user"], admin["pass"]);
     }
     catch (nlohmann::json::type_error err)
     {
