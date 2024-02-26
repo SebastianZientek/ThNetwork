@@ -85,7 +85,7 @@ public:
                              }
 
                              auto credentials = nlohmann::json::parse(body);
-                            request.send(HTML_BAD_REQ);
+                             request.send(HTML_BAD_REQ);
                              if (credentials["password"] != credentials["re_password"]
                                  || credentials["password"].empty()
                                  || credentials["username"].empty())
@@ -119,6 +119,38 @@ public:
                              request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
                          });
 
+        m_server->onPost(
+            "/setProperties",
+            [this, auth](IWebRequest &request, std::string body)
+            {
+                if (!auth(request))
+                {
+                    request.send(HTML_UNAUTH);
+                }
+                else
+                {
+                    try
+                    {
+                        auto configuration = nlohmann::json::parse(body);
+                        logger::logDbg("Properties: %s", configuration.dump());
+
+                        std::size_t sensorUpdatePeriodMins
+                            = configuration["sensorUpdatePeriodMins"];
+                        std::size_t serverPort = configuration["serverPort"];
+
+                        m_confStorage->setSensorUpdatePeriodMins(sensorUpdatePeriodMins);
+                        m_confStorage->setServerPort(serverPort);
+                        m_confStorage->save();
+                    }
+                    catch (...)
+                    {
+                        logger::logErr("Can't set properties");
+                        request.send(HTML_INTERNAL_ERR);
+                    }
+                    request.send(HTML_OK);
+                }
+            });
+
         m_server->onPost("/removeSensor",
                          [this, auth](IWebRequest &request, std::string body)
                          {
@@ -126,7 +158,6 @@ public:
                              {
                                  request.send(HTML_UNAUTH);
                              }
-
                              else
                              {
                                  try
@@ -134,6 +165,7 @@ public:
                                      auto sensor = nlohmann::json::parse(body);
                                      IDType sensorId = sensor["identifier"];
                                      m_confStorage->removeSensor(sensorId);
+                                     m_confStorage->save();
                                  }
                                  catch (...)
                                  {

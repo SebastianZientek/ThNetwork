@@ -27,6 +27,12 @@
                 for (const [mac, name] of Object.entries(sensors)) {
                     addSensorRow(mac, name);
                 }
+
+                const sensorUpdatePeriod = document.getElementById("sensor_update_time");
+                const serverPort = document.getElementById("server_port");
+                sensorUpdatePeriod.value = configuration.sensorUpdatePeriodMins;
+                serverPort.value = configuration.serverPort;
+
             }
             else if (response.status == 401) {
                 console.log("Unauthorized");
@@ -54,7 +60,6 @@
         }
 
         function addSensorRow(id, name) {
-            console.log("addSensorRow");
             var table = document.getElementById("sensorsTable");
             var row = table.insertRow();
             var cellIdentifier = row.insertCell(0);
@@ -145,8 +150,19 @@
         }
 
         function sendOtherProperties() {
-            const sensor_update_time = document.getElementById("sensor_update_time").value;
-            const server_port = document.getElementById("server_port").value;
+            const sensorUpdatePeriod = document.getElementById("sensor_update_time").value;
+            const serverPort = document.getElementById("server_port").value;
+
+            let properties = {
+                "sensorUpdatePeriodMins": Number(sensorUpdatePeriod),
+                "serverPort": Number(serverPort)
+            };
+
+            fetch("/setProperties", {
+                method: "POST",
+                headers: { "Content-type": "application/json" },
+                body: JSON.stringify(properties)
+            });
         }
 
         window.addEventListener('load', function () {
@@ -194,7 +210,8 @@
                     <form>
                         <fieldset>
                             <label>
-                                Sensor update period (minutes)
+                                Sensor update period (minutes)</br>
+                                <small>*requires pair sensor to update configuration</small>
                                 <input id="sensor_update_time" type="number" name="sensor_update_time"
                                     placeholder="Sensor update minutes" value="10" />
                             </label>

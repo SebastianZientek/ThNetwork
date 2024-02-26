@@ -14,6 +14,8 @@
 class WebServer : public IWebServer
 {
 public:
+    WebServer(uint16_t port = 80);
+
     void start() override;
     void stop() override;
     void onGet(std::string url, WebRequestClbk clbk) override;
@@ -26,6 +28,6 @@ public:
                    uint32_t reconnect = 0) override;
 
 private:
-    AsyncWebServer m_server{80};
+    AsyncWebServer m_server;
     std::unique_ptr<AsyncEventSource> m_events;
 };

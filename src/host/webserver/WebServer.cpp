@@ -1,5 +1,10 @@
 #include "WebServer.hpp"
 
+WebServer::WebServer(uint16_t port)
+    : m_server(port)
+{
+}
+
 void WebServer::start()
 {
     m_server.begin();
@@ -45,7 +50,8 @@ void WebServer::onPost(std::string url, WebRequestWithBodyClbk clbk)
            size_t len, bool final)
         {
         },
-        [clbk](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+        [clbk](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index,
+               size_t total)
         {
             auto req = WebRequest(request);
             auto body = std::string(data, data + len);

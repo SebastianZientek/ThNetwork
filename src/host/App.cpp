@@ -32,8 +32,6 @@ void App::init()
     m_espNow = std::make_unique<EspNowServer>(std::make_unique<EspNow32Adp>(), m_pairingManager,
                                               m_wifiAdp);
     m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
-    m_webPageMain = std::make_unique<WebPageMain>(m_arduinoAdp, std::make_unique<WebServer>(),
-                                                  std::make_unique<Resources>(), m_confStorage);
 
     if (auto initState = systemInit(); initState == State::FAIL)
     {
@@ -50,6 +48,10 @@ void App::init()
     }
     else
     {
+        m_webPageMain = std::make_unique<WebPageMain>(
+            m_arduinoAdp, std::make_unique<WebServer>(m_confStorage->getServerPort()),
+            std::make_unique<Resources>(), m_confStorage);
+
         auto newReadingCallback = [this](float temp, float hum, IDType identifier)
         {
             m_readingsStorage.addReading(identifier, temp, hum, m_timeClient->getEpochTime());
@@ -79,6 +81,26 @@ void App::update()
     {
         wifiModeStartTime = m_arduinoAdp->millis();
         wifiSettingsMode();
+    }
+
+    static decltype(m_arduinoAdp->millis()) resetStarted = 0;
+    if (isWifiButtonPressed())
+    {
+        if (resetStarted == 0)
+        {
+            resetStarted = m_arduinoAdp->millis();
+        }
+        else if (m_arduinoAdp->millis() - resetStarted > resetToFactorySettings)
+        {
+            logger::logWrn("Reset to factory settings!");
+            m_confStorage->setDefault();
+            m_confStorage->save();
+            m_espAdp->restart();
+        }
+    }
+    else
+    {
+        resetStarted = 0;
     }
 
     if (m_mode == Mode::WIFI_SETTINGS
