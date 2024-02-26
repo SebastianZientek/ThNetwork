@@ -50,11 +50,14 @@ ConfStorage::State ConfStorage::save()
 
 void ConfStorage::setDefault()
 {
-    m_jsonData["admin"]["user"] = "admin";
-    m_jsonData["admin"]["pass"] = "passwd";
-    m_jsonData["sensors"] = {};
-    m_jsonData["serverPort"] = defaultSrvPortNumber;
-    m_jsonData["sensorUpdatePeriodMins"] = defaultSensorUpdateMins;
+    auto defaultData = nlohmann::json();
+    defaultData["admin"]["user"] = "admin";
+    defaultData["admin"]["pass"] = "admin";
+    defaultData["sensors"] = {};
+    defaultData["serverPort"] = defaultSrvPortNumber;
+    defaultData["sensorUpdatePeriodMins"] = defaultSensorUpdateMins;
+
+    m_jsonData = defaultData;
 }
 
 void ConfStorage::setSensorUpdatePeriodMins(std::size_t minutes)

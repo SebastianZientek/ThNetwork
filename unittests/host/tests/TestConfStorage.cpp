@@ -57,7 +57,7 @@ TEST(ConfStorageTest, ShouldSaveDefaultConfiguration)
     auto file = std::make_unique<RaiiFileMock>();
 
     std::string expectedStringToSave
-        = R"({"admin":{"passwd":"passwd","user":"admin"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80})";
+        = R"({"admin":{"pass":"admin","user":"admin"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80})";
 
     mock("RaiiFileMock").expectOneCall("print").withParameter("str", expectedStringToSave.c_str());
     mock("FileSystem32AdpMock")
@@ -122,7 +122,7 @@ TEST(ConfStorageTest, ShouldSaveWifiConfiguration)
     auto file = std::make_unique<RaiiFileMock>();
 
     std::string expectedFileContent
-        = R"({"admin":{"passwd":"passwd","user":"admin"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80,"wifi":{"pass":"thing","ssid":"some"}})";
+        = R"({"admin":{"pass":"admin","user":"admin"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80,"wifi":{"pass":"thing","ssid":"some"}})";
     auto expectedWifiJsonContent = nlohmann::json::parse(expectedFileContent)["wifi"];
 
     mock("RaiiFileMock").expectOneCall("print").withParameter("str", expectedFileContent.c_str());
@@ -143,7 +143,7 @@ TEST(ConfStorageTest, ShouldParseFileAndReadAdminCredentials)
     ConfStorage confStorage(fileSystemMock, "/config.json");
     auto file = std::make_unique<RaiiFileMock>();
 
-    std::string fileContent = R"({"admin": {"passwd":"dark","user":"tranquillity"}})";
+    std::string fileContent = R"({"admin": {"pass":"dark","user":"tranquillity"}})";
     mock("RaiiFileMock").expectOneCall("readString").andReturnValue(fileContent.c_str());
     mock("FileSystem32AdpMock")
         .expectOneCall("open")
@@ -168,7 +168,7 @@ TEST(ConfStorageTest, ShouldSaveAdminCredentials)
     auto file = std::make_unique<RaiiFileMock>();
 
     std::string expectedFileContent
-        = R"({"admin":{"pass":"in","passwd":"passwd","user":"flames"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80})";
+        = R"({"admin":{"pass":"in","user":"flames"},"sensorUpdatePeriodMins":1,"sensors":null,"serverPort":80})";
 
     mock("RaiiFileMock").expectOneCall("print").withParameter("str", expectedFileContent.c_str());
     mock("FileSystem32AdpMock")
