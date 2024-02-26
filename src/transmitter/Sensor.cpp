@@ -22,11 +22,11 @@ void Sensor::init(int sda, int scl)
     m_arduinoAdp->setupWire(sda, scl);
     if (m_impl->aht.begin())
     {
-        logger::logInf("Found AHT20");
+        logger::logDbg("AHT20 connected");
     }
     else
     {
-        logger::logErr("Didn't find AHT20");
+        logger::logErr("AHT20 not found");
     }
 }
 

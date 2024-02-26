@@ -99,16 +99,14 @@
             dialog.close();
         }
 
-        async function sendCredentials(credentials)
-        {
+        async function sendCredentials(credentials) {
             let results = await fetch("/setCredentials", {
                 method: "POST",
                 headers: { "Content-type": "application/json" },
                 body: credentials
             });
 
-            if (results.status != 200)
-            {
+            if (results.status != 200) {
                 const errorLabel = document.getElementById("setCredError");
                 errorLabel.innerText = "Credentials not changed, unexpected internal server error.";
             }
@@ -116,26 +114,22 @@
             console.log(results);
         }
 
-        function sendAdminCredentials()
-        {
+        function sendAdminCredentials() {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
             const re_password = document.getElementById("re_password").value;
 
             const errorLabel = document.getElementById("setCredError");
 
-            if (username.length === 0)
-            {
+            if (username.length === 0) {
                 errorLabel.innerText = "Empty username";
                 return;
             }
-            else if(password.length === 0)
-            {
+            else if (password.length === 0) {
                 errorLabel.innerText = "Empty password";
                 return;
             }
-            else if (password !== re_password)
-            {
+            else if (password !== re_password) {
                 errorLabel.innerText = "Password not match";
                 return;
             }
@@ -146,13 +140,13 @@
                 "re_password": re_password,
             }
             errorLabel.innerText = "";
-            
+
             sendCredentials(JSON.stringify(credentials));
         }
 
-        function sendOtherProperties()
-        {
-
+        function sendOtherProperties() {
+            const sensor_update_time = document.getElementById("sensor_update_time").value;
+            const server_port = document.getElementById("server_port").value;
         }
 
         window.addEventListener('load', function () {
@@ -182,17 +176,18 @@
                 <article>
                     <header>Admin credentials</header>
                     <form>
-                        <input id="username" type="text" name="username" placeholder="User name" aria-label="User name" />
+                        <input id="username" type="text" name="username" placeholder="User name"
+                            aria-label="User name" />
                         <input id="password" type="password" name="new_password" placeholder="New password"
                             aria-label="New password" />
-                        <input id="re_password" type="password" name="retype_new_password" placeholder="Re-type new password"
-                            aria-label="New password" />
-                        </form>
-                        <p id="setCredError" style="color:red;"></p>
-                        <button onclick="sendAdminCredentials()">Apply</button>
+                        <input id="re_password" type="password" name="retype_new_password"
+                            placeholder="Re-type new password" aria-label="New password" />
+                    </form>
+                    <p id="setCredError" style="color:red;"></p>
+                    <button onclick="sendAdminCredentials()">Apply</button>
                 </article>
             </div>
-            
+
             <div>
                 <article>
                     <header>Other properties</header>
@@ -200,16 +195,17 @@
                         <fieldset>
                             <label>
                                 Sensor update period (minutes)
-                                <input type="number" name="sensor_update_time" placeholder="Sensor update minutes"
-                                    value="10" />
+                                <input id="sensor_update_time" type="number" name="sensor_update_time"
+                                    placeholder="Sensor update minutes" value="10" />
                             </label>
                             <label>
                                 Server port
-                                <input type="number" name="server_port" placeholder="Server port" value="80" />
+                                <input id="server_port" type="number" name="server_port" placeholder="Server port"
+                                    value="80" />
                             </label>
-                            <button onclick="sendOtherProperties()">Apply</button>
                         </fieldset>
                     </form>
+                    <button onclick="sendOtherProperties()">Apply</button>
                 </article>
             </div>
 

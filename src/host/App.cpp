@@ -40,7 +40,7 @@ void App::init()
         constexpr auto msInSecond = 1000;
         constexpr auto waitBeforeRebootSec = 5;
 
-        logger::logErr("System will be rebooted in %ds", waitBeforeRebootSec);
+        logger::logErr("System not initialized properly. Reboot in %ds", waitBeforeRebootSec);
         delay(waitBeforeRebootSec * msInSecond);
         m_espAdp->restart();
     }
@@ -127,7 +127,7 @@ App::State App::initConfig()
     auto state = m_confStorage->load();
     if (state == ConfStorage::State::FAIL)
     {
-        logger::logWrn("File not exists, using default values");
+        logger::logWrn("Configuration file not exists, using default values");
     }
 
     return State::OK;
@@ -167,7 +167,7 @@ App::State App::connectWiFi()
 
         if (wifiConnectionTries >= connectionRetriesBeforeRebootMs)
         {
-            logger::logErr("WiFi connection issue, reboot.");
+            logger::logWrn("WiFi connection issue, reboot.");
             delay(waitBeforeRebootMs);
             m_espAdp->restart();
         }
@@ -181,7 +181,7 @@ App::State App::connectWiFi()
 
 void App::wifiSettingsMode()
 {
-    logger::logInf("Wifi settings mode");
+    logger::logInf("Wifi configuration mode");
     m_ledIndicator->switchOn(true);
 
     m_mode = Mode::WIFI_SETTINGS;

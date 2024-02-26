@@ -32,7 +32,7 @@ public:
                    uint32_t reconnect = 0)
 
     {
-        logger::logInf("Send event %s, %lu", event, identifier);
+        logger::logDbg("Send event %s, %lu", event, identifier);
         m_server->sendEvent(message, event, identifier, reconnect);
     }
 
@@ -112,7 +112,6 @@ public:
                                  auto name = std::string(sensor.value());
                                  auto id = std::stoull(sensor.key());
 
-                                 //  logger::logDbg("id %u name %s", id, name);
                                  m_confStorage->addSensor(id, name);
                                  m_confStorage->save();
                              }
@@ -174,7 +173,7 @@ public:
                         [this](IWebRequest &request)
                         {
                             auto sensorsMappingJsonStr = m_confStorage->getSensorsMapping();
-                            logger::logInf("sensorIDsToNames %s", sensorsMappingJsonStr);
+                            logger::logDbg("sensorIDsToNames %s", sensorsMappingJsonStr);
                             request.send(HTML_OK, "application/json",
                                          sensorsMappingJsonStr.c_str());
                         });
@@ -212,10 +211,10 @@ public:
             "/events",
             [this](IEventSrcClient &client)
             {
-                logger::logInf("Client connected");
+                logger::logDbg("Client connected");
                 if (client.lastId() != 0)
                 {
-                    logger::logInf("Client reconnected, last ID: %u\n", client.lastId());
+                    logger::logDbg("Client reconnected, last ID: %u\n", client.lastId());
                 }
                 client.send("init", nullptr, m_arduinoAdp->millis(), RECONNECT_TIMEOUT);
             });
