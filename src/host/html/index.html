@@ -149,7 +149,7 @@
                 const reading = JSON.parse(e.data);
                 console.log(e.data);
 
-                let sensorName = "Unnamed";
+                let sensorName = "No name";
                 if (gSensorIDsToNames.hasOwnProperty(reading.identifier)) {
                     sensorName = gSensorIDsToNames[reading.identifier];
                 }

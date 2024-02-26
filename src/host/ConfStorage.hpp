@@ -32,7 +32,7 @@ public:
     std::string getConfigWithoutCredentials() override;
 
     bool isAvailableSpaceForNextSensor() override;
-    bool addSensor(IDType identifier, const std::string &name = "Unnamed") override;
+    bool addSensor(IDType identifier, const std::string &name = "") override;
     bool removeSensor(IDType identifier) override;
     std::string getSensorsMapping() override;
     bool isSensorMapped(IDType identifier) override;

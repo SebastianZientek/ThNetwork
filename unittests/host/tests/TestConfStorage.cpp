@@ -218,13 +218,13 @@ TEST(ConfStorageTest, ShouldReturnSensorsMapping)
     confStorage.addSensor(8, "Will not be added as there is no enough space");
 
     auto expected = nlohmann::json({
-        {"1", "Unnamed"},
+        {"1", "Unnamed 1"},
         {"2", "Aa"},
         {"3", "replaced"},
         {"4", "C name"},
-        {"5", "Unnamed"},
-        {"6", "Unnamed"},
-        {"7", "Unnamed"},
+        {"5", "Unnamed 2"},
+        {"6", "Unnamed 3"},
+        {"7", "Unnamed 4"},
     });
 
     auto sensorsMapping = confStorage.getSensorsMapping();
@@ -262,7 +262,7 @@ TEST(ConfStorageTest, ShouldNotRemoveSensorWithWrongIdentifier)
     CHECK_FALSE(isRemoved);
 
     auto expected = nlohmann::json({
-        {"1", "Unnamed"},
+        {"1", "Unnamed 1"},
         {"2", "Aa"},
     });
 

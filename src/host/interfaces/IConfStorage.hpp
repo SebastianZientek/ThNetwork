@@ -37,7 +37,7 @@ public:
     virtual std::optional<std::pair<std::string, std::string>> getAdminCredentials() = 0;
     virtual std::string getConfigWithoutCredentials() = 0;
     virtual bool isAvailableSpaceForNextSensor() = 0;
-    virtual bool addSensor(IDType identifier, const std::string &name = "Unnamed") = 0;
+    virtual bool addSensor(IDType identifier, const std::string &name = "") = 0;
     virtual bool removeSensor(IDType identifier) = 0;
     virtual std::string getSensorsMapping() = 0;
     virtual bool isSensorMapped(IDType identifier) = 0;
