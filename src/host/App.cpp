@@ -30,7 +30,7 @@ void App::init()
     m_pairingManager
         = std::make_unique<EspNowPairingManager>(m_confStorage, m_arduinoAdp, m_ledIndicator);
     m_espNow = std::make_unique<EspNowServer>(std::make_unique<EspNow32Adp>(), m_pairingManager,
-                                              m_wifiAdp);
+                                              m_wifiAdp, m_confStorage);
     m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
 
     if (auto initState = systemInit(); initState == State::FAIL)
@@ -60,7 +60,7 @@ void App::init()
             m_webPageMain->sendEvent(reading.c_str(), "newReading", m_arduinoAdp->millis());
         };
 
-        m_espNow->init(newReadingCallback, m_confStorage->getSensorUpdatePeriodMins());
+        m_espNow->init(newReadingCallback);
 
         auto getSensorData = [this](const std::size_t &identifier)
         {

@@ -15,17 +15,19 @@ class EspNowServer
 public:
     using NewReadingsCb = std::function<void(float temp, float hum, IDType identifier)>;
     using NewPeerCb = std::function<bool(IDType identifier)>;
+    using SensorUpdateCb = std::function<void(uint8_t sensorUpdatePeriodMins)>;
 
     EspNowServer(std::unique_ptr<IEspNow32Adp> espNowAdp,
                  std::shared_ptr<EspNowPairingManager> pairingManager,
-                 std::shared_ptr<IWifi32Adp> wifiAdp);
+                 std::shared_ptr<IWifi32Adp> wifiAdp,
+                 std::shared_ptr<IConfStorage> confStorage);
     ~EspNowServer() = default;
     EspNowServer(const EspNowServer &) = delete;
     EspNowServer(EspNowServer &&) = delete;
     EspNowServer &operator=(const EspNowServer &) = delete;
     EspNowServer &operator=(EspNowServer &&) = delete;
 
-    void init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriodMins);
+    void init(const NewReadingsCb &newReadingsCb);
     void deinit();
 
 private:
@@ -34,7 +36,7 @@ private:
     std::unique_ptr<IEspNow32Adp> m_espNowAdp;
     std::shared_ptr<EspNowPairingManager> m_pairingManager;
     std::shared_ptr<IWifi32Adp> m_wifiAdp;
-    uint8_t m_sensorUpdatePeriodMins;
+    std::shared_ptr<IConfStorage> m_confStorage;
     bool m_pairingEnabled = false;
 
     void onDataSend(const MacAddr &mac, IEspNow32Adp::Status status);
