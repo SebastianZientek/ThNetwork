@@ -12,7 +12,7 @@ ConfStorage::ConfStorage(std::shared_ptr<IFileSystem32Adp> fileSystem, const std
     , m_path(path)
 {
     setDefault();
-} 
+}
 
 ConfStorage::State ConfStorage::load()
 {
@@ -138,11 +138,35 @@ bool ConfStorage::isAvailableSpaceForNextSensor()
     return m_jsonData["sensors"].size() < maxSensorsNum;
 }
 
+bool nameExists(const nlohmann::json &data, const std::string &name)
+{
+    for (auto &sensor : data)
+    {
+        if (sensor == name) return true;
+    }
+
+    return false;
+}
+
 bool ConfStorage::addSensor(IDType identifier, const std::string &name)
 {
+    std::string newSensorName = name;
+    if (name == "")
+    {
+        for (size_t i = 0; i < maxSensorsNum; ++i)
+        {
+            std::string nameToSet = "Unnamed " + std::to_string(i + 1);
+            if (nameExists(m_jsonData["sensors"], nameToSet) == false)
+            {
+                newSensorName = nameToSet;
+                break;
+            }
+        }
+    }
+
     if (isAvailableSpaceForNextSensor())
     {
-        m_jsonData["sensors"][std::to_string(identifier)] = name;
+        m_jsonData["sensors"][std::to_string(identifier)] = newSensorName;
         return true;
     }
 
