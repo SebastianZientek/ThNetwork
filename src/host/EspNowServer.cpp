@@ -12,15 +12,16 @@ constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 
 
 EspNowServer::EspNowServer(std::unique_ptr<IEspNow32Adp> espNowAdp,
                            std::shared_ptr<EspNowPairingManager> pairingManager,
-                           std::shared_ptr<IWifi32Adp> wifiAdp)
+                           std::shared_ptr<IWifi32Adp> wifiAdp,
+                           std::shared_ptr<IConfStorage> confStorage)
     : m_espNowAdp(std::move(espNowAdp))
-    , m_sensorUpdatePeriodMins(1)
     , m_pairingManager(pairingManager)
     , m_wifiAdp(wifiAdp)
+    , m_confStorage(confStorage)
 {
 }
 
-void EspNowServer::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdatePeriodMins)
+void EspNowServer::init(const NewReadingsCb &newReadingsCb)
 {
     if (m_espNowAdp->init() == IEspNow32Adp::Status::FAIL)
     {
@@ -29,7 +30,6 @@ void EspNowServer::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdate
     }
 
     m_newReadingsCb = newReadingsCb;
-    m_sensorUpdatePeriodMins = sensorUpdatePeriodMins;
     setOnDataRecvCb();
     setOnDataSendCb();
 }
@@ -139,7 +139,7 @@ void EspNowServer::setOnDataRecvCb()
 void EspNowServer::sendPairOK(const MacAddr &mac) const
 {
     auto pairRespMsg = PairRespMsg::create(static_cast<uint8_t>(m_wifiAdp->getChannel()),
-                                           m_sensorUpdatePeriodMins);
+                                           m_confStorage->getSensorUpdatePeriodMins());
     pairRespMsg.hostMacAddr.addrData = m_wifiAdp->getSoftApMacAddr();
     auto buffer = pairRespMsg.serialize();
 
