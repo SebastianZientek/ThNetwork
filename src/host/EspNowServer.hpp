@@ -15,7 +15,6 @@ class EspNowServer
 public:
     using NewReadingsCb = std::function<void(float temp, float hum, IDType identifier)>;
     using NewPeerCb = std::function<bool(IDType identifier)>;
-    using SensorUpdateCb = std::function<void(uint8_t sensorUpdatePeriodMins)>;
 
     EspNowServer(std::unique_ptr<IEspNow32Adp> espNowAdp,
                  std::shared_ptr<EspNowPairingManager> pairingManager,
