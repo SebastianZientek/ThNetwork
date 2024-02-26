@@ -24,7 +24,7 @@ void EspNowServer::init(const NewReadingsCb &newReadingsCb, uint8_t sensorUpdate
 {
     if (m_espNowAdp->init() == IEspNow32Adp::Status::FAIL)
     {
-        logger::logErr("Init ESP NOW issue");
+        logger::logErr("Can't init Esp Now");
         return;
     }
 
@@ -56,7 +56,6 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
         std::string sigStr(signature.begin(), signature.end());
         std::string templateSigStr(signatureTemplate.begin(), signatureTemplate.end());
         logger::logWrn("Received message with wrong signature");
-        logger::logWrn("%s - %s", sigStr, templateSigStr);
         return;
     }
 
@@ -66,7 +65,7 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
     {
         if (m_pairingManager->isPairingEnabled())
         {
-            logger::logInf("PAIR_REQ received");
+            logger::logDbg("PAIR_REQ received");
             PairReqMsg pairReqMsg;
             pairReqMsg.deserialize(incomingData, len);
             m_pairingManager->addNewSensorToStorage(pairReqMsg.ID);
@@ -83,7 +82,7 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
     }
     break;
     case MsgType::PAIR_RESP:
-        logger::logWrn("Received PAIR_RESP, shouldn't be here.");
+        logger::logWrn("Host shouldn't receive pair resp.");
         break;
     case MsgType::SENSOR_DATA:
     {
@@ -107,14 +106,14 @@ void EspNowServer::onDataRecv(const MacAddr &mac, const uint8_t *incomingData, i
 
 void EspNowServer::onDataSend(const MacAddr &mac, IEspNow32Adp::Status status)
 {
-    logger::logInf("Last Packet Send Status: ");
+    logger::logDbg("Last Packet Send Status: ");
     if (status == IEspNow32Adp::Status::OK)
     {
-        logger::logInf("Delivery success: %s", mac.str());
+        logger::logDbg("Delivery success: %s", mac.str());
     }
     else
     {
-        logger::logWrn("Delivery fail");
+        logger::logDbg("Delivery fail");
     }
 }
 
@@ -148,6 +147,6 @@ void EspNowServer::sendPairOK(const MacAddr &mac) const
 
     if (state == IEspNow32Adp::Status::FAIL)
     {
-        logger::logWrn("EspNow32Adp send error");
+        logger::logWrn("Esp send msg error");
     }
 }

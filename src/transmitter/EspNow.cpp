@@ -27,7 +27,7 @@ void EspNow::init(uint8_t channel)
 
     if (m_espNowAdp->init() != IEspNow8266Adp::Status::OK)
     {
-        logger::logInf("Error initializing ESP-NOW");
+        logger::logErr("Can't initialize esp-now");
         return;
     }
 
@@ -100,11 +100,11 @@ void EspNow::onDataSend(const MacAddr &mac, IEspNow8266Adp::Status status)
 {
     if (status == IEspNow8266Adp::Status::OK)
     {
-        logger::logInf("Delivery success: %s", mac.str());
+        logger::logDbg("Delivery success: %s", mac.str());
     }
     else
     {
-        logger::logWrn("Delivery fail");
+        logger::logDbg("Delivery fail");
     }
 }
 
@@ -137,7 +137,7 @@ std::optional<config::TransmitterConfig> EspNow::pair()
 
     for (int channel = 0; channel <= maxChannels; ++channel)
     {
-        logger::logInf("Pairing, try channel: %d", channel);
+        logger::logDbg("Pairing, try channel: %d", channel);
         m_wifiAdp->setChannel(channel);
         sendPairMsg();
         m_arduinoAdp->delay(timeout);
@@ -155,14 +155,14 @@ std::optional<config::TransmitterConfig> EspNow::pair()
 
 void EspNow::sendDataToHost(std::size_t ID, MacAddr mac, float temperature, float humidity)
 {
-    logger::logInf("Send data to %s", mac.str());
+    logger::logDbg("Send data to %s", mac.str());
 
     auto sDataMsg = SensorDataMsg::create(ID, temperature, humidity);
     auto buffer = sDataMsg.serialize();
 
     if (m_espNowAdp->sendData(mac, buffer.data(), buffer.size()) == IEspNow8266Adp::Status::FAIL)
     {
-        logger::logWrn("EspNowAdp send error");
+        logger::logWrn("EspNowAdp message send error");
     }
     m_arduinoAdp->delay(1);  // Give board time to invoke onDataSent callback
 }
@@ -183,7 +183,7 @@ void EspNow::sendPairMsg()
     if (m_espNowAdp->sendData(broadcastAddr, buffer.data(), buffer.size())
         == IEspNow8266Adp::Status::FAIL)
     {
-        logger::logWrn("EspNowAdp send error");
+        logger::logWrn("EspNowAdp send message error");
     }
 }
 

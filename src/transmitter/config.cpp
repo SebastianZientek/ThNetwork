@@ -18,7 +18,7 @@ void saveToEEPROM(TransmitterConfig configuration)
     EEPROM.put(0, configuration);
     EEPROM.commit();
     EEPROM.end();
-    logger::logInf("Saved to EEPROM");
+    logger::logDbg("Saved to EEPROM");
 }
 
 TransmitterConfig readFromEEPROM()
@@ -30,7 +30,7 @@ TransmitterConfig readFromEEPROM()
     EEPROM.commit();
     EEPROM.end();
     delay(EEPROMInitTime);
-    logger::logInf("Loaded from EEPROM");
+    logger::logDbg("Loaded from EEPROM");
 
     return configuration;
 }
@@ -39,11 +39,11 @@ void saveToRTC(TransmitterConfig configuration)
 {
     if (system_rtc_mem_write(RTCMemAddr, &configuration, sizeof(configuration)))
     {
-        logger::logInf("Saved to RTC %d bytes", sizeof(configuration));
+        logger::logDbg("Saved to RTC %d bytes", sizeof(configuration));
     }
     else
     {
-        logger::logErr("Saving to RTC failed!");
+        logger::logDbg("Saving to RTC failed!");
     }
 }
 
@@ -52,7 +52,7 @@ TransmitterConfig readFromRTC()
     TransmitterConfig configuration;
     if (system_rtc_mem_read(RTCMemAddr, &configuration, sizeof(configuration)))
     {
-        logger::logInf("Loaded from RTC %d bytes", sizeof(configuration));
+        logger::logDbg("Loaded from RTC %d bytes", sizeof(configuration));
     }
     else
     {

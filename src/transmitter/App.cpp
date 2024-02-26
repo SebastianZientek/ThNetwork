@@ -10,7 +10,7 @@
 void App::setup()
 {
     logger::init();
-    logger::logInf(m_wifiAdp->macAddress().c_str());
+    logger::logInf("Mac address: %s", m_wifiAdp->macAddress().c_str());
 
     pinMode(boardsettings::pairButton, INPUT_PULLUP);
     pinMode(LED_BUILTIN, OUTPUT);
@@ -51,9 +51,6 @@ void App::setup()
 
 void App::loop()
 {
-    logger::logInf("Current config mac: %s, ch: %d", m_currentConfiguration.targetMac.str(),
-                   m_currentConfiguration.channel);
-
     auto [temp, hum] = m_sensor.getTempHum();
     logger::logInf("Temp: %f, hum: %f", temp, hum);
     m_espNow.sendDataToHost(m_currentConfiguration.ID, m_currentConfiguration.targetMac, temp, hum);
