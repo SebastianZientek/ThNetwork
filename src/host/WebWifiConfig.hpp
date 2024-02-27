@@ -41,6 +41,12 @@ public:
                             request.send(HTML_OK, "text/html", m_resources->getWifiSettingsHtml());
                         });
 
+        m_server->onGet("/pico.min.css",
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "text/css", m_resources->getPicoCss());
+                        });
+
         m_server->onPost("/setWifi",
                          [this](IWebRequest &request)
                          {

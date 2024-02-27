@@ -14,6 +14,13 @@ class WebPageMain
 {
     using GetSensorDataCb = std::function<std::string(const std::size_t &)>;
 
+    constexpr static auto HTML_OK = 200;
+    constexpr static auto HTML_BAD_REQ = 400;
+    constexpr static auto HTML_UNAUTH = 401;
+    constexpr static auto HTML_NOT_FOUND = 404;
+    constexpr static auto HTML_INTERNAL_ERR = 500;
+    constexpr static auto RECONNECT_TIMEOUT = 10000;
+
 public:
     WebPageMain(std::shared_ptr<IArduino32Adp> arduinoAdp,
                 std::unique_ptr<IWebServer> webServer,
@@ -36,30 +43,8 @@ public:
         m_server->sendEvent(message, event, identifier, reconnect);
     }
 
-    void startServer(const GetSensorDataCb &getSensorDataCb)
+    void setupResources()
     {
-        m_getSensorDataCb = getSensorDataCb;
-
-        constexpr auto HTML_OK = 200;
-        constexpr auto HTML_BAD_REQ = 400;
-        constexpr auto HTML_UNAUTH = 401;
-        constexpr auto HTML_NOT_FOUND = 404;
-        constexpr auto HTML_INTERNAL_ERR = 500;
-        constexpr auto RECONNECT_TIMEOUT = 10000;
-
-        auto auth = [this](IWebRequest &request)
-        {
-            auto credentials = m_confStorage->getAdminCredentials();
-
-            if (!credentials.has_value())
-            {
-                return false;
-            }
-
-            auto [user, passwd] = credentials.value();
-            return request.authenticate(user.c_str(), passwd.c_str());
-        };
-
         m_server->onGet("/",
                         [this](IWebRequest &request)
                         {
@@ -67,7 +52,7 @@ public:
                         });
 
         m_server->onGet("/admin",
-                        [this, auth](IWebRequest &request)
+                        [this](IWebRequest &request)
                         {
                             if (!auth(request))
                             {
@@ -76,8 +61,45 @@ public:
                             request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
                         });
 
+        m_server->onGet("/favicon.ico",
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "image/png", m_resources->getFavicon(),
+                                         m_resources->getFaviconSize());
+                        });
+
+        m_server->onGet("/microChart.js",
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "application/javascript",
+                                         m_resources->getMicroChart());
+                        });
+
+        m_server->onGet("/admin.js",
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "application/javascript",
+                                         m_resources->getAdminJs());
+                        });
+
+        m_server->onGet("/charts.js",
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "application/javascript",
+                                         m_resources->getChartsJs());
+                        });
+
+        m_server->onGet("/pico.min.css",
+                        [this](IWebRequest &request)
+                        {
+                            request.send(HTML_OK, "text/css", m_resources->getPicoCss());
+                        });
+    }
+
+    void setupActions()
+    {
         m_server->onPost("/setCredentials",
-                         [this, auth](IWebRequest &request, std::string body)
+                         [this](IWebRequest &request, std::string body)
                          {
                              if (!auth(request))
                              {
@@ -85,7 +107,6 @@ public:
                              }
 
                              auto credentials = nlohmann::json::parse(body);
-                             request.send(HTML_BAD_REQ);
                              if (credentials["password"] != credentials["re_password"]
                                  || credentials["password"].empty()
                                  || credentials["username"].empty())
@@ -121,7 +142,7 @@ public:
 
         m_server->onPost(
             "/setProperties",
-            [this, auth](IWebRequest &request, std::string body)
+            [this](IWebRequest &request, std::string body)
             {
                 if (!auth(request))
                 {
@@ -152,7 +173,7 @@ public:
             });
 
         m_server->onPost("/removeSensor",
-                         [this, auth](IWebRequest &request, std::string body)
+                         [this](IWebRequest &request, std::string body)
                          {
                              if (!auth(request))
                              {
@@ -181,26 +202,6 @@ public:
                             request.send(HTML_UNAUTH, "text/html", m_resources->getAdminHtml());
                         });
 
-        m_server->onGet("/favicon.ico",
-                        [this](IWebRequest &request)
-                        {
-                            request.send(HTML_OK, "image/png", m_resources->getFavicon(),
-                                         m_resources->getFaviconSize());
-                        });
-
-        m_server->onGet("/microChart.js",
-                        [this](IWebRequest &request)
-                        {
-                            request.send(HTML_OK, "application/javascript",
-                                         m_resources->getMicroChart());
-                        });
-
-        m_server->onGet("/pico.min.css",
-                        [this](IWebRequest &request)
-                        {
-                            request.send(HTML_OK, "text/css", m_resources->getPicoCss());
-                        });
-
         m_server->onGet("/sensorIDsToNames",
                         [this](IWebRequest &request)
                         {
@@ -211,7 +212,7 @@ public:
                         });
 
         m_server->onGet("/configuration",
-                        [this, auth](IWebRequest &request)
+                        [this](IWebRequest &request)
                         {
                             if (!auth(request))
                             {
@@ -238,6 +239,14 @@ public:
                                 request.send(HTML_NOT_FOUND);
                             }
                         });
+    }
+
+    void startServer(const GetSensorDataCb &getSensorDataCb)
+    {
+        m_getSensorDataCb = getSensorDataCb;
+
+        setupResources();
+        setupActions();
 
         m_server->setupEventsSource(
             "/events",
@@ -266,4 +275,17 @@ private:
     std::shared_ptr<IConfStorage> m_confStorage;
 
     GetSensorDataCb m_getSensorDataCb;
+
+    bool auth(IWebRequest &request)
+    {
+        auto credentials = m_confStorage->getAdminCredentials();
+
+        if (!credentials.has_value())
+        {
+            return false;
+        }
+
+        auto [user, passwd] = credentials.value();
+        return request.authenticate(user.c_str(), passwd.c_str());
+    };
 };
