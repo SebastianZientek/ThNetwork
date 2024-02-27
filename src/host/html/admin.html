@@ -9,167 +9,7 @@
     <meta name="description" content="A pure HTML example, without dependencies." />
 
     <link rel="stylesheet" href="pico.min.css" />
-    <script>
-        function logout() {
-            var xhr = new XMLHttpRequest();
-            xhr.open("GET", "/logout", true);
-            xhr.send();
-            setTimeout(function () { window.open("/", "_self"); }, 1000);
-        }
-
-        async function fetchConfiguration() {
-            const response = await fetch("configuration");
-            if (response.status == 200) {
-                const configuration = await response.json();
-                console.log(configuration, configuration.sensors);
-
-                const sensors = configuration.sensors;
-                for (const [mac, name] of Object.entries(sensors)) {
-                    addSensorRow(mac, name);
-                }
-
-                const sensorUpdatePeriod = document.getElementById("sensor_update_time");
-                const serverPort = document.getElementById("server_port");
-                sensorUpdatePeriod.value = configuration.sensorUpdatePeriodMins;
-                serverPort.value = configuration.serverPort;
-
-            }
-            else if (response.status == 401) {
-                console.log("Unauthorized");
-            }
-        }
-
-        function sendSensorRemovalReq(id) {
-            console.log("will be removed: ", id);
-
-            fetch("/removeSensor", {
-                method: "POST",
-                headers: { "Content-type": "application/json" },
-                body: JSON.stringify({ "identifier": id })
-            });
-
-            location.reload();
-        }
-
-        function removeSensorAction(id) {
-            const dialog = document.getElementById("removeSensorDialog");
-            dialog.showModal();
-
-            const btnConfirmSensorRemoval = document.getElementById("btnConfirmSensorRemoval");
-            btnConfirmSensorRemoval.onclick = function () { dialog.close(); sendSensorRemovalReq(id); };
-        }
-
-        function addSensorRow(id, name) {
-            var table = document.getElementById("sensorsTable");
-            var row = table.insertRow();
-            var cellIdentifier = row.insertCell(0);
-            var cellName = row.insertCell(1);
-            var cellAction = row.insertCell(2);
-
-            cellName.contentEditable = "true";
-            cellName.addEventListener('keydown', (evt) => {
-                if (evt.keyCode === 13) {
-                    evt.preventDefault();
-                }
-            });
-
-            row.id = id;
-            cellIdentifier.innerHTML = id;
-            cellName.innerHTML = name;
-            cellAction.innerHTML = "<a href='#' onclick='removeSensorAction(" + id + ")'>Remove</a>";
-
-            return row;
-        }
-
-        function sendSensorsMapping() {
-
-            let sensorsMapping = {};
-            let table = document.getElementById("sensorsTable");
-            for (let i = 1, row; row = table.rows[i]; i++) {
-                let id = row.cells[0].innerText;
-                let name = row.cells[1].innerText.replace(/(\r\n|\n|\r)/gm, "");
-                console.log(id, name);
-                sensorsMapping[id] = name;
-            }
-
-            fetch("/updateSensorsMapping", {
-                method: "POST",
-                headers: { "Content-type": "application/json" },
-                body: JSON.stringify(sensorsMapping)
-            });
-        }
-
-        function closeModal(modal) {
-            const dialog = document.getElementById(modal);
-            dialog.close();
-        }
-
-        async function sendCredentials(credentials) {
-            let results = await fetch("/setCredentials", {
-                method: "POST",
-                headers: { "Content-type": "application/json" },
-                body: credentials
-            });
-
-            if (results.status != 200) {
-                const errorLabel = document.getElementById("setCredError");
-                errorLabel.innerText = "Credentials not changed, unexpected internal server error.";
-            }
-
-            console.log(results);
-        }
-
-        function sendAdminCredentials() {
-            const username = document.getElementById("username").value;
-            const password = document.getElementById("password").value;
-            const re_password = document.getElementById("re_password").value;
-
-            const errorLabel = document.getElementById("setCredError");
-
-            if (username.length === 0) {
-                errorLabel.innerText = "Empty username";
-                return;
-            }
-            else if (password.length === 0) {
-                errorLabel.innerText = "Empty password";
-                return;
-            }
-            else if (password !== re_password) {
-                errorLabel.innerText = "Password not match";
-                return;
-            }
-
-            let credentials = {
-                "username": username,
-                "password": password,
-                "re_password": re_password,
-            }
-            errorLabel.innerText = "";
-
-            sendCredentials(JSON.stringify(credentials));
-        }
-
-        function sendOtherProperties() {
-            const sensorUpdatePeriod = document.getElementById("sensor_update_time").value;
-            const serverPort = document.getElementById("server_port").value;
-
-            let properties = {
-                "sensorUpdatePeriodMins": Number(sensorUpdatePeriod),
-                "serverPort": Number(serverPort)
-            };
-
-            fetch("/setProperties", {
-                method: "POST",
-                headers: { "Content-type": "application/json" },
-                body: JSON.stringify(properties)
-            });
-        }
-
-        window.addEventListener('load', function () {
-            fetchConfiguration();
-        })
-
-    </script>
+    <script type="text/javascript" src="admin.js"> </script>
 </head>
 
 <body>
@@ -199,7 +39,6 @@
                         <input id="re_password" type="password" name="retype_new_password"
                             placeholder="Re-type new password" aria-label="New password" />
                     </form>
-                    <p id="setCredError" style="color:red;"></p>
                     <button onclick="sendAdminCredentials()">Apply</button>
                 </article>
             </div>
@@ -258,6 +97,18 @@
                     Cancel</button><button autofocus id="btnConfirmSensorRemoval">
                     Confirm
                 </button>
+            </footer>
+        </article>
+    </dialog>
+
+    <dialog id="infoModal">
+        <article>
+            <header>
+                <h3>Sending data</h3>
+            </header>
+            <p id="infoModalText"></p>
+            <footer>
+                <button autofocus id="btnConfirmSensorRemoval" onclick="closeModal('infoModal')">Ok</button>
             </footer>
         </article>
     </dialog>

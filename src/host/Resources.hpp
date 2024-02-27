@@ -11,6 +11,8 @@ public:
     const char *getAdminHtml() override;
     const char *getMicroChart() override;
     const char *getPicoCss() override;
+    const char *getAdminJs() override;
+    const char *getChartsJs() override;
     const unsigned char *getFavicon() override;
     unsigned int getFaviconSize() override;
     const char *getWifiSettingsHtml() override;
