@@ -11,15 +11,14 @@ async function fetchConfiguration() {
         const configuration = await response.json();
         const sensors = configuration.sensors;
 
-        for (const [mac, name] of Object.entries(sensors)) {
-            addSensorRow(mac, name);
+        for (const [identifier, name] of Object.entries(sensors)) {
+            insertSensorToTable(identifier, name);
         }
 
-        const sensorUpdatePeriod = document.getElementById("sensor_update_time");
-        const serverPort = document.getElementById("server_port");
+        const sensorUpdatePeriod = document.getElementById("sensorUpdatePeriod");
+        const serverPort = document.getElementById("serverPort");
         sensorUpdatePeriod.value = configuration.sensorUpdatePeriodMins;
         serverPort.value = configuration.serverPort;
-
     }
     else if (response.status == 401) {
         console.log("Unauthorized");
@@ -39,29 +38,31 @@ function sendSensorRemovalReq(id) {
 }
 
 function removeSensorAction(id) {
-    const dialog = document.getElementById("removeSensorDialog");
-    dialog.showModal();
+    const removeSensorDialog = document.getElementById("removeSensorDialog");
+    removeSensorDialog.showModal();
 
     const btnConfirmSensorRemoval = document.getElementById("btnConfirmSensorRemoval");
-    btnConfirmSensorRemoval.onclick = function () { dialog.close(); sendSensorRemovalReq(id); };
+    btnConfirmSensorRemoval.onclick = function () {
+        removeSensorDialog.close(); sendSensorRemovalReq(id);
+    };
 }
 
-function closeModal(modal) {
-    const dialog = document.getElementById(modal);
+function closeModal(modalName) {
+    const dialog = document.getElementById(modalName);
     dialog.close();
 }
 
-function showInfoModal(info) {
+function showInfoModal(text) {
     const dialog = document.getElementById("infoModal");
-    let text = document.getElementById("infoModalText");
-    text.innerText = info;
+    let infoModalText = document.getElementById("infoModalText");
+    infoModalText.innerText = text;
 
     dialog.showModal();
 }
 
-function addSensorRow(id, name) {
-    var table = document.getElementById("sensorsTable");
-    var row = table.insertRow();
+function insertSensorToTable(id, name) {
+    var sensorsTable = document.getElementById("sensorsTable");
+    var row = sensorsTable.insertRow();
     var cellIdentifier = row.insertCell(0);
     var cellName = row.insertCell(1);
     var cellAction = row.insertCell(2);
@@ -102,7 +103,6 @@ function sendSensorsMapping() {
         }
     }
 
-
     let sensorsMapping = {};
     let table = document.getElementById("sensorsTable");
     for (let i = 1, row; row = table.rows[i]; i++) {
@@ -118,14 +118,17 @@ function sendSensorsMapping() {
 function sendAdminCredentials() {
     async function send(credentials) {
         try {
-
             let results = await fetch("/setCredentials", {
                 method: "POST",
                 headers: { "Content-type": "application/json" },
                 body: credentials
             });
 
-            if (results.status != 200) {
+            if (results.status == 200) {
+                showInfoModal("Credentials updated");
+            }
+            else
+            {
                 showInfoModal("Credentials not changed, unexpected internal server error");
             }
         }
@@ -136,7 +139,7 @@ function sendAdminCredentials() {
 
     const username = document.getElementById("username").value;
     const password = document.getElementById("password").value;
-    const re_password = document.getElementById("re_password").value;
+    const rePassword = document.getElementById("rePassword").value;
 
     if (username.length === 0) {
         showInfoModal("Empty username");
@@ -146,7 +149,7 @@ function sendAdminCredentials() {
         showInfoModal("Empty password");
         return;
     }
-    else if (password !== re_password) {
+    else if (password !== rePassword) {
         showInfoModal("Password not match");
         return;
     }
@@ -154,9 +157,8 @@ function sendAdminCredentials() {
     let credentials = {
         "username": username,
         "password": password,
-        "re_password": re_password,
+        "rePassword": rePassword,
     }
-    errorLabel.innerText = "";
 
     send(JSON.stringify(credentials));
 }
@@ -182,8 +184,8 @@ function sendOtherProperties() {
         }
     }
 
-    const sensorUpdatePeriod = document.getElementById("sensor_update_time").value;
-    const serverPort = document.getElementById("server_port").value;
+    const sensorUpdatePeriod = document.getElementById("sensorUpdatePeriod").value;
+    const serverPort = document.getElementById("serverPort").value;
 
     let properties = {
         "sensorUpdatePeriodMins": Number(sensorUpdatePeriod),

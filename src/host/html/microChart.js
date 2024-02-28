@@ -56,7 +56,7 @@ class MicroChart {
 
         for (const [sensor, payload] of Object.entries(data)) {
             const values = payload["values"];
-            this.#plotData(values, xRange, yRange, yValuesIndex, this.#toRGB(sensor));
+            this.#plotData(values, xRange, yRange, yValuesIndex, this.#toColor(sensor));
         }
 
         this.#drawLegendY(yRange);
@@ -79,7 +79,7 @@ class MicroChart {
         return { "min": Math.min(...mins), "max": Math.max(...maxes) };
     }
 
-    #toRGB(val) {
+    #toColor(val) {
         let hash = [...val.toString()].reduce((acc, char) => {
             return char.charCodeAt(0) + ((acc << 5) - acc);
         }, 0);
@@ -120,7 +120,7 @@ class MicroChart {
             let lastVal = values[values.length - 1][valuesIndex];
             let text = "[" + lastVal.toFixed(1) + "] " + sensorName;
 
-            this.#ctx.fillStyle = this.#toRGB(sensor);
+            this.#ctx.fillStyle = this.#toColor(sensor);
             this.#ctx.fillRect(this.#right + 10, y - 5, 10, 10);
             this.#drawText(text, this.#right + 25, y, this.legendTxtColor, "left")
             step++;
@@ -132,9 +132,7 @@ class MicroChart {
     }
 
     #clearChart() {
-        // this.#ctx.fillStyle = "#171a1e"
         this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
-        // this.#ctx.fillRect(0, 0, this.#canvas.width, this.#canvas.height);
     }
 
     #mapValueToTarget(value, srcMin, srcMax, tarMin, tarMax) {
@@ -271,7 +269,8 @@ class MicroChart {
     #drawLegendX(xRange) {
         const minPixelsPerTimestamp = 50;
         const fiveMinutesInSec = 300;
-        const minTimeToPresent = this.#mapValueToTarget(this.#leftMargin + minPixelsPerTimestamp, this.#leftMargin, this.#right, xRange.min, xRange.max) - xRange.min;
+        const minTimeToPresent =
+            this.#mapValueToTarget(this.#leftMargin + minPixelsPerTimestamp, this.#leftMargin, this.#right, xRange.min, xRange.max) - xRange.min;
 
         const stepFactor = Math.ceil(minTimeToPresent / fiveMinutesInSec);
         const step = stepFactor * fiveMinutesInSec;

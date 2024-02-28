@@ -107,10 +107,11 @@ public:
                              }
 
                              auto credentials = nlohmann::json::parse(body);
-                             if (credentials["password"] != credentials["re_password"]
+                             if (credentials["password"] != credentials["rePassword"]
                                  || credentials["password"].empty()
                                  || credentials["username"].empty())
                              {
+                                logger::logWrn("Can't update credentials");
                                  request.send(HTML_BAD_REQ);
                                  return;
                              }
