@@ -1,19 +1,19 @@
 const MAX_ARR_ELEMS = 220; // Should be send as configuration by server
+const TIME_IDX = 1;
 const TEMPERATURE_IDX = 1;
 const HUMIDITY_IDX = 2;
 
 var gData = {};
 var gSensorIDsToNames = {};
 
-async function fetchSensorsIDToNameMapping() {
+async function fetchSensorsMapping() {
     const response = await fetch("sensorIDsToNames");
     const sensors = await response.json();
     return sensors;
 }
 
 async function initialFetchSensorsData(temperatureChart, humidityChart) {
-    gSensorIDsToNames = await fetchSensorsIDToNameMapping();
-    console.log(gSensorIDsToNames);
+    gSensorIDsToNames = await fetchSensorsMapping();
 
     for (const [identifier, name] of Object.entries(gSensorIDsToNames)) {
         const dataResponse = await fetch('sensorData?' + new URLSearchParams({
@@ -25,17 +25,17 @@ async function initialFetchSensorsData(temperatureChart, humidityChart) {
 
         setSensorData(sensorData, name);
 
-        drawData(gData, temperatureChart, 0, 1);
-        drawData(gData, humidityChart, 0, 2);
+        temperatureChart.draw(gData, TEMPERATURE_IDX);
+        humidityChart.draw(gData, HUMIDITY_IDX);
     }
-
 }
 
-function cleanupData(data) {
+function removeOlderReadingsThanOneDay(data) {
     for (const [identifier, payload] of Object.entries(data)) {
         let values = payload.values;
 
-        values.sort((a, b) => a[0] - b[0]);
+        // Sort by time
+        values.sort((a, b) => a[TIME_IDX] - b[TIME_IDX]);
         let elemsToRemove = values.length - MAX_ARR_ELEMS;
         if (elemsToRemove > 0) {
             data[identifier].values = values.slice(elemsToRemove);
@@ -45,15 +45,12 @@ function cleanupData(data) {
         const currentEpoch = Math.round(Date.now() / 1000);
         const dayBeforeEpoch = currentEpoch - secInDay;
 
-        data[identifier].values = data[identifier].values.filter((val) => val[0] > dayBeforeEpoch);
+        // Filter too old readings
+        data[identifier].values = data[identifier].values.filter((reading) => reading[TIME_IDX] > dayBeforeEpoch);
     }
 }
 
-function drawData(data, chart, xValIndex, yValIndex) {
-    chart.draw(data, yValIndex);
-}
-
-function setSensorData(data, name) {
+function setInitialSensorData(data, name) {
     const identifier = data["identifier"]
     const values = data["values"];
 
@@ -63,7 +60,7 @@ function setSensorData(data, name) {
     };
 }
 
-function addSensorData(data, name) {
+function addDataToSensor(data, name) {
     const identifier = data["identifier"]
     const values = data["values"][0];
 
@@ -72,7 +69,7 @@ function addSensorData(data, name) {
         gData[identifier]["values"].push(values);
     }
     else {
-        setSensorData(data, name);
+        setInitialSensorData(data, name);
     }
 }
 
@@ -113,9 +110,9 @@ window.addEventListener('load', function () {
                 sensorName = gSensorIDsToNames[reading.identifier];
             }
 
-            addSensorData(reading, sensorName);
+            addDataToSensor(reading, sensorName);
 
-            cleanupData(gData);
+            removeOlderReadingsThanOneDay(gData);
             temperatureChart.draw(gData, TEMPERATURE_IDX);
             humidityChart.draw(gData, HUMIDITY_IDX);
         }, false);
