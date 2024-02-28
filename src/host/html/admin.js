@@ -124,7 +124,11 @@ function sendAdminCredentials() {
                 body: credentials
             });
 
-            if (results.status != 200) {
+            if (results.status == 200) {
+                showInfoModal("Credentials updated");
+            }
+            else
+            {
                 showInfoModal("Credentials not changed, unexpected internal server error");
             }
         }

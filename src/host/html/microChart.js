@@ -56,7 +56,7 @@ class MicroChart {
 
         for (const [sensor, payload] of Object.entries(data)) {
             const values = payload["values"];
-            this.#plotData(values, xRange, yRange, yValuesIndex, this.#toRGB(sensor));
+            this.#plotData(values, xRange, yRange, yValuesIndex, this.#toColor(sensor));
         }
 
         this.#drawLegendY(yRange);
@@ -79,7 +79,7 @@ class MicroChart {
         return { "min": Math.min(...mins), "max": Math.max(...maxes) };
     }
 
-    #toRGB(val) {
+    #toColor(val) {
         let hash = [...val.toString()].reduce((acc, char) => {
             return char.charCodeAt(0) + ((acc << 5) - acc);
         }, 0);
@@ -120,7 +120,7 @@ class MicroChart {
             let lastVal = values[values.length - 1][valuesIndex];
             let text = "[" + lastVal.toFixed(1) + "] " + sensorName;
 
-            this.#ctx.fillStyle = this.#toRGB(sensor);
+            this.#ctx.fillStyle = this.#toColor(sensor);
             this.#ctx.fillRect(this.#right + 10, y - 5, 10, 10);
             this.#drawText(text, this.#right + 25, y, this.legendTxtColor, "left")
             step++;
