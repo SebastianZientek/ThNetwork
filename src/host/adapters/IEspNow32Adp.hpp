@@ -31,5 +31,5 @@ public:
     virtual void registerOnRecvCb(const OnRecvCb &onRecvCb) = 0;
     virtual void addPeer(const MacAddr &mac, uint8_t channel) = 0;
     virtual void deletePeer(const MacAddr &mac) = 0;
-    virtual Status sendData(const MacAddr &mac, uint8_t* data, size_t length) = 0;
+    virtual Status sendData(const MacAddr &mac, uint8_t *data, size_t length) = 0;
 };

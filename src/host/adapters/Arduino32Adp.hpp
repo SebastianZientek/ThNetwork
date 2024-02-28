@@ -2,7 +2,7 @@
 
 #include "IArduino32Adp.hpp"
 
-class Arduino32Adp: public IArduino32Adp
+class Arduino32Adp : public IArduino32Adp
 {
 public:
     void pinMode(uint8_t pin, Mode mode) override;

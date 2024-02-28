@@ -25,8 +25,7 @@ void EspNow32Adp::registerOnSendCb(const OnSendCb &onSendCb)
         MacAddr macAddr{};
         std::memcpy(macAddr.data(), rawMac, MacAddr::macAddrDigits);
 
-        m_onSendCb(macAddr, status == ESP_OK ? EspNow32Adp::Status::OK
-                                             : EspNow32Adp::Status::FAIL);
+        m_onSendCb(macAddr, status == ESP_OK ? EspNow32Adp::Status::OK : EspNow32Adp::Status::FAIL);
     };
     esp_now_register_send_cb(onDataSend);
 }
@@ -61,6 +60,5 @@ void EspNow32Adp::deletePeer(const MacAddr &mac)
 EspNow32Adp::Status EspNow32Adp::sendData(const MacAddr &mac, uint8_t *buffer, size_t length)
 {
     auto state = esp_now_send(mac.data(), buffer, length);
-    return state == ESP_OK ? EspNow32Adp::Status::OK
-                           : EspNow32Adp::Status::FAIL;
+    return state == ESP_OK ? EspNow32Adp::Status::OK : EspNow32Adp::Status::FAIL;
 }

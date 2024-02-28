@@ -1,7 +1,5 @@
 #pragma once
 
-#include <WiFi.h>  // TODO: move to cpp
-
 #include <cinttypes>
 #include <string>
 

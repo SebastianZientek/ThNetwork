@@ -20,8 +20,8 @@ public:
 
     void setDefault();
 
-    void setSensorUpdatePeriodMins(std::size_t minutes) override;
-    std::size_t getSensorUpdatePeriodMins() override;
+    void setSensorUpdatePeriodMins(uint16_t minutes) override;
+    uint16_t getSensorUpdatePeriodMins() override;
     void setServerPort(std::size_t port) override;
     std::size_t getServerPort() override;
     void setWifiConfig(std::string ssid, std::string pass) override;

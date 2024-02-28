@@ -44,5 +44,5 @@ public:
     virtual void setRole(Role role) = 0;
     virtual void registerOnSendCb(const OnSendCb &onSendCb) = 0;
     virtual void registerOnRecvCb(const OnRecvCb &onRecvCb) = 0;
-    virtual Status sendData(MacAddr &mac, uint8_t *data, size_t length) = 0;
+    virtual Status sendData(MacAddr &mac, uint8_t *data, uint8_t length) = 0;
 };

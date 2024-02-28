@@ -60,12 +60,12 @@ void ConfStorage::setDefault()
     m_jsonData = defaultData;
 }
 
-void ConfStorage::setSensorUpdatePeriodMins(std::size_t minutes)
+void ConfStorage::setSensorUpdatePeriodMins(uint16_t minutes)
 {
     m_jsonData["sensorUpdatePeriodMins"] = minutes;
 }
 
-std::size_t ConfStorage::getSensorUpdatePeriodMins()
+uint16_t ConfStorage::getSensorUpdatePeriodMins()
 {
     return m_jsonData["sensorUpdatePeriodMins"];
 }
@@ -151,7 +151,7 @@ bool nameExists(const nlohmann::json &data, const std::string &name)
 bool ConfStorage::addSensor(IDType identifier, const std::string &name)
 {
     std::string newSensorName = name;
-    if (name == "")
+    if (name.empty())
     {
         for (size_t i = 0; i < maxSensorsNum; ++i)
         {
