@@ -107,7 +107,6 @@ window.addEventListener('load', function () {
 
         source.addEventListener('newReading', function (e) {
             const reading = JSON.parse(e.data);
-            console.log(e.data);
 
             let sensorName = "No name";
             if (gSensorIDsToNames.hasOwnProperty(reading.identifier)) {

@@ -9,9 +9,8 @@ async function fetchConfiguration() {
     const response = await fetch("configuration");
     if (response.status == 200) {
         const configuration = await response.json();
-        console.log(configuration, configuration.sensors);
-
         const sensors = configuration.sensors;
+
         for (const [mac, name] of Object.entries(sensors)) {
             addSensorRow(mac, name);
         }
