@@ -27,8 +27,8 @@ public:
     virtual State load() = 0;
     virtual State save() = 0;
 
-    virtual void setSensorUpdatePeriodMins(std::size_t minutes) = 0;
-    virtual std::size_t getSensorUpdatePeriodMins() = 0;
+    virtual void setSensorUpdatePeriodMins(uint16_t minutes) = 0;
+    virtual uint16_t getSensorUpdatePeriodMins() = 0;
     virtual void setServerPort(std::size_t port) = 0;
     virtual std::size_t getServerPort() = 0;
     virtual void setWifiConfig(std::string ssid, std::string pass) = 0;

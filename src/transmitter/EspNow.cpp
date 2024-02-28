@@ -66,7 +66,7 @@ IEspNow8266Adp::MsgHandleStatus EspNow::onDataRecv(const MacAddr &mac,
         break;
     case MsgType::PAIR_RESP:
     {
-        PairRespMsg pairRespMsg;
+        PairRespMsg pairRespMsg{};
         pairRespMsg.deserialize(incomingData, len);
 
         m_paired = true;
@@ -153,11 +153,11 @@ std::optional<config::TransmitterConfig> EspNow::pair()
     return std::nullopt;
 }
 
-void EspNow::sendDataToHost(std::size_t ID, MacAddr mac, float temperature, float humidity)
+void EspNow::sendDataToHost(std::size_t identifier, MacAddr mac, float temperature, float humidity)
 {
     logger::logDbg("Send data to %s", mac.str());
 
-    auto sDataMsg = SensorDataMsg::create(ID, temperature, humidity);
+    auto sDataMsg = SensorDataMsg::create(identifier, temperature, humidity);
     auto buffer = sDataMsg.serialize();
 
     if (m_espNowAdp->sendData(mac, buffer.data(), buffer.size()) == IEspNow8266Adp::Status::FAIL)

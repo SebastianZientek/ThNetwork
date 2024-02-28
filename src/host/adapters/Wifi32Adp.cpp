@@ -1,16 +1,18 @@
 #include "Wifi32Adp.hpp"
 
-void Wifi32Adp::init(std::string ssid, std::string pass) 
+#include <WiFi.h>
+
+void Wifi32Adp::init(std::string ssid, std::string pass)
 {
     WiFi.begin(ssid.c_str(), pass.c_str());
 }
 
-void Wifi32Adp::disconnect() 
+void Wifi32Adp::disconnect()
 {
     WiFi.disconnect();
 }
 
-void Wifi32Adp::setMode(const Mode &mode) 
+void Wifi32Adp::setMode(const Mode &mode)
 {
     switch (mode)
     {
@@ -29,7 +31,7 @@ void Wifi32Adp::setMode(const Mode &mode)
     }
 }
 
-Wifi32Adp::Status Wifi32Adp::getStatus() 
+Wifi32Adp::Status Wifi32Adp::getStatus()
 {
     switch (WiFi.status())
     {
@@ -53,40 +55,40 @@ Wifi32Adp::Status Wifi32Adp::getStatus()
     return Status::ERROR;
 }
 
-std::string Wifi32Adp::getSsid() 
+std::string Wifi32Adp::getSsid()
 {
     return WiFi.SSID().c_str();
 }
 
-std::string Wifi32Adp::getLocalIp() 
+std::string Wifi32Adp::getLocalIp()
 {
     return WiFi.localIP().toString().c_str();
 }
 
-std::string Wifi32Adp::getMacAddr() 
+std::string Wifi32Adp::getMacAddr()
 {
     return WiFi.macAddress().c_str();
 }
 
-std::size_t Wifi32Adp::getChannel() 
+std::size_t Wifi32Adp::getChannel()
 {
     return WiFi.channel();
 }
 
-std::array<uint8_t, Wifi32Adp::macAddrDigits> Wifi32Adp::getSoftApMacAddr() 
+std::array<uint8_t, Wifi32Adp::macAddrDigits> Wifi32Adp::getSoftApMacAddr()
 {
     std::array<uint8_t, macAddrDigits> softApMac{};
     WiFi.softAPmacAddress(softApMac.data());
     return softApMac;
 }
 
-void Wifi32Adp::softAp(std::string ssid, std::string pass) 
+void Wifi32Adp::softAp(std::string ssid, std::string pass)
 {
     WiFi.softAP(ssid.c_str(), pass.c_str());
 }
 
-std::string Wifi32Adp::getSoftApIp() 
+std::string Wifi32Adp::getSoftApIp()
 {
-    IPAddress IP = WiFi.softAPIP();
+    IPAddress IP = WiFi.softAPIP();  // NOLINT
     return IP.toString().c_str();
 }

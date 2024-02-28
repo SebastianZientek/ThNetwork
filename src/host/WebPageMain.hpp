@@ -111,7 +111,7 @@ public:
                                  || credentials["password"].empty()
                                  || credentials["username"].empty())
                              {
-                                logger::logWrn("Can't update credentials");
+                                 logger::logWrn("Can't update credentials");
                                  request.send(HTML_BAD_REQ);
                                  return;
                              }
@@ -156,7 +156,7 @@ public:
                         auto configuration = nlohmann::json::parse(body);
                         logger::logDbg("Properties: %s", configuration.dump());
 
-                        std::size_t sensorUpdatePeriodMins
+                        std::uint16_t sensorUpdatePeriodMins
                             = configuration["sensorUpdatePeriodMins"];
                         std::size_t serverPort = configuration["serverPort"];
 

@@ -1,13 +1,14 @@
 #pragma once
 
-#include "IRaiiFile.hpp"
-
 #include <memory>
+
+#include "IRaiiFile.hpp"
 
 class IFileSystem32Adp
 {
 public:
-    enum class Mode{
+    enum class Mode
+    {
         F_READ,
         F_WRITE,
         F_APPEND

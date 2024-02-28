@@ -2,6 +2,7 @@
 
 WebServer::WebServer(uint16_t port)
     : m_server(port)
+    , m_events()
 {
 }
 

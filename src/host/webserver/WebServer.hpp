@@ -14,7 +14,7 @@
 class WebServer : public IWebServer
 {
 public:
-    WebServer(uint16_t port = 80);
+    WebServer(uint16_t port);
 
     void start() override;
     void stop() override;

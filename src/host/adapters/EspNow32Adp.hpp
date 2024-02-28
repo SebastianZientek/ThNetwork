@@ -14,6 +14,6 @@ public:
     Status sendData(const MacAddr &mac, uint8_t *buffer, size_t length) override;
 
 private:
-    static OnSendCb m_onSendCb;
-    static OnRecvCb m_onRecvCb;
+    static OnSendCb m_onSendCb;  // NOLINT
+    static OnRecvCb m_onRecvCb;  // NOLINT
 };

@@ -28,7 +28,7 @@ public:
         AP_STA
     };
 
-    constexpr static auto macAddrDigits =  6;
+    constexpr static auto macAddrDigits = 6;
 
     IWifi32Adp() = default;
     virtual ~IWifi32Adp() = default;

@@ -54,7 +54,7 @@ struct PairRespMsg
     Signature signature;
     MacAddr hostMacAddr;
     uint8_t channel;
-    uint8_t updatePeriodMins;
+    uint16_t updatePeriodMins;
 
     template <typename... Ts>
     static auto create(Ts... args)

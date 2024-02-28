@@ -2,9 +2,9 @@
 
 #include <Arduino.h>
 
+#include <array>
 #include <string>
 #include <type_traits>
-#include <array>
 
 namespace logger
 {

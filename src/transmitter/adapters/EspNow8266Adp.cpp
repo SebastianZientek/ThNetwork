@@ -69,7 +69,7 @@ void EspNow8266Adp::registerOnRecvCb(const OnRecvCb &onRecvCb)
     esp_now_register_recv_cb(onDataRecv);
 }
 
-EspNow8266Adp::Status EspNow8266Adp::sendData(MacAddr &mac, uint8_t *data, size_t length)
+EspNow8266Adp::Status EspNow8266Adp::sendData(MacAddr &mac, uint8_t *data, uint8_t length)
 {
     auto state = esp_now_send(mac.data(), data, length);
     return state == 0 ? Status::OK : Status::FAIL;

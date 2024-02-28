@@ -14,10 +14,10 @@
 #include "Timer.hpp"
 #include "WebPageMain.hpp"
 #include "WebWifiConfig.hpp"
-#include "adapters/IWifi32Adp.hpp"
 #include "adapters/IArduino32Adp.hpp"
-#include "adapters/IFileSystem32Adp.hpp"
 #include "adapters/IESP32Adp.hpp"
+#include "adapters/IFileSystem32Adp.hpp"
+#include "adapters/IWifi32Adp.hpp"
 
 class App
 {
@@ -55,7 +55,7 @@ private:
     constexpr static auto pairButton = 18;
     constexpr static auto wifiConfigServerTimeoutMillis = 1000 * 60 * 10;  // 10 minutes
     constexpr static auto espNowPairingTimeout = 1000 * 60 * 2;            // 2 minutes
-    constexpr static auto resetToFactorySettings = 1000 * 10;            // 10 seconds
+    constexpr static auto resetToFactorySettings = 1000 * 10;              // 10 seconds
 
     Mode m_mode = Mode::SENSOR_HOST;
 

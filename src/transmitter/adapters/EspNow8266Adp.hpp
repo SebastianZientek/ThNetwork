@@ -13,7 +13,7 @@ public:
     void setRole(Role role) override;
     void registerOnSendCb(const OnSendCb &onSendCb) override;
     void registerOnRecvCb(const OnRecvCb &onRecvCb) override;
-    Status sendData(MacAddr &mac, uint8_t *data, size_t length) override;
+    Status sendData(MacAddr &mac, uint8_t *data, uint8_t length) override;
 
 private:
     static OnSendCb m_onSendCb;

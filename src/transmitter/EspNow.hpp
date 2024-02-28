@@ -28,7 +28,7 @@ public:
 
     void init(uint8_t channel = 0);
     std::optional<config::TransmitterConfig> pair();
-    void sendDataToHost(std::size_t ID, MacAddr mac, float temperature, float humidity);
+    void sendDataToHost(std::size_t identifier, MacAddr mac, float temperature, float humidity);
     config::TransmitterConfig getTransmitterConfig();
 
 private:
