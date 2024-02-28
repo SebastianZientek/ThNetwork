@@ -12,7 +12,7 @@
 #include "adapters/Arduino32Adp.hpp"
 #include "adapters/ESP32Adp.hpp"
 #include "adapters/EspNow32Adp.hpp"
-#include "adapters/SPIFS32Adp.hpp"
+#include "adapters/LittleFS32Adp.hpp"
 #include "adapters/Wifi32Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
@@ -21,7 +21,7 @@
 
 void App::init()
 {
-    m_internalFS = std::make_shared<SPIFFS32Adp>();
+    m_internalFS = std::make_shared<LittleFSAdp>();
     m_wifiAdp = std::make_shared<Wifi32Adp>();
     m_arduinoAdp = std::make_shared<Arduino32Adp>();
     m_confStorage = std::make_shared<ConfStorage>(m_internalFS, "/config.json");
