@@ -39,7 +39,7 @@ public:
         mock("EspNow8266AdpMock").actualCall("registerOnRecvCb");
     }
 
-    Status sendData(MacAddr &mac, uint8_t *data, size_t length) override
+    Status sendData(MacAddr &mac, uint8_t *data, uint8_t length) override
     {
         static auto defaultState = Status::OK;
         auto retVal = mock("EspNow8266AdpMock")

@@ -23,14 +23,14 @@ class ConfStorageMock : public IConfStorage
         return *static_cast<State *>(returnVal);
     }
 
-    void setSensorUpdatePeriodMins(std::size_t minutes) override
+    void setSensorUpdatePeriodMins(uint16_t minutes) override
     {
         mock("ConfStorageMock")
             .actualCall("setSensorUpdatePeriodMins")
             .withParameter("minutes", minutes);
     }
 
-    std::size_t getSensorUpdatePeriodMins() override
+    uint16_t getSensorUpdatePeriodMins() override
     {
         return mock("ConfStorageMock")
             .actualCall("getSensorUpdatePeriodMins")
