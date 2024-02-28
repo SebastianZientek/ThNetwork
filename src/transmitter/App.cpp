@@ -32,6 +32,7 @@ void App::setup()
 
     if (digitalRead(boardsettings::pairButton) == LOW)
     {
+        logger::logInf("Pairing");
         if (auto transmitterConfigOpt = m_espNow.pair(); transmitterConfigOpt)
         {
             m_currentConfiguration = transmitterConfigOpt.value();
@@ -53,7 +54,8 @@ void App::loop()
 {
     auto [temp, hum] = m_sensor.getTempHum();
     logger::logInf("Temp: %f, hum: %f", temp, hum);
-    m_espNow.sendDataToHost(m_currentConfiguration.ID, m_currentConfiguration.targetMac, temp, hum);
+    m_espNow.sendDataToHost(m_currentConfiguration.ID, m_currentConfiguration.targetMac, temp,
+    hum);
 
     ESP.deepSleep(m_currentConfiguration.sensorUpdatePeriodMins * m_usInMin);
 }

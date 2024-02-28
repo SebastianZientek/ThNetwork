@@ -6,12 +6,12 @@ namespace pinout
 {
 int getSDA()
 {
-    return D2;
+    return D6;
 }
 
 int getSCL()
 {
-    return D3;
+    return D5;
 }
 
 }  // namespace pinout

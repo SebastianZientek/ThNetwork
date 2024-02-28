@@ -80,22 +80,11 @@ class MicroChart {
     }
 
     #toRGB(val) {
-        let r = (val >>> 0) & 0xFF;
-        let g = (val >>> 8) & 0xFF;
-        let b = (val >>> 16) & 0xFF;
+        let hash = [...val.toString()].reduce((acc, char) => {
+            return char.charCodeAt(0) + ((acc << 5) - acc);
+        }, 0);
 
-        let rgb = [r, g, b];
-        const sum = rgb.reduce((acc, curr) => acc + curr, 0);
-
-        let valToAdd = 0;
-        if (sum < 255) {
-            valToAdd = 255 - sum;
-        }
-
-        var indexMin = rgb.indexOf(Math.min(...rgb));
-        rgb[indexMin] += valToAdd;
-
-        return `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
+        return `hsl(${hash % 360}, 90%, 40%)`;
     }
 
     #expandRange(range, expandFactor) {
