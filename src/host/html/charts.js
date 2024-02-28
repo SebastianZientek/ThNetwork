@@ -1,5 +1,5 @@
 const MAX_ARR_ELEMS = 220; // Should be send as configuration by server
-const TIME_IDX = 1;
+const TIME_IDX = 0;
 const TEMPERATURE_IDX = 1;
 const HUMIDITY_IDX = 2;
 
@@ -23,8 +23,7 @@ async function initialFetchSensorsData(temperatureChart, humidityChart) {
         const sensorData = await dataResponse.json();
         console.log(sensorData);
 
-        setSensorData(sensorData, name);
-
+        addDataToSensor(sensorData, name);
         temperatureChart.draw(gData, TEMPERATURE_IDX);
         humidityChart.draw(gData, HUMIDITY_IDX);
     }
@@ -50,17 +49,17 @@ function removeOlderReadingsThanOneDay(data) {
     }
 }
 
-function setInitialSensorData(data, name) {
-    const identifier = data["identifier"]
-    const values = data["values"];
-
-    gData[identifier] = {
-        "name": name,
-        "values": values
-    };
-}
-
 function addDataToSensor(data, name) {
+    function setInitialData(data, name) {
+        const identifier = data["identifier"]
+        const values = data["values"];
+    
+        gData[identifier] = {
+            "name": name,
+            "values": values
+        };
+    }
+
     const identifier = data["identifier"]
     const values = data["values"][0];
 
@@ -69,7 +68,7 @@ function addDataToSensor(data, name) {
         gData[identifier]["values"].push(values);
     }
     else {
-        setInitialSensorData(data, name);
+        setInitialData(data, name);
     }
 }
 
