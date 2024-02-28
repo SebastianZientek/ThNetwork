@@ -132,9 +132,7 @@ class MicroChart {
     }
 
     #clearChart() {
-        // this.#ctx.fillStyle = "#171a1e"
         this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
-        // this.#ctx.fillRect(0, 0, this.#canvas.width, this.#canvas.height);
     }
 
     #mapValueToTarget(value, srcMin, srcMax, tarMin, tarMax) {
@@ -271,7 +269,8 @@ class MicroChart {
     #drawLegendX(xRange) {
         const minPixelsPerTimestamp = 50;
         const fiveMinutesInSec = 300;
-        const minTimeToPresent = this.#mapValueToTarget(this.#leftMargin + minPixelsPerTimestamp, this.#leftMargin, this.#right, xRange.min, xRange.max) - xRange.min;
+        const minTimeToPresent =
+            this.#mapValueToTarget(this.#leftMargin + minPixelsPerTimestamp, this.#leftMargin, this.#right, xRange.min, xRange.max) - xRange.min;
 
         const stepFactor = Math.ceil(minTimeToPresent / fiveMinutesInSec);
         const step = stepFactor * fiveMinutesInSec;
