@@ -8,7 +8,7 @@
 class Sensor
 {
 public:
-    Sensor(std::shared_ptr<IArduino8266Adp> arduinoAdp);
+    Sensor(const std::shared_ptr<IArduino8266Adp> &arduinoAdp);
     ~Sensor();
 
     Sensor(const Sensor &) = delete;
@@ -17,7 +17,7 @@ public:
     Sensor &operator=(const Sensor &&) = delete;
 
     void init(int sda, int scl);
-    std::pair<float, float> getTempHum();
+    [[nodiscard]] std::pair<float, float> getTempHum() const;
 
 private:
     struct Impl;

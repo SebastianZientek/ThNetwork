@@ -22,10 +22,10 @@ class WebPageMain
     constexpr static auto RECONNECT_TIMEOUT = 10000;
 
 public:
-    WebPageMain(std::shared_ptr<IArduino32Adp> arduinoAdp,
-                std::shared_ptr<IWebServer> webServer,
+    WebPageMain(const std::shared_ptr<IArduino32Adp> &arduinoAdp,
+                const std::shared_ptr<IWebServer> &webServer,
                 std::unique_ptr<IResources> resources,
-                std::shared_ptr<IConfStorage> confStorage);
+                const std::shared_ptr<IConfStorage> &confStorage);
 
     void sendEvent(const char *message,
                    const char *event = nullptr,
@@ -47,7 +47,7 @@ private:
 
     bool auth(IWebRequest &request);
     void setCredentials(IWebRequest &request, const std::string &body);
-    void updateSensorsMapping(IWebRequest &request, std::string body);
+    void updateSensorsMapping(IWebRequest &request, const std::string &body);
     void setProperties(IWebRequest &request, const std::string &body);
     void removeSensor(IWebRequest &request, const std::string &body);
     void sensorIDsToNames(IWebRequest &request);

@@ -16,10 +16,10 @@
 class EspNow
 {
 public:
-    EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp,
-           std::shared_ptr<IWifi8266Adp> wifiAdp,
-           std::shared_ptr<IEsp8266Adp> espAdp,
-           std::shared_ptr<IEspNow8266Adp> espNowAdp);
+    EspNow(const std::shared_ptr<IArduino8266Adp> &arduinoAdp,
+           const std::shared_ptr<IWifi8266Adp> &wifiAdp,
+           const std::shared_ptr<IEsp8266Adp> &espAdp,
+           const std::shared_ptr<IEspNow8266Adp> &espNowAdp);
     ~EspNow() = default;
     EspNow(const EspNow &) = delete;
     EspNow(EspNow &&) = delete;
@@ -29,7 +29,7 @@ public:
     void init(uint8_t channel = 0);
     std::optional<config::TransmitterConfig> pair();
     void sendDataToHost(std::size_t identifier, MacAddr mac, float temperature, float humidity);
-    config::TransmitterConfig getTransmitterConfig();
+    [[nodiscard]] config::TransmitterConfig getTransmitterConfig() const;
 
 private:
     constexpr static std::array<uint8_t, 4> msgSignature{'T', 'H', 'D', 'T'};
@@ -50,5 +50,5 @@ private:
     void setOnDataSendCb();
     void sendPairMsg();
 
-    MsgType getMsgType(const uint8_t *buffer, size_t size);
+    [[nodiscard]] MsgType getMsgType(const uint8_t *buffer, size_t size) const;
 };

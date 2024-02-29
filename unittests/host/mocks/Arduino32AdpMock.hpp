@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include <CppUTestExt/MockSupport.h>
 
 #include <cinttypes>
@@ -11,7 +9,7 @@
 class Arduino32AdpMock : public IArduino32Adp
 {
 public:
-    void pinMode(uint8_t pin, Mode mode) override
+    void pinMode(uint8_t pin, Mode mode) const override
     {
         mock("Arduino32Adp")
             .actualCall("digitalWrite")
@@ -19,7 +17,7 @@ public:
             .withParameter("mode", static_cast<int>(mode));
     }
 
-    bool digitalRead(uint8_t pin) override
+    [[nodiscard]] bool digitalRead(uint8_t pin) const override
     {
         return mock("Arduino32Adp")
             .actualCall("digitalRead")
@@ -27,7 +25,7 @@ public:
             .returnBoolValueOrDefault(false);
     }
 
-    void digitalWrite(uint8_t pin, bool val) override
+    void digitalWrite(uint8_t pin, bool val) const override
     {
         mock("Arduino32Adp")
             .actualCall("digitalWrite")
@@ -35,17 +33,17 @@ public:
             .withParameter("val", val);
     }
 
-    uint8_t getLedBuiltin() override
+    [[nodiscard]] uint8_t getLedBuiltin() const override
     {
         return mock("Arduino32Adp").actualCall("getLedBuiltin").returnIntValueOrDefault(0);
     }
 
-    unsigned long millis() override
+    [[nodiscard]] unsigned long millis() const override
     {
         return mock("Arduino32Adp").actualCall("millis").returnIntValueOrDefault(0);
     }
 
-    void delay(unsigned long milliseconds) override
+    void delay(unsigned long milliseconds) const override
     {
         mock("Arduino32Adp").actualCall("delay").withParameter("milliseconds", milliseconds);
     }

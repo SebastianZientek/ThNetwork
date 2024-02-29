@@ -2,8 +2,8 @@
 #include <CppUTestExt/MockSupport.h>
 
 #include "MacAddr.hpp"
-#include "utils.hpp"
 #include "mocks/Arduino8266AdpMock.hpp"
+#include "utils.hpp"
 
 TEST_GROUP(TestUtils)  // NOLINT
 {

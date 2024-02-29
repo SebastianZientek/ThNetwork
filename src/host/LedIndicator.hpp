@@ -10,7 +10,7 @@
 class LedIndicator
 {
 public:
-    LedIndicator(std::shared_ptr<IArduino32Adp> arduinoAdp, std::size_t pin)
+    LedIndicator(const std::shared_ptr<IArduino32Adp> &arduinoAdp, std::size_t pin)
         : m_ledPin(pin)
         , m_arduinoAdp(arduinoAdp)
         , m_blinkTimer(arduinoAdp)

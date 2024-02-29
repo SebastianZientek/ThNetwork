@@ -7,37 +7,37 @@
 class ResourcesMock : public IResources
 {
 public:
-    const char *getIndexHtml() override
+    [[nodiscard]] const char *getIndexHtml() const override
     {
         return mock("ResourcesMock").actualCall("getIndexHtml").returnStringValueOrDefault("");
     }
 
-    const char *getAdminHtml() override
+    [[nodiscard]] const char *getAdminHtml() const override
     {
         return mock("ResourcesMock").actualCall("getAdminHtml").returnStringValueOrDefault("");
     }
 
-    const char *getMicroChart() override
+    [[nodiscard]] const char *getMicroChart() const override
     {
         return mock("ResourcesMock").actualCall("getMicroChart").returnStringValueOrDefault("");
     }
 
-    const char *getAdminJs() override
+    [[nodiscard]] const char *getAdminJs() const override
     {
         return mock("ResourcesMock").actualCall("getAdminJs").returnStringValueOrDefault("");
     }
 
-    const char *getChartsJs() override
+    [[nodiscard]] const char *getChartsJs() const override
     {
         return mock("ResourcesMock").actualCall("getChartsJs").returnStringValueOrDefault("");
     }
 
-    const char *getPicoCss() override
+    [[nodiscard]] const char *getPicoCss() const override
     {
         return mock("ResourcesMock").actualCall("getPicoCss").returnStringValueOrDefault("");
     }
 
-    const unsigned char *getFavicon() override
+    [[nodiscard]] const unsigned char *getFavicon() const override
     {
         auto *value
             = mock("ResourcesMock").actualCall("getFavicon").returnPointerValueOrDefault(nullptr);
@@ -45,13 +45,17 @@ public:
         return static_cast<unsigned char *>(value);
     }
 
-    unsigned int getFaviconSize() override
+    [[nodiscard]] unsigned int getFaviconSize() const override
     {
-        return mock("ResourcesMock").actualCall("getFaviconSize").returnUnsignedIntValueOrDefault(0);
+        return mock("ResourcesMock")
+            .actualCall("getFaviconSize")
+            .returnUnsignedIntValueOrDefault(0);
     }
 
-    const char *getWifiSettingsHtml() override
+    [[nodiscard]] const char *getWifiSettingsHtml() const override
     {
-        return mock("ResourcesMock").actualCall("getWifiSettingsHtml").returnStringValueOrDefault("");
+        return mock("ResourcesMock")
+            .actualCall("getWifiSettingsHtml")
+            .returnStringValueOrDefault("");
     }
 };

@@ -2,14 +2,14 @@
 
 #include "IArduino8266Adp.hpp"
 
-class Arduino8266Adp: public IArduino8266Adp
+class Arduino8266Adp : public IArduino8266Adp
 {
 public:
-    void pinMode(uint8_t pin, Mode mode) override;
-    bool digitalRead(uint8_t pin) override;
-    void digitalWrite(uint8_t pin, bool val) override;
-    uint8_t getLedBuiltin() override;
-    unsigned long millis() override;
-    void delay(unsigned long milliseconds) override;
-    void setupWire(int sda, int scl) override;
+    void pinMode(uint8_t pin, Mode mode) const override;
+    [[nodiscard]] bool digitalRead(uint8_t pin) const override;
+    void digitalWrite(uint8_t pin, bool val) const override;
+    [[nodiscard]] uint8_t getLedBuiltin() const override;
+    [[nodiscard]] unsigned long millis() const override;
+    void delay(unsigned long milliseconds) const override;
+    void setupWire(int sda, int scl) const override;
 };

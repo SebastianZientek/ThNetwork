@@ -7,5 +7,6 @@ class LittleFSAdp : public IFileSystem32Adp
 {
 public:
     LittleFSAdp();
-    std::unique_ptr<IRaiiFile> open(const std::string &path, Mode mode) override;
+    [[nodiscard]] std::unique_ptr<IRaiiFile> open(const std::string &path,
+                                                  Mode mode) const override;
 };

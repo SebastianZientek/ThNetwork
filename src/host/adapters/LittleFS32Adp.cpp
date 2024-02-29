@@ -9,7 +9,7 @@ LittleFSAdp::LittleFSAdp()
     LittleFS.begin(true);
 }
 
-std::unique_ptr<IRaiiFile> LittleFSAdp::open(const std::string &path, Mode mode)
+std::unique_ptr<IRaiiFile> LittleFSAdp::open(const std::string &path, Mode mode) const
 {
     auto nativeMode = FILE_READ;
     switch (mode)

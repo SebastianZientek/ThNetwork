@@ -14,7 +14,7 @@
 class Arduino8266AdpMockWithDelayCallback : public Arduino8266AdpMock
 {
 public:
-    void delay(unsigned long milliseconds) override
+    void delay(unsigned long milliseconds) const override
     {
         m_callback();
         mock("Arduino8266Adp").actualCall("delay").withParameter("milliseconds", milliseconds);

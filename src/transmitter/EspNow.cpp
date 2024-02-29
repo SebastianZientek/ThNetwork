@@ -8,10 +8,10 @@
 #include "transmitter/adapters/EspNow8266Adp.hpp"
 #include "utils.hpp"
 
-EspNow::EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp,
-               std::shared_ptr<IWifi8266Adp> wifiAdp,
-               std::shared_ptr<IEsp8266Adp> espAdp,
-               std::shared_ptr<IEspNow8266Adp> espNowAdp)
+EspNow::EspNow(const std::shared_ptr<IArduino8266Adp> &arduinoAdp,
+               const std::shared_ptr<IWifi8266Adp> &wifiAdp,
+               const std::shared_ptr<IEsp8266Adp> &espAdp,
+               const std::shared_ptr<IEspNow8266Adp> &espNowAdp)
     : m_arduinoAdp(arduinoAdp)
     , m_wifiAdp(wifiAdp)
     , m_espAdp(espAdp)
@@ -167,7 +167,7 @@ void EspNow::sendDataToHost(std::size_t identifier, MacAddr mac, float temperatu
     m_arduinoAdp->delay(1);  // Give board time to invoke onDataSent callback
 }
 
-config::TransmitterConfig EspNow::getTransmitterConfig()
+config::TransmitterConfig EspNow::getTransmitterConfig() const
 {
     return m_transmitterConfig;
 }
@@ -187,7 +187,7 @@ void EspNow::sendPairMsg()
     }
 }
 
-MsgType EspNow::getMsgType(const uint8_t *buffer, size_t size)
+MsgType EspNow::getMsgType(const uint8_t *buffer, size_t size) const
 {
     MsgType msgType{MsgType::UNKNOWN};
 

@@ -11,14 +11,14 @@
 class EspNowPairingManager
 {
 public:
-    explicit EspNowPairingManager(std::shared_ptr<IConfStorage> confStorage,
-                                  std::shared_ptr<IArduino32Adp> arduinoAdp,
-                                  std::shared_ptr<LedIndicator> pairingLed = nullptr);
+    explicit EspNowPairingManager(const std::shared_ptr<IConfStorage> &confStorage,
+                                  const std::shared_ptr<IArduino32Adp> &arduinoAdp,
+                                  const std::shared_ptr<LedIndicator> &pairingLed = nullptr);
 
     void enablePairingForPeriod(std::size_t timeout = m_pairingDefaultTimeout);
     void disablePairing();
     [[nodiscard]] bool isPairingEnabled() const;
-    bool isPaired(IDType identifier);
+    [[nodiscard]] bool isPaired(IDType identifier) const;
     bool addNewSensorToStorage(IDType identifier);
     void unpairSensor(IDType identifier);
     void update();

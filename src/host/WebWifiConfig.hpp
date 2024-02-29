@@ -14,9 +14,9 @@ template <typename ConfStorageType, typename AsyncWebServerType>
 class WebWifiConfig
 {
 public:
-    WebWifiConfig(std::shared_ptr<IWifi32Adp> wifiAdp,
+    WebWifiConfig(const std::shared_ptr<IWifi32Adp> &wifiAdp,
                   std::unique_ptr<IWebServer> server,
-                  std::shared_ptr<IESP32Adp> espAdp,
+                  const std::shared_ptr<IESP32Adp> &espAdp,
                   std::unique_ptr<IResources> resources)
         : m_wifiAdp(wifiAdp)
         , m_server(std::move(server))

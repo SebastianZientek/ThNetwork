@@ -7,9 +7,9 @@
 #include "common/logger.hpp"
 #include "host/adapters/IFileSystem32Adp.hpp"
 
-ConfStorage::ConfStorage(std::shared_ptr<IFileSystem32Adp> fileSystem, const std::string &path)
+ConfStorage::ConfStorage(const std::shared_ptr<IFileSystem32Adp> &fileSystem, std::string path)
     : m_fileSystem(fileSystem)
-    , m_path(path)
+    , m_path(std::move(path))
 {
     setDefault();
 }
@@ -37,7 +37,7 @@ ConfStorage::State ConfStorage::save()
     try
     {
         auto data = m_jsonData.dump();
-        file->print(data.c_str());
+        file->print(data);
     }
     catch (nlohmann::json::type_error err)
     {
@@ -65,7 +65,7 @@ void ConfStorage::setSensorUpdatePeriodMins(uint16_t minutes)
     m_jsonData["sensorUpdatePeriodMins"] = minutes;
 }
 
-uint16_t ConfStorage::getSensorUpdatePeriodMins()
+uint16_t ConfStorage::getSensorUpdatePeriodMins() const
 {
     return m_jsonData["sensorUpdatePeriodMins"];
 }
@@ -75,12 +75,12 @@ void ConfStorage::setServerPort(std::size_t port)
     m_jsonData["serverPort"] = port;
 }
 
-std::size_t ConfStorage::getServerPort()
+std::size_t ConfStorage::getServerPort() const
 {
     return m_jsonData["serverPort"];
 }
 
-void ConfStorage::setWifiConfig(std::string ssid, std::string pass)
+void ConfStorage::setWifiConfig(const std::string &ssid, const std::string &pass)
 {
     m_jsonData["wifi"]["ssid"] = ssid;
     m_jsonData["wifi"]["pass"] = pass;
@@ -103,13 +103,13 @@ std::optional<std::pair<std::string, std::string>> ConfStorage::getWifiConfig()
     return std::nullopt;
 }
 
-void ConfStorage::setAdminCredentials(std::string user, std::string pass)
+void ConfStorage::setAdminCredentials(const std::string &user, const std::string &pass)
 {
     m_jsonData["admin"]["user"] = user;
     m_jsonData["admin"]["pass"] = pass;
 }
 
-std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredentials()
+std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredentials() const
 {
     try
     {
@@ -123,7 +123,7 @@ std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredenti
     return std::nullopt;
 }
 
-std::string ConfStorage::getConfigWithoutCredentials()
+std::string ConfStorage::getConfigWithoutCredentials() const
 {
     nlohmann::json dataWithoutCred
         = {{"sensorUpdatePeriodMins", m_jsonData["sensorUpdatePeriodMins"]},
@@ -140,12 +140,11 @@ bool ConfStorage::isAvailableSpaceForNextSensor()
 
 bool nameExists(const nlohmann::json &data, const std::string &name)
 {
-    for (auto &sensor : data)
-    {
-        if (sensor == name) return true;
-    }
-
-    return false;
+    return std::any_of(data.begin(), data.end(),
+                       [name](auto sensor)
+                       {
+                           return sensor == name;
+                       });
 }
 
 bool ConfStorage::addSensor(IDType identifier, const std::string &name)
@@ -156,7 +155,7 @@ bool ConfStorage::addSensor(IDType identifier, const std::string &name)
         for (size_t i = 0; i < maxSensorsNum; ++i)
         {
             std::string nameToSet = "Unnamed " + std::to_string(i + 1);
-            if (nameExists(m_jsonData["sensors"], nameToSet) == false)
+            if (!nameExists(m_jsonData["sensors"], nameToSet))
             {
                 newSensorName = nameToSet;
                 break;
@@ -187,7 +186,7 @@ bool ConfStorage::removeSensor(IDType identifier)
     return false;
 }
 
-std::string ConfStorage::getSensorsMapping()
+std::string ConfStorage::getSensorsMapping() const
 {
     return m_jsonData["sensors"].dump();
 }

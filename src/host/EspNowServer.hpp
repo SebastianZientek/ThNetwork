@@ -17,9 +17,9 @@ public:
     using NewPeerCb = std::function<bool(IDType identifier)>;
 
     EspNowServer(std::unique_ptr<IEspNow32Adp> espNowAdp,
-                 std::shared_ptr<EspNowPairingManager> pairingManager,
-                 std::shared_ptr<IWifi32Adp> wifiAdp,
-                 std::shared_ptr<IConfStorage> confStorage);
+                 const std::shared_ptr<EspNowPairingManager> &pairingManager,
+                 const std::shared_ptr<IWifi32Adp> &wifiAdp,
+                 const std::shared_ptr<IConfStorage> &confStorage);
     ~EspNowServer() = default;
     EspNowServer(const EspNowServer &) = delete;
     EspNowServer(EspNowServer &&) = delete;

@@ -13,7 +13,7 @@
 class ConfStorage : public IConfStorage
 {
 public:
-    ConfStorage(std::shared_ptr<IFileSystem32Adp> fileSystem, const std::string &path);
+    ConfStorage(const std::shared_ptr<IFileSystem32Adp> &fileSystem, std::string path);
 
     State load() override;
     State save() override;
@@ -21,20 +21,21 @@ public:
     void setDefault();
 
     void setSensorUpdatePeriodMins(uint16_t minutes) override;
-    uint16_t getSensorUpdatePeriodMins() override;
+    [[nodiscard]] uint16_t getSensorUpdatePeriodMins() const override;
     void setServerPort(std::size_t port) override;
-    std::size_t getServerPort() override;
-    void setWifiConfig(std::string ssid, std::string pass) override;
+    [[nodiscard]] std::size_t getServerPort() const override;
+    void setWifiConfig(const std::string &ssid, const std::string &pass) override;
     std::optional<std::pair<std::string, std::string>> getWifiConfig() override;
-    void setAdminCredentials(std::string user, std::string pass) override;
-    std::optional<std::pair<std::string, std::string>> getAdminCredentials() override;
+    void setAdminCredentials(const std::string &user, const std::string &pass) override;
+    [[nodiscard]] std::optional<std::pair<std::string, std::string>> getAdminCredentials()
+        const override;
 
-    std::string getConfigWithoutCredentials() override;
+    [[nodiscard]] std::string getConfigWithoutCredentials() const override;
 
     bool isAvailableSpaceForNextSensor() override;
     bool addSensor(IDType identifier, const std::string &name = "") override;
     bool removeSensor(IDType identifier) override;
-    std::string getSensorsMapping() override;
+    [[nodiscard]] std::string getSensorsMapping() const override;
     bool isSensorMapped(IDType identifier) override;
 
 private:

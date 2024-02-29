@@ -1,3 +1,5 @@
+#pragma once
+
 #include <functional>
 
 #include "adapters/IEspNow8266Adp.hpp"
@@ -6,7 +8,7 @@
 class EspNow8266AdpMock : public IEspNow8266Adp
 {
 public:
-    Status init() override
+    [[nodiscard]] Status init() const override
     {
         static auto defaultState = Status::OK;
         mock("EspNow8266AdpMock").actualCall("init");
@@ -15,12 +17,12 @@ public:
         return *static_cast<Status *>(returnVal);
     }
 
-    void deinit() override
+    void deinit() const override
     {
         mock("EspNow8266AdpMock").actualCall("deinit");
     }
 
-    void setRole(Role role) override
+    void setRole(Role role) const override
     {
         mock("EspNow8266AdpMock")
             .actualCall("setRole")
@@ -39,7 +41,7 @@ public:
         mock("EspNow8266AdpMock").actualCall("registerOnRecvCb");
     }
 
-    Status sendData(MacAddr &mac, uint8_t *data, uint8_t length) override
+    Status sendData(MacAddr &mac, uint8_t *data, uint8_t length) const override
     {
         static auto defaultState = Status::OK;
         auto retVal = mock("EspNow8266AdpMock")
@@ -56,7 +58,9 @@ public:
         m_onSendCb(mac, status);
     }
 
-    IEspNow8266Adp::MsgHandleStatus testingCallOnRecv(const MacAddr &mac, const uint8_t *incomingData, uint8_t len)
+    IEspNow8266Adp::MsgHandleStatus testingCallOnRecv(const MacAddr &mac,
+                                                      const uint8_t *incomingData,
+                                                      uint8_t len)
     {
         return m_onRecvCb(mac, incomingData, len);
     }

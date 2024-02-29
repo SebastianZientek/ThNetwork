@@ -9,7 +9,7 @@ struct Sensor::Impl
     Adafruit_AHTX0 aht;
 };
 
-Sensor::Sensor(std::shared_ptr<IArduino8266Adp> arduinoAdp)
+Sensor::Sensor(const std::shared_ptr<IArduino8266Adp> &arduinoAdp)
     : m_impl{std::make_unique<Impl>()}
     , m_arduinoAdp(arduinoAdp)
 {
@@ -30,7 +30,7 @@ void Sensor::init(int sda, int scl)
     }
 }
 
-std::pair<float, float> Sensor::getTempHum()
+std::pair<float, float> Sensor::getTempHum() const
 {
     sensors_event_t humidity{};     // NOLINT
     sensors_event_t temperature{};  // NOLINT

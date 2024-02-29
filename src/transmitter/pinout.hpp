@@ -2,6 +2,6 @@
 
 namespace pinout
 {
-    int getSDA();
-    int getSCL();
-};
+int getSDA();
+int getSCL();
+};  // namespace pinout

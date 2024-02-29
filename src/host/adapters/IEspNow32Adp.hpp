@@ -25,11 +25,11 @@ public:
     IEspNow32Adp &operator=(const IEspNow32Adp &) = default;
     IEspNow32Adp &operator=(IEspNow32Adp &&) noexcept = default;
 
-    virtual Status init() = 0;
-    virtual void deinit() = 0;
+    [[nodiscard]] virtual Status init() const = 0;
+    virtual void deinit() const = 0;
     virtual void registerOnSendCb(const OnSendCb &onSendCb) = 0;
     virtual void registerOnRecvCb(const OnRecvCb &onRecvCb) = 0;
-    virtual void addPeer(const MacAddr &mac, uint8_t channel) = 0;
-    virtual void deletePeer(const MacAddr &mac) = 0;
-    virtual Status sendData(const MacAddr &mac, uint8_t *data, size_t length) = 0;
+    virtual void addPeer(const MacAddr &mac, uint8_t channel) const = 0;
+    virtual void deletePeer(const MacAddr &mac) const = 0;
+    virtual Status sendData(const MacAddr &mac, uint8_t *data, size_t length) const = 0;
 };

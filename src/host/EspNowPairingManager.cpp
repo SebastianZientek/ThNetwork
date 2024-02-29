@@ -1,8 +1,8 @@
 #include "EspNowPairingManager.hpp"
 
-EspNowPairingManager::EspNowPairingManager(std::shared_ptr<IConfStorage> confStorage,
-                                           std::shared_ptr<IArduino32Adp> arduinoAdp,
-                                           std::shared_ptr<LedIndicator> pairingLed)
+EspNowPairingManager::EspNowPairingManager(const std::shared_ptr<IConfStorage> &confStorage,
+                                           const std::shared_ptr<IArduino32Adp> &arduinoAdp,
+                                           const std::shared_ptr<LedIndicator> &pairingLed)
     : m_confStorage(confStorage)
     , m_pairingLed(pairingLed)
     , m_pairingTimer(arduinoAdp)
@@ -44,7 +44,7 @@ void EspNowPairingManager::disablePairing()
     return m_pairingEnabled;
 }
 
-bool EspNowPairingManager::isPaired(IDType identifier)
+bool EspNowPairingManager::isPaired(IDType identifier) const
 {
     return m_confStorage->isSensorMapped(identifier);
 }

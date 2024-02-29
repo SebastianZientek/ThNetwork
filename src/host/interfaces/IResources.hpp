@@ -11,13 +11,13 @@ public:
     IResources &operator=(const IResources &) = default;
     IResources &operator=(IResources &&) = default;
 
-    virtual const char *getIndexHtml() = 0;
-    virtual const char *getAdminHtml() = 0;
-    virtual const char *getMicroChart() = 0;
-    virtual const char *getAdminJs() = 0;
-    virtual const char *getChartsJs() = 0;
-    virtual const char *getPicoCss() = 0;
-    virtual const unsigned char *getFavicon() = 0;
-    virtual unsigned int getFaviconSize() = 0;
-    virtual const char *getWifiSettingsHtml() = 0;
+    [[nodiscard]] virtual const char *getIndexHtml() const = 0;
+    [[nodiscard]] virtual const char *getAdminHtml() const = 0;
+    [[nodiscard]] virtual const char *getMicroChart() const = 0;
+    [[nodiscard]] virtual const char *getAdminJs() const = 0;
+    [[nodiscard]] virtual const char *getChartsJs() const = 0;
+    [[nodiscard]] virtual const char *getPicoCss() const = 0;
+    [[nodiscard]] virtual const unsigned char *getFavicon() const = 0;
+    [[nodiscard]] virtual unsigned int getFaviconSize() const = 0;
+    [[nodiscard]] virtual const char *getWifiSettingsHtml() const = 0;
 };
