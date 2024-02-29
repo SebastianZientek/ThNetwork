@@ -1,9 +1,9 @@
 #include "WebPageMain.hpp"
 
-WebPageMain::WebPageMain(std::shared_ptr<IArduino32Adp> arduinoAdp,
-                         std::shared_ptr<IWebServer> webServer,
+WebPageMain::WebPageMain(const std::shared_ptr<IArduino32Adp> &arduinoAdp,
+                         const std::shared_ptr<IWebServer> &webServer,
                          std::unique_ptr<IResources> resources,
-                         std::shared_ptr<IConfStorage> confStorage)
+                         const std::shared_ptr<IConfStorage> &confStorage)
     : m_arduinoAdp(arduinoAdp)
     , m_server(webServer)
     , m_confStorage(confStorage)

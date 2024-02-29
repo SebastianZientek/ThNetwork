@@ -16,10 +16,10 @@
 class EspNow
 {
 public:
-    EspNow(std::shared_ptr<IArduino8266Adp> arduinoAdp,
-           std::shared_ptr<IWifi8266Adp> wifiAdp,
-           std::shared_ptr<IEsp8266Adp> espAdp,
-           std::shared_ptr<IEspNow8266Adp> espNowAdp);
+    EspNow(const std::shared_ptr<IArduino8266Adp> &arduinoAdp,
+           const std::shared_ptr<IWifi8266Adp> &wifiAdp,
+           const std::shared_ptr<IEsp8266Adp> &espAdp,
+           const std::shared_ptr<IEspNow8266Adp> &espNowAdp);
     ~EspNow() = default;
     EspNow(const EspNow &) = delete;
     EspNow(EspNow &&) = delete;

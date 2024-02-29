@@ -11,9 +11,9 @@ constexpr auto msgSignatureSize = 4;
 constexpr std::array<uint8_t, macSize> broadcastAddress{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
 EspNowServer::EspNowServer(std::unique_ptr<IEspNow32Adp> espNowAdp,
-                           std::shared_ptr<EspNowPairingManager> pairingManager,
-                           std::shared_ptr<IWifi32Adp> wifiAdp,
-                           std::shared_ptr<IConfStorage> confStorage)
+                           const std::shared_ptr<EspNowPairingManager> &pairingManager,
+                           const std::shared_ptr<IWifi32Adp> &wifiAdp,
+                           const std::shared_ptr<IConfStorage> &confStorage)
     : m_espNowAdp(std::move(espNowAdp))
     , m_pairingManager(pairingManager)
     , m_wifiAdp(wifiAdp)

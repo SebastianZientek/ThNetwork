@@ -7,7 +7,8 @@
 #include "common/logger.hpp"
 #include "host/adapters/IFileSystem32Adp.hpp"
 
-ConfStorage::ConfStorage(std::shared_ptr<IFileSystem32Adp> fileSystem, const std::string &path)
+ConfStorage::ConfStorage(const std::shared_ptr<IFileSystem32Adp> &fileSystem,
+                         const std::string &path)
     : m_fileSystem(fileSystem)
     , m_path(path)
 {
@@ -37,7 +38,7 @@ ConfStorage::State ConfStorage::save()
     try
     {
         auto data = m_jsonData.dump();
-        file->print(data.c_str());
+        file->print(data);
     }
     catch (nlohmann::json::type_error err)
     {

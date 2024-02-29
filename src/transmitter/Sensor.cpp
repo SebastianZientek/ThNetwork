@@ -9,7 +9,7 @@ struct Sensor::Impl
     Adafruit_AHTX0 aht;
 };
 
-Sensor::Sensor(std::shared_ptr<IArduino8266Adp> arduinoAdp)
+Sensor::Sensor(const std::shared_ptr<IArduino8266Adp> &arduinoAdp)
     : m_impl{std::make_unique<Impl>()}
     , m_arduinoAdp(arduinoAdp)
 {

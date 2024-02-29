@@ -11,7 +11,7 @@ class Timer
     using FunType = std::function<void()>;
 
 public:
-    Timer(std::shared_ptr<IArduino32Adp> arduinoAdp)
+    Timer(const std::shared_ptr<IArduino32Adp> &arduinoAdp)
         : m_arduinoAdp(arduinoAdp)
     {
     }

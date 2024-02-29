@@ -13,7 +13,7 @@
 class ConfStorage : public IConfStorage
 {
 public:
-    ConfStorage(std::shared_ptr<IFileSystem32Adp> fileSystem, const std::string &path);
+    ConfStorage(const std::shared_ptr<IFileSystem32Adp> &fileSystem, const std::string &path);
 
     State load() override;
     State save() override;

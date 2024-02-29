@@ -22,10 +22,10 @@ class WebPageMain
     constexpr static auto RECONNECT_TIMEOUT = 10000;
 
 public:
-    WebPageMain(std::shared_ptr<IArduino32Adp> arduinoAdp,
-                std::shared_ptr<IWebServer> webServer,
+    WebPageMain(const std::shared_ptr<IArduino32Adp> &arduinoAdp,
+                const std::shared_ptr<IWebServer> &webServer,
                 std::unique_ptr<IResources> resources,
-                std::shared_ptr<IConfStorage> confStorage);
+                const std::shared_ptr<IConfStorage> &confStorage);
 
     void sendEvent(const char *message,
                    const char *event = nullptr,
