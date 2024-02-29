@@ -34,8 +34,6 @@ class App
         WIFI_SETTINGS
     };
 
-    using WebWifiConfigType = WebWifiConfig<ConfStorage, AsyncWebServer>;
-
 public:
     App() = default;
     void init();
@@ -62,7 +60,7 @@ private:
     std::shared_ptr<LedIndicator> m_ledIndicator{};
     std::shared_ptr<ConfStorage> m_confStorage{};
     std::unique_ptr<WebPageMain> m_webPageMain{};
-    std::unique_ptr<WebWifiConfigType> m_webWifiConfig{};
+    std::unique_ptr<WebWifiConfig> m_webWifiConfig{};
     WiFiUDP m_ntpUDP{};
     std::shared_ptr<NTPClient> m_timeClient{};
     std::shared_ptr<EspNowPairingManager> m_pairingManager{};

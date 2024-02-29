@@ -11,46 +11,12 @@ class Timer
     using FunType = std::function<void()>;
 
 public:
-    Timer(const std::shared_ptr<IArduino32Adp> &arduinoAdp)
-        : m_arduinoAdp(arduinoAdp)
-    {
-    }
+    Timer(const std::shared_ptr<IArduino32Adp> &arduinoAdp);
 
-    void setCallback(const FunType &fun)
-    {
-        m_function = fun;
-    }
-
-    void start(std::size_t timeoutMillis, bool repeat = false)
-    {
-        m_period = timeoutMillis;
-        m_startTime = m_arduinoAdp->millis();
-
-        m_stopped = false;
-        m_repeat = repeat;
-    }
-
-    void stop()
-    {
-        m_stopped = true;
-    }
-
-    void update()
-    {
-        if (!m_stopped && m_period + m_startTime < m_arduinoAdp->millis())
-        {
-            m_function();
-
-            if (m_repeat)
-            {
-                m_startTime = m_arduinoAdp->millis();
-            }
-            else
-            {
-                m_stopped = true;
-            }
-        }
-    }
+    void setCallback(const FunType &fun);
+    void start(std::size_t timeoutMillis, bool repeat = false);
+    void stop();
+    void update();
 
 private:
     FunType m_function = []

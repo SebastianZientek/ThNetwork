@@ -218,9 +218,9 @@ void App::wifiSettingsMode()
     m_wifiAdp->disconnect();
 
     constexpr auto wifiConfigWebPort = 80;
-    m_webWifiConfig = std::make_unique<WebWifiConfigType>(
-        m_wifiAdp, std::make_unique<WebServer>(wifiConfigWebPort), m_espAdp,
-        std::make_unique<Resources>());
+    m_webWifiConfig
+        = std::make_unique<WebWifiConfig>(m_wifiAdp, std::make_unique<WebServer>(wifiConfigWebPort),
+                                          m_espAdp, std::make_unique<Resources>());
     m_webWifiConfig->startConfiguration(m_confStorage);
 }
 

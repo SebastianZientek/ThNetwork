@@ -50,6 +50,8 @@ set(HOST_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ReadingsStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/EspNowPairingManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/WebPageMain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/LedIndicator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/Timer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
