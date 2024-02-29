@@ -1,5 +1,7 @@
 #include "EspNowPairingManager.hpp"
 
+#include "common/logger.hpp"
+
 EspNowPairingManager::EspNowPairingManager(const std::shared_ptr<IConfStorage> &confStorage,
                                            const std::shared_ptr<IArduino32Adp> &arduinoAdp,
                                            const std::shared_ptr<LedIndicator> &pairingLed)

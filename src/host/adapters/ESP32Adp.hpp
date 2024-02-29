@@ -7,8 +7,5 @@
 class ESP32Adp : public IESP32Adp
 {
 public:
-    void restart() const override
-    {
-        ESP.restart();
-    }
+    void restart() const override;
 };
