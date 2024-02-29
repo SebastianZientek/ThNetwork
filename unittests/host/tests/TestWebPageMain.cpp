@@ -56,6 +56,18 @@ TEST_GROUP(WebPageMainTest)  // NOLINT
             .andReturnValue(authenticate);
     }
 
+    void startServerMock(WebPageMain & webPageMain)
+    {
+        mock("WebServerMock").expectOneCall("setupEventsSource").ignoreOtherParameters();
+        mock("WebServerMock").expectOneCall("start").ignoreOtherParameters();
+
+        webPageMain.startServer(
+            []([[maybe_unused]] const std::size_t &identifier)
+            {
+                return R"({"some": "data"})";
+            });
+    }
+
     std::shared_ptr<ConfStorageMock> confStorageMock{std::make_shared<ConfStorageMock>()};
     std::shared_ptr<Arduino32AdpMock> arduino32AdpMock{std::make_shared<Arduino32AdpMock>()};
     std::shared_ptr<WebServerMock> webServerMock;
@@ -80,8 +92,7 @@ TEST(WebPageMainTest, ProvideIndexHtml)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getIndexHtml");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/", webRequestMock);
@@ -101,8 +112,7 @@ TEST(WebPageMainTest, ProvideAdminPageWhenUserIsAuthenticated)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getAdminHtml");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/admin", webRequestMock);
@@ -117,8 +127,7 @@ TEST(WebPageMainTest, RequestAuthInsteadOfProvidingAdminPageWhenUnauthorized)  /
     mockAuthentication(false);
     mock("WebRequestMock").expectOneCall("requestAuthentication");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/admin", webRequestMock);
@@ -138,8 +147,7 @@ TEST(WebPageMainTest, ProvideFavIcon)  // NOLINT
     mock("ResourcesMock").expectOneCall("getFavicon");
     mock("ResourcesMock").expectOneCall("getFaviconSize");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/favicon.ico", webRequestMock);
@@ -158,8 +166,7 @@ TEST(WebPageMainTest, ProvideMicroChartJs)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getMicroChart");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/microChart.js", webRequestMock);
@@ -178,8 +185,7 @@ TEST(WebPageMainTest, ProvideAdminJs)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getAdminJs");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/admin.js", webRequestMock);
@@ -198,8 +204,7 @@ TEST(WebPageMainTest, ProvideChartJs)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getChartsJs");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/charts.js", webRequestMock);
@@ -218,8 +223,7 @@ TEST(WebPageMainTest, ProvidePicoCss)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getPicoCss");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/pico.min.css", webRequestMock);
@@ -252,8 +256,7 @@ TEST(WebPageMainTest, ActionSetCredentialsWhenAuthenticated)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getAdminHtml");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setCredentials", webRequestMock, incomingCredentials.dump());
@@ -275,8 +278,7 @@ TEST(WebPageMainTest, ActionSetCredentialsNotAllwWhenNotAuthenticated)  // NOLIN
 
     mock("WebRequestMock").expectOneCall("requestAuthentication");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setCredentials", webRequestMock, incomingCredentials.dump());
@@ -298,8 +300,7 @@ TEST(WebPageMainTest, ActionSetCredentialsWhenRePasswordNotMatch)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setCredentials", webRequestMock, incomingCredentials.dump());
@@ -321,8 +322,7 @@ TEST(WebPageMainTest, ActionSetCredentialsNotAllowWhenEmptyPassword)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setCredentials", webRequestMock, incomingCredentials.dump());
@@ -344,8 +344,7 @@ TEST(WebPageMainTest, ActionSetCredentialsNotAllowWhenEmptyUsername)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setCredentials", webRequestMock, incomingCredentials.dump());
@@ -363,8 +362,7 @@ TEST(WebPageMainTest, ActionSetCredentialsNotAllowWhenCorruptedData)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setCredentials", webRequestMock, corruptedIncomingJsonData);
@@ -386,8 +384,7 @@ TEST(WebPageMainTest, ActionSetCredentialsWhenWrongData)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setCredentials", webRequestMock, incomingCredentials.dump());
@@ -417,8 +414,7 @@ TEST(WebPageMainTest, UpdateSensorsMappingWhenAuthorized)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getAdminHtml");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/updateSensorsMapping", webRequestMock,
@@ -441,8 +437,7 @@ TEST(WebPageMainTest, NotUpdateSensorsMappingWhenUnAuthorized)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("requestAuthentication");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/updateSensorsMapping", webRequestMock,
@@ -461,8 +456,7 @@ TEST(WebPageMainTest, NotUpdateSensorsMappingWhenIncomingDataCorrupted)  // NOLI
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/updateSensorsMapping", webRequestMock,
@@ -481,8 +475,7 @@ TEST(WebPageMainTest, EmptyData)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/updateSensorsMapping", webRequestMock, emptyData);
@@ -513,8 +506,7 @@ TEST(WebPageMainTest, UpdateSensorsMappingOnlyForCorrectOne)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getAdminHtml");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/updateSensorsMapping", webRequestMock,
@@ -539,8 +531,7 @@ TEST(WebPageMainTest, SetPropertiesWhenAuthorizedAndCorrectDataIncoming)  // NOL
     mock("ConfStorageMock").expectOneCall("save");
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_OK);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setProperties", webRequestMock, incomingProperties.dump());
@@ -561,8 +552,7 @@ TEST(WebPageMainTest, NotSetPropertiesWhenWrongTypeOfData)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setProperties", webRequestMock, incomingProperties.dump());
@@ -580,8 +570,7 @@ TEST(WebPageMainTest, NotSetPropertiesWhenCorruptedData)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setProperties", webRequestMock, corruptedData);
@@ -602,8 +591,7 @@ TEST(WebPageMainTest, NotSetPropertiesWhenUnAuthorized)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_UNAUTH);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/setProperties", webRequestMock, incomingProperties.dump());
@@ -623,8 +611,7 @@ TEST(WebPageMainTest, RemoveSensorWhenAuthorizedAndCorrectDataIncoming)  // NOLI
     mock("ConfStorageMock").expectOneCall("save");
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_OK);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/removeSensor", webRequestMock, incomingProperties.dump());
@@ -642,8 +629,7 @@ TEST(WebPageMainTest, DontRemoveSensorWhenUnauthorized)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_UNAUTH);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/removeSensor", webRequestMock, incomingProperties.dump());
@@ -661,8 +647,7 @@ TEST(WebPageMainTest, DontRemoveSensorWhenDataCorrupted)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/removeSensor", webRequestMock, corruptedData);
@@ -680,8 +665,7 @@ TEST(WebPageMainTest, DontRemoveSensorWhenWrongDataType)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/removeSensor", webRequestMock, incomingProperties.dump());
@@ -699,8 +683,7 @@ TEST(WebPageMainTest, DontRemoveSensorWhenMissingIdentifierInJson)  // NOLINT
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callPostWithBody("/removeSensor", webRequestMock, incomingProperties.dump());
@@ -719,8 +702,7 @@ TEST(WebPageMainTest, Logout)  // NOLINT
         .ignoreOtherParameters();
     mock("ResourcesMock").expectOneCall("getAdminHtml");
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/logout", webRequestMock);
@@ -749,8 +731,7 @@ TEST(WebPageMainTest, sensorIDsToNames)  // NOLINT
         .withParameter("content", sensorsMappingStr.c_str())
         .ignoreOtherParameters();
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/sensorIDsToNames", webRequestMock);
@@ -780,8 +761,7 @@ TEST(WebPageMainTest, getConfigurationWhenAuthorized)  // NOLINT
         .withParameter("content", someConfigurationStr.c_str())
         .ignoreOtherParameters();
 
-    sut.setupResources();
-    sut.setupActions();
+    startServerMock(sut);
 
     WebRequestMock webRequestMock;
     webServerMock->callGet("/configuration", webRequestMock);

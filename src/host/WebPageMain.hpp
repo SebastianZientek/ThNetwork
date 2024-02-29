@@ -31,8 +31,6 @@ public:
                    const char *event = nullptr,
                    uint32_t identifier = 0,
                    uint32_t reconnect = 0);
-    void setupResources();
-    void setupActions();
     void startServer(const GetSensorDataCb &getSensorDataCb);
     void stopServer();
 
@@ -43,6 +41,9 @@ private:
     std::shared_ptr<IConfStorage> m_confStorage;
 
     GetSensorDataCb m_getSensorDataCb;
+
+    void setupResources();
+    void setupActions();
 
     bool auth(IWebRequest &request);
     void setCredentials(IWebRequest &request, const std::string &body);
