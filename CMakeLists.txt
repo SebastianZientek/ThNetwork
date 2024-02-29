@@ -49,6 +49,7 @@ set(HOST_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ConfStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/ReadingsStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/EspNowPairingManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/WebPageMain.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
@@ -57,6 +58,7 @@ set(HOST_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestConfStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestReadingsStorage.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestEspNowPairingManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestWebPageMain.cpp
 )
 
 set(TRANSMITTER_INCLS

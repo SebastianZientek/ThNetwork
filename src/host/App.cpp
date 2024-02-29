@@ -49,7 +49,7 @@ void App::init()
     else
     {
         m_webPageMain = std::make_unique<WebPageMain>(
-            m_arduinoAdp, std::make_unique<WebServer>(m_confStorage->getServerPort()),
+            m_arduinoAdp, std::make_shared<WebServer>(m_confStorage->getServerPort()),
             std::make_unique<Resources>(), m_confStorage);
 
         auto newReadingCallback = [this](float temp, float hum, IDType identifier)
