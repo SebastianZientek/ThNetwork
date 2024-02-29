@@ -1,3 +1,5 @@
+#pragma once
+
 #include <functional>
 
 #include "adapters/IEspNow8266Adp.hpp"

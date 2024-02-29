@@ -12,5 +12,9 @@ public:
     IEventSrcClient &operator=(IEventSrcClient &&) = default;
 
     virtual uint32_t lastId() = 0;
-    virtual void send(const char *message, const char *event, uint32_t identifier, uint32_t reconnect) = 0;
+    virtual void send(const char *message,
+                      const char *event,
+                      uint32_t identifier,
+                      uint32_t reconnect)
+        = 0;
 };

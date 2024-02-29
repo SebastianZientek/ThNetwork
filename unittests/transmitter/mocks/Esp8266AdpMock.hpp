@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include <CppUTestExt/MockSupport.h>
 
 #include "adapters/IEsp8266Adp.hpp"

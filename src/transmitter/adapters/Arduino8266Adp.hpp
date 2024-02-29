@@ -2,7 +2,7 @@
 
 #include "IArduino8266Adp.hpp"
 
-class Arduino8266Adp: public IArduino8266Adp
+class Arduino8266Adp : public IArduino8266Adp
 {
 public:
     void pinMode(uint8_t pin, Mode mode) const override;

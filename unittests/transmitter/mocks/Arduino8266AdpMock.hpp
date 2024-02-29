@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include <CppUTestExt/MockSupport.h>
 
 #include <cinttypes>

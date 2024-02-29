@@ -1,8 +1,8 @@
 #pragma once
 
+#include <cstdint>
 #include <map>
 #include <string>
-#include <cstdint>
 
 class IWebRequest
 {

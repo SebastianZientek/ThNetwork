@@ -109,6 +109,6 @@ TEST(TestSerializer, shouldDeserializePartialData)  // NOLINT
     CHECK_TRUE(deserialized);  // NOLINT
 
     auto [outIntVal, outCharVal] = deserialized.value();
-    CHECK_EQUAL(inIntVal, outIntVal);      // NOLINT
-    CHECK_EQUAL(inCharVal, outCharVal);    // NOLINT
+    CHECK_EQUAL(inIntVal, outIntVal);    // NOLINT
+    CHECK_EQUAL(inCharVal, outCharVal);  // NOLINT
 }
