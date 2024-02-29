@@ -12,7 +12,7 @@
 class WebRequestMock : public IWebRequest
 {
 public:
-    void send(int code, std::string contentType, const uint8_t *content, size_t len) override
+    void send(int code, const std::string &contentType, const uint8_t *content, size_t len) override
     {
         mock("WebRequestMock")
             .actualCall("send")
@@ -22,7 +22,7 @@ public:
             .withParameter("len", len);
     }
 
-    void send(int code, std::string contentType, const char *content) override
+    void send(int code, const std::string &contentType, const char *content) override
     {
         mock("WebRequestMock")
             .actualCall("send")
@@ -36,7 +36,7 @@ public:
         mock("WebRequestMock").actualCall("send").withParameter("code", code);
     }
 
-    void redirect(std::string url) override
+    void redirect(const std::string &url) override
     {
         mock("WebRequestMock").actualCall("redirect").withParameter("url", url.c_str());
     }

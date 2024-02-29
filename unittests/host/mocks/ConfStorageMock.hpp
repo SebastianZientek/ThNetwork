@@ -49,7 +49,7 @@ class ConfStorageMock : public IConfStorage
             .returnUnsignedLongIntValueOrDefault(0);
     }
 
-    void setWifiConfig(std::string ssid, std::string pass) override
+    void setWifiConfig(const std::string &ssid, const std::string &pass) override
     {
         mock("ConfStorageMock")
             .actualCall("setWifiConfig")
@@ -67,7 +67,7 @@ class ConfStorageMock : public IConfStorage
         return *static_cast<ReturnType *>(returnVal);
     }
 
-    void setAdminCredentials(std::string user, std::string pass) override
+    void setAdminCredentials(const std::string &user, const std::string &pass) override
     {
         mock("ConfStorageMock")
             .actualCall("setAdminCredentials")

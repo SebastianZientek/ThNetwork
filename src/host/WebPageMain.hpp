@@ -47,7 +47,7 @@ private:
 
     bool auth(IWebRequest &request);
     void setCredentials(IWebRequest &request, const std::string &body);
-    void updateSensorsMapping(IWebRequest &request, std::string body);
+    void updateSensorsMapping(IWebRequest &request, const std::string &body);
     void setProperties(IWebRequest &request, const std::string &body);
     void removeSensor(IWebRequest &request, const std::string &body);
     void sensorIDsToNames(IWebRequest &request);

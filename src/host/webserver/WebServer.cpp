@@ -20,7 +20,7 @@ void WebServer::stop()
     m_server.end();
 }
 
-void WebServer::onGet(std::string url, WebRequestClbk clbk)
+void WebServer::onGet(const std::string &url, WebRequestClbk clbk)
 {
     m_server.on(url.c_str(), HTTP_GET,
                 [clbk](AsyncWebServerRequest *request)
@@ -30,7 +30,7 @@ void WebServer::onGet(std::string url, WebRequestClbk clbk)
                 });
 }
 
-void WebServer::onPost(std::string url, WebRequestClbk clbk)
+void WebServer::onPost(const std::string &url, WebRequestClbk clbk)
 {
     m_server.on(url.c_str(), HTTP_POST,
                 [clbk](AsyncWebServerRequest *request)
@@ -40,7 +40,7 @@ void WebServer::onPost(std::string url, WebRequestClbk clbk)
                 });
 }
 
-void WebServer::onPost(std::string url, WebRequestWithBodyClbk clbk)
+void WebServer::onPost(const std::string &url, WebRequestWithBodyClbk clbk)
 {
     m_server.on(
         url.c_str(), HTTP_POST,

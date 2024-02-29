@@ -37,7 +37,7 @@ public:
     IWifi32Adp &operator=(const IWifi32Adp &) = default;
     IWifi32Adp &operator=(IWifi32Adp &&) noexcept = default;
 
-    virtual void init(std::string ssid, std::string pass) const = 0;
+    virtual void init(const std::string &ssid, const std::string &pass) const = 0;
     virtual void disconnect() const = 0;
     virtual void setMode(const Mode &mode) const = 0;
     [[nodiscard]] virtual Status getStatus() const = 0;
@@ -46,6 +46,6 @@ public:
     [[nodiscard]] virtual std::string getMacAddr() const = 0;
     [[nodiscard]] virtual std::size_t getChannel() const = 0;
     [[nodiscard]] virtual std::array<uint8_t, macAddrDigits> getSoftApMacAddr() const = 0;
-    virtual void softAp(std::string ssid, std::string pass = "") const = 0;
+    virtual void softAp(const std::string &ssid, const std::string &pass = "") const = 0;
     [[nodiscard]] virtual std::string getSoftApIp() const = 0;
 };

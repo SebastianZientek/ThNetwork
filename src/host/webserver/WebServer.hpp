@@ -18,9 +18,9 @@ public:
 
     void start() override;
     void stop() override;
-    void onGet(std::string url, WebRequestClbk clbk) override;
-    void onPost(std::string url, WebRequestClbk clbk) override;
-    void onPost(std::string url, WebRequestWithBodyClbk clbk) override;
+    void onGet(const std::string &url, WebRequestClbk clbk) override;
+    void onPost(const std::string &url, WebRequestClbk clbk) override;
+    void onPost(const std::string &url, WebRequestWithBodyClbk clbk) override;
     void setupEventsSource(const std::string &src, EventClbk onConnectClbk) override;
     void sendEvent(const char *message,
                    const char *event = nullptr,

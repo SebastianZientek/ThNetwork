@@ -2,7 +2,7 @@
 
 #include <WiFi.h>
 
-void Wifi32Adp::init(std::string ssid, std::string pass) const
+void Wifi32Adp::init(const std::string &ssid, const std::string &pass) const
 {
     WiFi.begin(ssid.c_str(), pass.c_str());
 }
@@ -82,7 +82,7 @@ std::array<uint8_t, Wifi32Adp::macAddrDigits> Wifi32Adp::getSoftApMacAddr() cons
     return softApMac;
 }
 
-void Wifi32Adp::softAp(std::string ssid, std::string pass) const
+void Wifi32Adp::softAp(const std::string &ssid, const std::string &pass) const
 {
     WiFi.softAP(ssid.c_str(), pass.c_str());
 }

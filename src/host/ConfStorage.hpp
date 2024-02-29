@@ -13,7 +13,7 @@
 class ConfStorage : public IConfStorage
 {
 public:
-    ConfStorage(const std::shared_ptr<IFileSystem32Adp> &fileSystem, const std::string &path);
+    ConfStorage(const std::shared_ptr<IFileSystem32Adp> &fileSystem, std::string path);
 
     State load() override;
     State save() override;
@@ -24,9 +24,9 @@ public:
     [[nodiscard]] uint16_t getSensorUpdatePeriodMins() const override;
     void setServerPort(std::size_t port) override;
     [[nodiscard]] std::size_t getServerPort() const override;
-    void setWifiConfig(std::string ssid, std::string pass) override;
+    void setWifiConfig(const std::string &ssid, const std::string &pass) override;
     std::optional<std::pair<std::string, std::string>> getWifiConfig() override;
-    void setAdminCredentials(std::string user, std::string pass) override;
+    void setAdminCredentials(const std::string &user, const std::string &pass) override;
     [[nodiscard]] std::optional<std::pair<std::string, std::string>> getAdminCredentials()
         const override;
 

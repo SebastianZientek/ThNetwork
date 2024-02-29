@@ -20,19 +20,19 @@ public:
         mock("WebServerMock").actualCall("stop");
     }
 
-    void onGet(std::string url, WebRequestClbk clbk) override
+    void onGet(const std::string &url, WebRequestClbk clbk) override
     {
         mock("WebServerMock").actualCall("onGet").withParameter("url", url.c_str());
         m_onGetCallbacks[url] = clbk;
     }
 
-    void onPost(std::string url, WebRequestClbk clbk) override
+    void onPost(const std::string &url, WebRequestClbk clbk) override
     {
         mock("WebServerMock").actualCall("onPost").withParameter("url", url.c_str());
         m_onPostCallbacks[url] = clbk;
     }
 
-    void onPost(std::string url, WebRequestWithBodyClbk clbk) override
+    void onPost(const std::string &url, WebRequestWithBodyClbk clbk) override
     {
         mock("WebServerMock").actualCall("onPost").withParameter("url", url.c_str());
         m_onPostWithBodyCallbacks[url] = clbk;

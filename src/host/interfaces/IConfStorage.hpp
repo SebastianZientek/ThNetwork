@@ -31,9 +31,9 @@ public:
     [[nodiscard]] virtual uint16_t getSensorUpdatePeriodMins() const = 0;
     virtual void setServerPort(std::size_t port) = 0;
     [[nodiscard]] virtual std::size_t getServerPort() const = 0;
-    virtual void setWifiConfig(std::string ssid, std::string pass) = 0;
+    virtual void setWifiConfig(const std::string &ssid, const std::string &pass) = 0;
     virtual std::optional<std::pair<std::string, std::string>> getWifiConfig() = 0;
-    virtual void setAdminCredentials(std::string user, std::string pass) = 0;
+    virtual void setAdminCredentials(const std::string &user, const std::string &pass) = 0;
     [[nodiscard]] virtual std::optional<std::pair<std::string, std::string>> getAdminCredentials()
         const
         = 0;

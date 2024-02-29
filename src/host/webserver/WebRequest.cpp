@@ -5,12 +5,12 @@ WebRequest::WebRequest(AsyncWebServerRequest *WebRequest)
 {
 }
 
-void WebRequest::send(int code, std::string contentType, const uint8_t *content, size_t len)
+void WebRequest::send(int code, const std::string &contentType, const uint8_t *content, size_t len)
 {
     m_WebRequest->send_P(code, contentType.c_str(), content, len);
 }
 
-void WebRequest::send(int code, std::string contentType, const char *content)
+void WebRequest::send(int code, const std::string &contentType, const char *content)
 {
     m_WebRequest->send_P(code, contentType.c_str(), content);
 }
@@ -20,7 +20,7 @@ void WebRequest::send(int code)
     m_WebRequest->send(code);
 }
 
-void WebRequest::redirect(std::string url)
+void WebRequest::redirect(const std::string &url)
 {
     m_WebRequest->redirect(url.c_str());
 }

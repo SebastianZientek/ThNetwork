@@ -7,10 +7,9 @@
 #include "common/logger.hpp"
 #include "host/adapters/IFileSystem32Adp.hpp"
 
-ConfStorage::ConfStorage(const std::shared_ptr<IFileSystem32Adp> &fileSystem,
-                         const std::string &path)
+ConfStorage::ConfStorage(const std::shared_ptr<IFileSystem32Adp> &fileSystem, std::string path)
     : m_fileSystem(fileSystem)
-    , m_path(path)
+    , m_path(std::move(path))
 {
     setDefault();
 }
@@ -81,7 +80,7 @@ std::size_t ConfStorage::getServerPort() const
     return m_jsonData["serverPort"];
 }
 
-void ConfStorage::setWifiConfig(std::string ssid, std::string pass)
+void ConfStorage::setWifiConfig(const std::string &ssid, const std::string &pass)
 {
     m_jsonData["wifi"]["ssid"] = ssid;
     m_jsonData["wifi"]["pass"] = pass;
@@ -104,7 +103,7 @@ std::optional<std::pair<std::string, std::string>> ConfStorage::getWifiConfig()
     return std::nullopt;
 }
 
-void ConfStorage::setAdminCredentials(std::string user, std::string pass)
+void ConfStorage::setAdminCredentials(const std::string &user, const std::string &pass)
 {
     m_jsonData["admin"]["user"] = user;
     m_jsonData["admin"]["pass"] = pass;
@@ -141,12 +140,11 @@ bool ConfStorage::isAvailableSpaceForNextSensor()
 
 bool nameExists(const nlohmann::json &data, const std::string &name)
 {
-    for (auto &sensor : data)
-    {
-        if (sensor == name) return true;
-    }
-
-    return false;
+    return std::any_of(data.begin(), data.end(),
+                       [name](auto sensor)
+                       {
+                           return sensor == name;
+                       });
 }
 
 bool ConfStorage::addSensor(IDType identifier, const std::string &name)
@@ -157,7 +155,7 @@ bool ConfStorage::addSensor(IDType identifier, const std::string &name)
         for (size_t i = 0; i < maxSensorsNum; ++i)
         {
             std::string nameToSet = "Unnamed " + std::to_string(i + 1);
-            if (nameExists(m_jsonData["sensors"], nameToSet) == false)
+            if (!nameExists(m_jsonData["sensors"], nameToSet))
             {
                 newSensorName = nameToSet;
                 break;

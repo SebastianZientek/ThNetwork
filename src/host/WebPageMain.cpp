@@ -214,7 +214,7 @@ void WebPageMain::setCredentials(IWebRequest &request, const std::string &body)
     }
 }
 
-void WebPageMain::updateSensorsMapping(IWebRequest &request, std::string body)
+void WebPageMain::updateSensorsMapping(IWebRequest &request, const std::string &body)
 {
     if (!auth(request))
     {
