@@ -26,12 +26,14 @@ void WebPageMain::setupResources()
     m_server->onGet("/",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /");
                         request.send(HTML_OK, "text/html", m_resources->getIndexHtml());
                     });
 
     m_server->onGet("/admin",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /admin");
                         if (!auth(request))
                         {
                             return request.requestAuthentication();
@@ -42,6 +44,7 @@ void WebPageMain::setupResources()
     m_server->onGet("/favicon.ico",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /favicon.ico");
                         request.send(HTML_OK, "image/png", m_resources->getFavicon(),
                                      m_resources->getFaviconSize());
                     });
@@ -49,6 +52,7 @@ void WebPageMain::setupResources()
     m_server->onGet("/microChart.js",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /microChart.js");
                         request.send(HTML_OK, "application/javascript",
                                      m_resources->getMicroChart());
                     });
@@ -56,18 +60,21 @@ void WebPageMain::setupResources()
     m_server->onGet("/admin.js",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /admin.js");
                         request.send(HTML_OK, "application/javascript", m_resources->getAdminJs());
                     });
 
     m_server->onGet("/charts.js",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /charts.js");
                         request.send(HTML_OK, "application/javascript", m_resources->getChartsJs());
                     });
 
     m_server->onGet("/pico.min.css",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /pico.min.css");
                         request.send(HTML_OK, "text/css", m_resources->getPicoCss());
                     });
 }
@@ -77,48 +84,56 @@ void WebPageMain::setupActions()
     m_server->onPost("/setCredentials",
                      [this](IWebRequest &request, const std::string &body)
                      {
+                         logger::logDbg("post /setCredentials");
                          setCredentials(request, body);
                      });
 
     m_server->onPost("/updateSensorsMapping",
                      [this](IWebRequest &request, const std::string &body)
                      {
+                         logger::logDbg("post /updateSensorsMapping");
                          updateSensorsMapping(request, body);
                      });
 
     m_server->onPost("/setProperties",
                      [this](IWebRequest &request, const std::string &body)
                      {
+                         logger::logDbg("post /setProperties");
                          setProperties(request, body);
                      });
 
     m_server->onPost("/removeSensor",
                      [this](IWebRequest &request, const std::string &body)
                      {
+                         logger::logDbg("post /removeSensor");
                          removeSensor(request, body);
                      });
 
     m_server->onGet("/logout",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /logout");
                         request.send(HTML_UNAUTH, "text/html", m_resources->getAdminHtml());
                     });
 
     m_server->onGet("/sensorIDsToNames",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /sensorIDsToNames");
                         sensorIDsToNames(request);
                     });
 
     m_server->onGet("/configuration",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /configuration");
                         configuration(request);
                     });
 
     m_server->onGet("/sensorData",
                     [this](IWebRequest &request)
                     {
+                        logger::logDbg("get /sensorData");
                         sensorData(request);
                     });
 }
@@ -201,8 +216,6 @@ void WebPageMain::setCredentials(IWebRequest &request, const std::string &body)
 
 void WebPageMain::updateSensorsMapping(IWebRequest &request, std::string body)
 {
-    logger::logDbg("Update configuration %s", body);
-
     if (!auth(request))
     {
         request.requestAuthentication();
