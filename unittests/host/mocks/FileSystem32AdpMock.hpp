@@ -1,4 +1,5 @@
 #pragma once
+
 #include <CppUTestExt/MockSupport.h>
 
 #include "adapters/IFileSystem32Adp.hpp"

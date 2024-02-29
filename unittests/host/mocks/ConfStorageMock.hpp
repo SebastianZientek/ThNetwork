@@ -1,4 +1,5 @@
 #pragma once
+
 #include <CppUTestExt/MockSupport.h>
 
 #include "interfaces/IConfStorage.hpp"
