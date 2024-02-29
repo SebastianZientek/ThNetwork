@@ -4,35 +4,12 @@
 #include <memory>
 #include <numeric>
 
-#include "ConfStorage.hpp"
-#include "EspNowPairingManager.hpp"
-#include "LedIndicator.hpp"
-#include "Resources.hpp"
-#include "WebPageMain.hpp"
-#include "adapters/Arduino32Adp.hpp"
-#include "adapters/ESP32Adp.hpp"
-#include "adapters/EspNow32Adp.hpp"
-#include "adapters/LittleFS32Adp.hpp"
-#include "adapters/Wifi32Adp.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
-#include "webserver/WebServer.hpp"
 
 void App::init()
 {
-    m_internalFS = std::make_shared<LittleFSAdp>();
-    m_wifiAdp = std::make_shared<Wifi32Adp>();
-    m_arduinoAdp = std::make_shared<Arduino32Adp>();
-    m_confStorage = std::make_shared<ConfStorage>(m_internalFS, "/config.json");
-    m_espAdp = std::make_shared<ESP32Adp>();
-    m_ledIndicator = std::make_shared<LedIndicator>(m_arduinoAdp, m_ledIndicatorPin);
-    m_pairingManager
-        = std::make_unique<EspNowPairingManager>(m_confStorage, m_arduinoAdp, m_ledIndicator);
-    m_espNow = std::make_unique<EspNowServer>(std::make_unique<EspNow32Adp>(), m_pairingManager,
-                                              m_wifiAdp, m_confStorage);
-    m_timeClient = std::make_shared<NTPClient>(m_ntpUDP);
-
     if (auto initState = systemInit(); initState == State::FAIL)
     {
         constexpr auto msInSecond = 1000;
@@ -90,7 +67,7 @@ void App::update()
         {
             resetStarted = m_arduinoAdp->millis();
         }
-        else if (m_arduinoAdp->millis() - resetStarted > resetToFactorySettings)
+        else if (m_arduinoAdp->millis() - resetStarted > m_resetToFactorySettings)
         {
             logger::logWrn("Reset to factory settings!");
             m_confStorage->setDefault();
@@ -104,7 +81,7 @@ void App::update()
     }
 
     if (m_mode == Mode::WIFI_SETTINGS
-        && m_arduinoAdp->millis() > wifiConfigServerTimeoutMillis + wifiModeStartTime)
+        && m_arduinoAdp->millis() > m_wifiConfigServerTimeoutMillis + wifiModeStartTime)
     {
         logger::logInf("Wifi configuration timeout. Reboot...");
         m_espAdp->restart();
@@ -159,10 +136,6 @@ App::State App::connectWiFi()
 {
     logger::logInf("Connecting to WiFi");
 
-    constexpr auto connectionRetriesBeforeRebootMs = 10;
-    constexpr auto delayBetweenConnectionTiresMs = 1000;
-    constexpr auto waitBeforeRebootMs = 1000;
-
     m_wifiAdp->setMode(Wifi32Adp::Mode::AP_STA);
 
     auto wifiConfig = m_confStorage->getWifiConfig();
@@ -184,13 +157,13 @@ App::State App::connectWiFi()
         }
 
         wifiConnectionTries++;
-        delay(delayBetweenConnectionTiresMs);
+        delay(m_delayBetweenConnectionRetiresMs);
         logger::logInf(".");
 
-        if (wifiConnectionTries >= connectionRetriesBeforeRebootMs)
+        if (wifiConnectionTries >= m_connectionRetriesBeforeRebootMs)
         {
             logger::logWrn("WiFi connection issue, reboot.");
-            delay(waitBeforeRebootMs);
+            delay(m_onErrorWaitBeforeRebootMs);
             m_espAdp->restart();
         }
     }
@@ -216,26 +189,21 @@ void App::wifiSettingsMode()
         m_webPageMain->stopServer();
     }
     m_wifiAdp->disconnect();
-
-    constexpr auto wifiConfigWebPort = 80;
-    m_webWifiConfig
-        = std::make_unique<WebWifiConfig>(m_wifiAdp, std::make_unique<WebServer>(wifiConfigWebPort),
-                                          m_espAdp, std::make_unique<Resources>());
     m_webWifiConfig->startConfiguration(m_confStorage);
 }
 
 void App::setupButtons()
 {
-    m_arduinoAdp->pinMode(wifiButton, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
-    m_arduinoAdp->pinMode(pairButton, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
+    m_arduinoAdp->pinMode(m_wifiButton, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
+    m_arduinoAdp->pinMode(m_pairButton, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
 }
 
 bool App::isWifiButtonPressed()
 {
-    return m_arduinoAdp->digitalRead(wifiButton) == false;
+    return m_arduinoAdp->digitalRead(m_wifiButton) == false;
 }
 
 bool App::isPairButtonPressed()
 {
-    return m_arduinoAdp->digitalRead(pairButton) == false;
+    return m_arduinoAdp->digitalRead(m_pairButton) == false;
 }

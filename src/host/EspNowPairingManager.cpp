@@ -18,6 +18,7 @@ void EspNowPairingManager::enablePairingForPeriod(std::size_t timeout)
         return;
     }
 
+    logger::logDbg("Pairing enabled");
     m_pairingEnabled = true;
     if (m_pairingLed)
     {
@@ -32,6 +33,7 @@ void EspNowPairingManager::enablePairingForPeriod(std::size_t timeout)
                 m_pairingLed->switchOn(false);
             }
             m_pairingEnabled = false;
+            logger::logDbg("Pairing disabled");
         });
     m_pairingTimer.start(timeout);
 }
