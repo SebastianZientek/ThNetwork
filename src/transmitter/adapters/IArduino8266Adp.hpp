@@ -24,11 +24,11 @@ public:
     IArduino8266Adp &operator=(const IArduino8266Adp &) = default;
     IArduino8266Adp &operator=(IArduino8266Adp &&) noexcept = default;
 
-    virtual void pinMode(uint8_t pin, Mode mode) = 0;
-    virtual bool digitalRead(uint8_t pin) = 0;
-    virtual void digitalWrite(uint8_t pin, bool val) = 0;
-    virtual uint8_t getLedBuiltin() = 0;
-    virtual unsigned long millis() = 0;
-    virtual void delay(unsigned long milliseconds) = 0;
-    virtual void setupWire(int sda, int scl) = 0;
+    virtual void pinMode(uint8_t pin, Mode mode) const = 0;
+    [[nodiscard]] virtual bool digitalRead(uint8_t pin) const = 0;
+    virtual void digitalWrite(uint8_t pin, bool val) const = 0;
+    [[nodiscard]] virtual uint8_t getLedBuiltin() const = 0;
+    [[nodiscard]] virtual unsigned long millis() const = 0;
+    virtual void delay(unsigned long milliseconds) const = 0;
+    virtual void setupWire(int sda, int scl) const = 0;
 };

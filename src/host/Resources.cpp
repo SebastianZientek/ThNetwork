@@ -11,47 +11,47 @@ INCTXT(PicoCss, "src/host/html/pico.min.css");
 INCBIN(Favicon, "src/host/html/fav.png");
 INCTXT(WifiSettingsHtml, "src/host/html/wifiSettings.html");
 
-const char *Resources::getIndexHtml()
+const char *Resources::getIndexHtml() const
 {
     return gIndexHtmlData;
 }
 
-const char *Resources::getAdminHtml()
+const char *Resources::getAdminHtml() const
 {
     return gAdminHtmlData;
 }
 
-const char *Resources::getMicroChart()
+const char *Resources::getMicroChart() const
 {
     return gMicroChartData;
 }
 
-const char *Resources::getAdminJs()
+const char *Resources::getAdminJs() const
 {
     return gAdminJsData;
 }
 
-const char *Resources::getChartsJs()
+const char *Resources::getChartsJs() const
 {
     return gChartsJsData;
 }
 
-const char *Resources::getPicoCss()
+const char *Resources::getPicoCss() const
 {
     return gPicoCssData;
 }
 
-const unsigned char *Resources::getFavicon()
+const unsigned char *Resources::getFavicon() const
 {
     return gFaviconData;
 }
 
-unsigned int Resources::getFaviconSize()
+unsigned int Resources::getFaviconSize() const
 {
     return gFaviconSize;
 }
 
-const char *Resources::getWifiSettingsHtml()
+const char *Resources::getWifiSettingsHtml() const
 {
     return gWifiSettingsHtmlData;
 }

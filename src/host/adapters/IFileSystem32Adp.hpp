@@ -21,5 +21,5 @@ public:
     IFileSystem32Adp &operator=(const IFileSystem32Adp &) = default;
     IFileSystem32Adp &operator=(IFileSystem32Adp &&) noexcept = default;
 
-    virtual std::unique_ptr<IRaiiFile> open(const std::string &path, Mode mode) = 0;
+    [[nodiscard]] virtual std::unique_ptr<IRaiiFile> open(const std::string &path, Mode mode) const = 0;
 };

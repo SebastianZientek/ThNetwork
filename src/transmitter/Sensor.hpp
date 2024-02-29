@@ -17,7 +17,7 @@ public:
     Sensor &operator=(const Sensor &&) = delete;
 
     void init(int sda, int scl);
-    std::pair<float, float> getTempHum();
+    std::pair<float, float> getTempHum() const;
 
 private:
     struct Impl;

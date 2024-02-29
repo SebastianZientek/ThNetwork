@@ -30,7 +30,7 @@ void Sensor::init(int sda, int scl)
     }
 }
 
-std::pair<float, float> Sensor::getTempHum()
+std::pair<float, float> Sensor::getTempHum() const
 {
     sensors_event_t humidity{};     // NOLINT
     sensors_event_t temperature{};  // NOLINT

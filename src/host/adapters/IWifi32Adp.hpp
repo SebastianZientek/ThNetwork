@@ -37,15 +37,15 @@ public:
     IWifi32Adp &operator=(const IWifi32Adp &) = default;
     IWifi32Adp &operator=(IWifi32Adp &&) noexcept = default;
 
-    virtual void init(std::string ssid, std::string pass) = 0;
-    virtual void disconnect() = 0;
-    virtual void setMode(const Mode &mode) = 0;
-    virtual Status getStatus() = 0;
-    virtual std::string getSsid() = 0;
-    virtual std::string getLocalIp() = 0;
-    virtual std::string getMacAddr() = 0;
-    virtual std::size_t getChannel() = 0;
-    virtual std::array<uint8_t, macAddrDigits> getSoftApMacAddr() = 0;
-    virtual void softAp(std::string ssid, std::string pass = "") = 0;
-    virtual std::string getSoftApIp() = 0;
+    virtual void init(std::string ssid, std::string pass) const = 0;
+    virtual void disconnect() const = 0;
+    virtual void setMode(const Mode &mode) const = 0;
+    [[nodiscard]] virtual Status getStatus() const = 0;
+    [[nodiscard]] virtual std::string getSsid() const = 0;
+    [[nodiscard]] virtual std::string getLocalIp() const = 0;
+    [[nodiscard]] virtual std::string getMacAddr() const = 0;
+    [[nodiscard]] virtual std::size_t getChannel() const = 0;
+    [[nodiscard]] virtual std::array<uint8_t, macAddrDigits> getSoftApMacAddr() const = 0;
+    virtual void softAp(std::string ssid, std::string pass = "") const = 0;
+    [[nodiscard]] virtual std::string getSoftApIp() const = 0;
 };

@@ -2,7 +2,7 @@
 
 #include <Arduino.h>
 
-void Arduino32Adp::pinMode(uint8_t pin, Mode mode)
+void Arduino32Adp::pinMode(uint8_t pin, Mode mode) const
 {
     switch (mode)
     {
@@ -33,27 +33,27 @@ void Arduino32Adp::pinMode(uint8_t pin, Mode mode)
     }
 }
 
-bool Arduino32Adp::digitalRead(uint8_t pin)
+bool Arduino32Adp::digitalRead(uint8_t pin) const
 {
     return ::digitalRead(pin) == HIGH;
 }
 
-void Arduino32Adp::digitalWrite(uint8_t pin, bool val)
+void Arduino32Adp::digitalWrite(uint8_t pin, bool val) const
 {
     ::digitalWrite(pin, val ? HIGH : LOW);
 }
 
-uint8_t Arduino32Adp::getLedBuiltin()
+uint8_t Arduino32Adp::getLedBuiltin() const
 {
     return 0;
 }
 
-unsigned long Arduino32Adp::millis()
+unsigned long Arduino32Adp::millis() const
 {
     return ::millis();
 }
 
-void Arduino32Adp::delay(unsigned long milliseconds)
+void Arduino32Adp::delay(unsigned long milliseconds) const
 {
     return delay(milliseconds);
 }

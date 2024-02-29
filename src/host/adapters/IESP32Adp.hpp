@@ -10,5 +10,5 @@ public:
     IESP32Adp &operator=(const IESP32Adp &) = delete;
     IESP32Adp &operator=(IESP32Adp &&) noexcept = default;
 
-    virtual void restart() = 0;
+    virtual void restart() const = 0;
 };

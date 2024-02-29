@@ -25,7 +25,7 @@ public:
         m_file.close();
     }
 
-    std::string readString() override
+    [[nodiscard]] std::string readString() override
     {
         return m_file.readString().c_str();
     }

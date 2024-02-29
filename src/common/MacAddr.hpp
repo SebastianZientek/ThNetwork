@@ -17,8 +17,6 @@ struct MacAddr
     [[nodiscard]] std::string str() const;
     [[nodiscard]] size_t toUniqueID() const;
 
-    static MacAddr strToMac(const std::string &str);
-
     friend bool operator<(const MacAddr &lhs, const MacAddr &rhs);
     friend bool operator==(const MacAddr &lhs, const MacAddr &rhs);
 };

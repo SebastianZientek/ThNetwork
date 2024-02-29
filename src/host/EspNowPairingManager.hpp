@@ -18,7 +18,7 @@ public:
     void enablePairingForPeriod(std::size_t timeout = m_pairingDefaultTimeout);
     void disablePairing();
     [[nodiscard]] bool isPairingEnabled() const;
-    bool isPaired(IDType identifier);
+    [[nodiscard]] bool isPaired(IDType identifier) const;
     bool addNewSensorToStorage(IDType identifier);
     void unpairSensor(IDType identifier);
     void update();

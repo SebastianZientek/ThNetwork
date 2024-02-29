@@ -65,7 +65,7 @@ void ConfStorage::setSensorUpdatePeriodMins(uint16_t minutes)
     m_jsonData["sensorUpdatePeriodMins"] = minutes;
 }
 
-uint16_t ConfStorage::getSensorUpdatePeriodMins()
+uint16_t ConfStorage::getSensorUpdatePeriodMins() const
 {
     return m_jsonData["sensorUpdatePeriodMins"];
 }
@@ -75,7 +75,7 @@ void ConfStorage::setServerPort(std::size_t port)
     m_jsonData["serverPort"] = port;
 }
 
-std::size_t ConfStorage::getServerPort()
+std::size_t ConfStorage::getServerPort() const
 {
     return m_jsonData["serverPort"];
 }
@@ -109,7 +109,7 @@ void ConfStorage::setAdminCredentials(std::string user, std::string pass)
     m_jsonData["admin"]["pass"] = pass;
 }
 
-std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredentials()
+std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredentials() const
 {
     try
     {
@@ -123,7 +123,7 @@ std::optional<std::pair<std::string, std::string>> ConfStorage::getAdminCredenti
     return std::nullopt;
 }
 
-std::string ConfStorage::getConfigWithoutCredentials()
+std::string ConfStorage::getConfigWithoutCredentials() const
 {
     nlohmann::json dataWithoutCred
         = {{"sensorUpdatePeriodMins", m_jsonData["sensorUpdatePeriodMins"]},
@@ -187,7 +187,7 @@ bool ConfStorage::removeSensor(IDType identifier)
     return false;
 }
 
-std::string ConfStorage::getSensorsMapping()
+std::string ConfStorage::getSensorsMapping() const
 {
     return m_jsonData["sensors"].dump();
 }

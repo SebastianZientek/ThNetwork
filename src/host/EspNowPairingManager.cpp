@@ -44,7 +44,7 @@ void EspNowPairingManager::disablePairing()
     return m_pairingEnabled;
 }
 
-bool EspNowPairingManager::isPaired(IDType identifier)
+bool EspNowPairingManager::isPaired(IDType identifier) const
 {
     return m_confStorage->isSensorMapped(identifier);
 }

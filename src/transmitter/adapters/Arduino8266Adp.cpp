@@ -5,7 +5,7 @@
 
 #include "pins_arduino.h"
 
-void Arduino8266Adp::pinMode(uint8_t pin, Mode mode)
+void Arduino8266Adp::pinMode(uint8_t pin, Mode mode) const
 {
     switch (mode)
     {
@@ -36,32 +36,32 @@ void Arduino8266Adp::pinMode(uint8_t pin, Mode mode)
     }
 }
 
-bool Arduino8266Adp::digitalRead(uint8_t pin)
+bool Arduino8266Adp::digitalRead(uint8_t pin) const
 {
     return ::digitalRead(pin) == HIGH;
 }
 
-void Arduino8266Adp::digitalWrite(uint8_t pin, bool val)
+void Arduino8266Adp::digitalWrite(uint8_t pin, bool val) const
 {
     ::digitalWrite(pin, val ? HIGH : LOW);
 }
 
-uint8_t Arduino8266Adp::getLedBuiltin()
+uint8_t Arduino8266Adp::getLedBuiltin() const
 {
     return LED_BUILTIN;
 }
 
-unsigned long Arduino8266Adp::millis()
+unsigned long Arduino8266Adp::millis() const
 {
     return ::millis();
 }
 
-void Arduino8266Adp::delay(unsigned long milliseconds)
+void Arduino8266Adp::delay(unsigned long milliseconds) const
 {
     return ::delay(milliseconds);
 }
 
-void Arduino8266Adp::setupWire(int sda, int scl)
+void Arduino8266Adp::setupWire(int sda, int scl) const
 {
     Wire.begin(sda, scl);
 }

@@ -39,10 +39,10 @@ public:
     IEspNow8266Adp &operator=(const IEspNow8266Adp &) = default;
     IEspNow8266Adp &operator=(IEspNow8266Adp &&) noexcept = default;
 
-    virtual Status init() = 0;
-    virtual void deinit() = 0;
-    virtual void setRole(Role role) = 0;
+    [[nodiscard]] virtual Status init() const = 0;
+    virtual void deinit() const = 0;
+    virtual void setRole(Role role) const = 0;
     virtual void registerOnSendCb(const OnSendCb &onSendCb) = 0;
     virtual void registerOnRecvCb(const OnRecvCb &onRecvCb) = 0;
-    virtual Status sendData(MacAddr &mac, uint8_t *data, uint8_t length) = 0;
+    virtual Status sendData(MacAddr &mac, uint8_t *data, uint8_t length) const = 0;
 };

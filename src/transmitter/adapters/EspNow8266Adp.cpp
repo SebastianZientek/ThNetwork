@@ -6,7 +6,7 @@
 EspNow8266Adp::OnSendCb EspNow8266Adp::m_onSendCb;  // NOLINT
 EspNow8266Adp::OnRecvCb EspNow8266Adp::m_onRecvCb;  // NOLINT
 
-EspNow8266Adp::Status EspNow8266Adp::init()
+EspNow8266Adp::Status EspNow8266Adp::init() const
 {
     if (esp_now_init() != 0)
     {
@@ -15,12 +15,12 @@ EspNow8266Adp::Status EspNow8266Adp::init()
     return EspNow8266Adp::Status::OK;
 }
 
-void EspNow8266Adp::deinit()
+void EspNow8266Adp::deinit() const
 {
     esp_now_deinit();
 }
 
-void EspNow8266Adp::setRole(Role role)
+void EspNow8266Adp::setRole(Role role) const
 {
     switch (role)
     {
@@ -69,7 +69,7 @@ void EspNow8266Adp::registerOnRecvCb(const OnRecvCb &onRecvCb)
     esp_now_register_recv_cb(onDataRecv);
 }
 
-EspNow8266Adp::Status EspNow8266Adp::sendData(MacAddr &mac, uint8_t *data, uint8_t length)
+EspNow8266Adp::Status EspNow8266Adp::sendData(MacAddr &mac, uint8_t *data, uint8_t length) const
 {
     auto state = esp_now_send(mac.data(), data, length);
     return state == 0 ? Status::OK : Status::FAIL;

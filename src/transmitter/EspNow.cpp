@@ -167,7 +167,7 @@ void EspNow::sendDataToHost(std::size_t identifier, MacAddr mac, float temperatu
     m_arduinoAdp->delay(1);  // Give board time to invoke onDataSent callback
 }
 
-config::TransmitterConfig EspNow::getTransmitterConfig()
+config::TransmitterConfig EspNow::getTransmitterConfig() const
 {
     return m_transmitterConfig;
 }
@@ -187,7 +187,7 @@ void EspNow::sendPairMsg()
     }
 }
 
-MsgType EspNow::getMsgType(const uint8_t *buffer, size_t size)
+MsgType EspNow::getMsgType(const uint8_t *buffer, size_t size) const
 {
     MsgType msgType{MsgType::UNKNOWN};
 

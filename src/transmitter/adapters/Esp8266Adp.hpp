@@ -8,17 +8,17 @@
 class Esp8266Adp : public IEsp8266Adp
 {
 public:
-    void feedWatchdog() override
+    void feedWatchdog() const override
     {
         ESP.wdtFeed();
     }
 
-    void yield() override
+    void yield() const override
     {
         yield();
     }
 
-    bool isResetReasonDeepSleepAwake() override
+    [[nodiscard]] bool isResetReasonDeepSleepAwake() const override
     {
         auto restartReason = ESP.getResetInfoPtr()->reason;
         return restartReason == REASON_DEEP_SLEEP_AWAKE;
