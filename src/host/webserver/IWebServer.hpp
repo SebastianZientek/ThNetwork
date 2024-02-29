@@ -9,7 +9,7 @@ class IWebServer
 {
 public:
     using WebRequestClbk = std::function<void(IWebRequest &)>;
-    using WebRequestWithBodyClbk = std::function<void(IWebRequest &, std::string body)>;
+    using WebRequestWithBodyClbk = std::function<void(IWebRequest &, const std::string &body)>;
     using EventClbk = std::function<void(IEventSrcClient &)>;
 
     IWebServer() = default;

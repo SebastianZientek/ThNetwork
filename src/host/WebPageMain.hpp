@@ -8,7 +8,7 @@
 #include "common/logger.hpp"
 #include "interfaces/IConfStorage.hpp"
 #include "interfaces/IResources.hpp"
-#include "webserver/WebServer.hpp"
+#include "webserver/IWebServer.hpp"
 
 class WebPageMain
 {
@@ -23,11 +23,11 @@ class WebPageMain
 
 public:
     WebPageMain(std::shared_ptr<IArduino32Adp> arduinoAdp,
-                std::unique_ptr<IWebServer> webServer,
+                std::shared_ptr<IWebServer> webServer,
                 std::unique_ptr<IResources> resources,
                 std::shared_ptr<IConfStorage> confStorage)
         : m_arduinoAdp(arduinoAdp)
-        , m_server(std::move(webServer))
+        , m_server(webServer)
         , m_confStorage(confStorage)
         , m_resources(std::move(resources))
     {
@@ -99,102 +99,27 @@ public:
     void setupActions()
     {
         m_server->onPost("/setCredentials",
-                         [this](IWebRequest &request, std::string body)
+                         [this](IWebRequest &request, const std::string &body)
                          {
-                             if (!auth(request))
-                             {
-                                 return request.requestAuthentication();
-                             }
-
-                             auto credentials = nlohmann::json::parse(body);
-                             if (credentials["password"] != credentials["rePassword"]
-                                 || credentials["password"].empty()
-                                 || credentials["username"].empty())
-                             {
-                                 logger::logWrn("Can't update credentials");
-                                 request.send(HTML_BAD_REQ);
-                                 return;
-                             }
-
-                             m_confStorage->setAdminCredentials(credentials["username"],
-                                                                credentials["password"]);
-                             m_confStorage->save();
-
-                             request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
+                             setCredentials(request, body);
                          });
 
         m_server->onPost("/updateSensorsMapping",
-                         [this](IWebRequest &request, std::string body)
+                         [this](IWebRequest &request, const std::string &body)
                          {
-                             logger::logDbg("Update configuration %s", body);
-                             auto sensorsMapping = nlohmann::json::parse(body);
-
-                             for (auto sensor : sensorsMapping.items())
-                             {
-                                 auto name = std::string(sensor.value());
-                                 auto id = std::stoull(sensor.key());
-
-                                 m_confStorage->addSensor(id, name);
-                                 m_confStorage->save();
-                             }
-
-                             request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
+                             updateSensorsMapping(request, body);
                          });
 
-        m_server->onPost(
-            "/setProperties",
-            [this](IWebRequest &request, std::string body)
-            {
-                if (!auth(request))
-                {
-                    request.send(HTML_UNAUTH);
-                }
-                else
-                {
-                    try
-                    {
-                        auto configuration = nlohmann::json::parse(body);
-                        logger::logDbg("Properties: %s", configuration.dump());
-
-                        std::uint16_t sensorUpdatePeriodMins
-                            = configuration["sensorUpdatePeriodMins"];
-                        std::size_t serverPort = configuration["serverPort"];
-
-                        m_confStorage->setSensorUpdatePeriodMins(sensorUpdatePeriodMins);
-                        m_confStorage->setServerPort(serverPort);
-                        m_confStorage->save();
-                    }
-                    catch (...)
-                    {
-                        logger::logErr("Can't set properties");
-                        request.send(HTML_INTERNAL_ERR);
-                    }
-                    request.send(HTML_OK);
-                }
-            });
+        m_server->onPost("/setProperties",
+                         [this](IWebRequest &request, const std::string &body)
+                         {
+                             setProperties(request, body);
+                         });
 
         m_server->onPost("/removeSensor",
-                         [this](IWebRequest &request, std::string body)
+                         [this](IWebRequest &request, const std::string &body)
                          {
-                             if (!auth(request))
-                             {
-                                 request.send(HTML_UNAUTH);
-                             }
-                             else
-                             {
-                                 try
-                                 {
-                                     auto sensor = nlohmann::json::parse(body);
-                                     IDType sensorId = sensor["identifier"];
-                                     m_confStorage->removeSensor(sensorId);
-                                     m_confStorage->save();
-                                 }
-                                 catch (...)
-                                 {
-                                     request.send(HTML_INTERNAL_ERR);
-                                 }
-                                 request.send(HTML_OK);
-                             }
+                             removeSensor(request, body);
                          });
 
         m_server->onGet("/logout",
@@ -206,39 +131,19 @@ public:
         m_server->onGet("/sensorIDsToNames",
                         [this](IWebRequest &request)
                         {
-                            auto sensorsMappingJsonStr = m_confStorage->getSensorsMapping();
-                            logger::logDbg("sensorIDsToNames %s", sensorsMappingJsonStr);
-                            request.send(HTML_OK, "application/json",
-                                         sensorsMappingJsonStr.c_str());
+                            sensorIDsToNames(request);
                         });
 
         m_server->onGet("/configuration",
                         [this](IWebRequest &request)
                         {
-                            if (!auth(request))
-                            {
-                                request.send(HTML_UNAUTH);
-                            }
-
-                            auto config = m_confStorage->getConfigWithoutCredentials();
-                            request.send(HTML_OK, "application/json", config.c_str());
+                            configuration(request);
                         });
 
         m_server->onGet("/sensorData",
                         [this](IWebRequest &request)
                         {
-                            auto params = request.getParams();
-                            if (params.find("identifier") != params.end())
-                            {
-                                // TODO: make it safer
-                                auto identifier = std::stoull(params["identifier"]);
-                                request.send(HTML_OK, "application/json",
-                                             m_getSensorDataCb(identifier).c_str());
-                            }
-                            else
-                            {
-                                request.send(HTML_NOT_FOUND);
-                            }
+                            sensorData(request);
                         });
     }
 
@@ -271,7 +176,7 @@ public:
 
 private:
     std::shared_ptr<IArduino32Adp> m_arduinoAdp;
-    std::unique_ptr<IWebServer> m_server;
+    std::shared_ptr<IWebServer> m_server;
     std::unique_ptr<IResources> m_resources;
     std::shared_ptr<IConfStorage> m_confStorage;
 
@@ -287,6 +192,189 @@ private:
         }
 
         auto [user, passwd] = credentials.value();
-        return request.authenticate(user.c_str(), passwd.c_str());
+        return request.authenticate(user, passwd);
     };
+
+    void setCredentials(IWebRequest &request, const std::string &body)
+    {
+        if (!auth(request))
+        {
+            request.requestAuthentication();
+        }
+        else
+        {
+            nlohmann::json credentials{};
+            try
+            {
+                credentials = nlohmann::json::parse(body);
+            }
+            catch (nlohmann::json::parse_error err)
+            {
+                logger::logErr("Can't parse json data, %s", err.what());
+                request.send(HTML_BAD_REQ);
+                return;
+            }
+
+            if (credentials["password"] != credentials["rePassword"]
+                || credentials["password"].get<std::string>().empty()
+                || credentials["username"].get<std::string>().empty())
+            {
+                logger::logWrn("Can't update credentials");
+                request.send(HTML_BAD_REQ);
+                return;
+            }
+
+            m_confStorage->setAdminCredentials(credentials["username"], credentials["password"]);
+            m_confStorage->save();
+
+            request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
+        }
+    }
+
+    void updateSensorsMapping(IWebRequest &request, std::string body)
+    {
+        logger::logDbg("Update configuration %s", body);
+
+        if (!auth(request))
+        {
+            request.requestAuthentication();
+        }
+        else
+        {
+            nlohmann::json sensorsMapping{};
+            try
+            {
+                sensorsMapping = nlohmann::json::parse(body);
+            }
+            catch (nlohmann::json::parse_error err)
+            {
+                logger::logErr("Can't parse json data, %s", err.what());
+                request.send(HTML_BAD_REQ);
+                return;
+            }
+
+            for (const auto &sensor : sensorsMapping.items())
+            {
+                auto name = std::string(sensor.value());
+                try
+                {
+                    auto identifier = std::stoull(sensor.key());
+
+                    m_confStorage->addSensor(identifier, name);
+                    m_confStorage->save();
+                }
+                catch (std::invalid_argument err)
+                {
+                    logger::logErr("can't get sensor identifier, %s", err.what());
+                }
+            }
+
+            request.send(HTML_OK, "text/html", m_resources->getAdminHtml());
+        }
+    }
+
+    void setProperties(IWebRequest &request, const std::string &body)
+    {
+        if (!auth(request))
+        {
+            request.send(HTML_UNAUTH);
+        }
+        else
+        {
+            try
+            {
+                auto configuration = nlohmann::json::parse(body);
+                std::uint16_t sensorUpdatePeriodMins = configuration["sensorUpdatePeriodMins"];
+                std::size_t serverPort = configuration["serverPort"];
+
+                m_confStorage->setSensorUpdatePeriodMins(sensorUpdatePeriodMins);
+                m_confStorage->setServerPort(serverPort);
+                m_confStorage->save();
+            }
+            catch (nlohmann::json::parse_error err)
+            {
+                logger::logErr("Can't set properties");
+                request.send(HTML_BAD_REQ);
+                return;
+            }
+            catch (nlohmann::json::type_error err)
+            {
+                logger::logErr("Can't set properties");
+                request.send(HTML_BAD_REQ);
+                return;
+            }
+
+            request.send(HTML_OK);
+        }
+    }
+
+    void removeSensor(IWebRequest &request, const std::string &body)
+    {
+        if (!auth(request))
+        {
+            request.send(HTML_UNAUTH);
+        }
+        else
+        {
+            try
+            {
+                auto sensor = nlohmann::json::parse(body);
+                IDType sensorId = sensor["identifier"];
+                m_confStorage->removeSensor(sensorId);
+                m_confStorage->save();
+            }
+            catch (nlohmann::json::parse_error err)
+            {
+                logger::logErr("Can't remove sensor, wrong data, %s", err.what());
+                request.send(HTML_BAD_REQ);
+                return;
+            }
+            catch (nlohmann::json::type_error err)
+            {
+                logger::logErr("Can't remove sensor, wrong data, %s", err.what());
+                request.send(HTML_BAD_REQ);
+                return;
+            }
+            request.send(HTML_OK);
+        }
+    }
+
+    void sensorIDsToNames(IWebRequest &request)
+    {
+        auto sensorsMappingJsonStr = m_confStorage->getSensorsMapping();
+        request.send(HTML_OK, "application/json", sensorsMappingJsonStr.c_str());
+    }
+
+    void configuration(IWebRequest &request)
+    {
+        if (!auth(request))
+        {
+            request.send(HTML_UNAUTH);
+        }
+
+        auto config = m_confStorage->getConfigWithoutCredentials();
+        request.send(HTML_OK, "application/json", config.c_str());
+    }
+
+    void sensorData(IWebRequest &request)
+    {
+        auto params = request.getParams();
+        if (params.find("identifier") != params.end())
+        {
+            try
+            {
+                auto identifier = std::stoull(params["identifier"]);
+                request.send(HTML_OK, "application/json", m_getSensorDataCb(identifier).c_str());
+            }
+            catch (std::invalid_argument err)
+            {
+                logger::logErr("can't get sensor identifier, %s", err.what());
+                request.send(HTML_BAD_REQ);
+            }
+        }
+        else
+        {
+            request.send(HTML_BAD_REQ);
+        }
+    }
 };

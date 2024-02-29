@@ -78,7 +78,7 @@ class ConfStorageMock : public IConfStorage
     std::optional<std::pair<std::string, std::string>> getAdminCredentials() override
     {
         using ReturnType = std::optional<std::pair<std::string, std::string>>;
-        static auto defaultState = std::nullopt;
+        static ReturnType defaultState = std::nullopt;
         mock("ConfStorageMock").actualCall("getAdminCredentials");
         auto *returnVal = mock("ConfStorageMock").returnPointerValueOrDefault(&defaultState);
 
