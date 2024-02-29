@@ -24,7 +24,7 @@ TEST_GROUP(WebPageMainTest)  // NOLINT
         mock().clear();
     }
 
-    void mockOnGetCalls()
+    void mockOnGetAndOnPostCalls()
     {
         mock("WebServerMock").expectOneCall("onGet").withParameter("url", "/");
         mock("WebServerMock").expectOneCall("onGet").withParameter("url", "/admin");
@@ -84,7 +84,7 @@ TEST(WebPageMainTest, ProvideIndexHtml)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mock("WebRequestMock")
         .expectOneCall("send")
         .withParameter("code", HTML_OK)
@@ -103,7 +103,7 @@ TEST(WebPageMainTest, ProvideAdminPageWhenUserIsAuthenticated)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
     mock("WebRequestMock")
         .expectOneCall("send")
@@ -123,7 +123,7 @@ TEST(WebPageMainTest, RequestAuthInsteadOfProvidingAdminPageWhenUnauthorized)  /
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(false);
     mock("WebRequestMock").expectOneCall("requestAuthentication");
 
@@ -138,7 +138,7 @@ TEST(WebPageMainTest, ProvideFavIcon)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mock("WebRequestMock")
         .expectOneCall("send")
         .withParameter("code", HTML_OK)
@@ -158,7 +158,7 @@ TEST(WebPageMainTest, ProvideMicroChartJs)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mock("WebRequestMock")
         .expectOneCall("send")
         .withParameter("code", HTML_OK)
@@ -177,7 +177,7 @@ TEST(WebPageMainTest, ProvideAdminJs)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mock("WebRequestMock")
         .expectOneCall("send")
         .withParameter("code", HTML_OK)
@@ -196,7 +196,7 @@ TEST(WebPageMainTest, ProvideChartJs)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mock("WebRequestMock")
         .expectOneCall("send")
         .withParameter("code", HTML_OK)
@@ -215,7 +215,7 @@ TEST(WebPageMainTest, ProvidePicoCss)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mock("WebRequestMock")
         .expectOneCall("send")
         .withParameter("code", HTML_OK)
@@ -240,7 +240,7 @@ TEST(WebPageMainTest, ActionSetCredentialsWhenAuthenticated)  // NOLINT
         {"username", "user"},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("ConfStorageMock")
@@ -273,7 +273,7 @@ TEST(WebPageMainTest, ActionSetCredentialsNotAllwWhenNotAuthenticated)  // NOLIN
         {"username", "user"},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(false);
 
     mock("WebRequestMock").expectOneCall("requestAuthentication");
@@ -295,7 +295,7 @@ TEST(WebPageMainTest, ActionSetCredentialsWhenRePasswordNotMatch)  // NOLINT
         {"username", "user"},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -317,7 +317,7 @@ TEST(WebPageMainTest, ActionSetCredentialsNotAllowWhenEmptyPassword)  // NOLINT
         {"username", "user"},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -339,7 +339,7 @@ TEST(WebPageMainTest, ActionSetCredentialsNotAllowWhenEmptyUsername)  // NOLINT
         {"username", ""},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -357,7 +357,7 @@ TEST(WebPageMainTest, ActionSetCredentialsNotAllowWhenCorruptedData)  // NOLINT
 
     const auto *corruptedIncomingJsonData = "skjhksdfihs";
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -379,7 +379,7 @@ TEST(WebPageMainTest, ActionSetCredentialsWhenWrongData)  // NOLINT
         {"username", ""},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -401,7 +401,7 @@ TEST(WebPageMainTest, UpdateSensorsMappingWhenAuthorized)  // NOLINT
         {"1354678", "what is this"},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("ConfStorageMock").expectNCalls(3, "addSensor").ignoreOtherParameters();
@@ -432,7 +432,7 @@ TEST(WebPageMainTest, NotUpdateSensorsMappingWhenUnAuthorized)  // NOLINT
         {"1354678", "what is this"},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(false);
 
     mock("WebRequestMock").expectOneCall("requestAuthentication");
@@ -451,7 +451,7 @@ TEST(WebPageMainTest, NotUpdateSensorsMappingWhenIncomingDataCorrupted)  // NOLI
 
     const auto *corruptedIncomingJsonData = "skjhksdfihs";
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -470,7 +470,7 @@ TEST(WebPageMainTest, EmptyData)  // NOLINT
 
     const auto *emptyData = "";
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -491,7 +491,7 @@ TEST(WebPageMainTest, UpdateSensorsMappingOnlyForCorrectOne)  // NOLINT
         {"Wrong sensor id, should be number", "some office"},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("ConfStorageMock")
@@ -523,7 +523,7 @@ TEST(WebPageMainTest, SetPropertiesWhenAuthorizedAndCorrectDataIncoming)  // NOL
         {"serverPort", 22},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("ConfStorageMock").expectOneCall("setSensorUpdatePeriodMins").withParameter("minutes", 11);
@@ -547,7 +547,7 @@ TEST(WebPageMainTest, NotSetPropertiesWhenWrongTypeOfData)  // NOLINT
         {"serverPort", "123"},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -565,7 +565,7 @@ TEST(WebPageMainTest, NotSetPropertiesWhenCorruptedData)  // NOLINT
 
     const auto *corruptedData = "asdjhaskjd";
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -586,7 +586,7 @@ TEST(WebPageMainTest, NotSetPropertiesWhenUnAuthorized)  // NOLINT
         {"serverPort", 22},
     });
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(false);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_UNAUTH);
@@ -604,7 +604,7 @@ TEST(WebPageMainTest, RemoveSensorWhenAuthorizedAndCorrectDataIncoming)  // NOLI
 
     auto incomingProperties = nlohmann::json({{"identifier", 1}});
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("ConfStorageMock").expectOneCall("removeSensor").withParameter("identifier", 1);
@@ -624,7 +624,7 @@ TEST(WebPageMainTest, DontRemoveSensorWhenUnauthorized)  // NOLINT
 
     auto incomingProperties = nlohmann::json({{"identifier", 1}});
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(false);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_UNAUTH);
@@ -642,7 +642,7 @@ TEST(WebPageMainTest, DontRemoveSensorWhenDataCorrupted)  // NOLINT
 
     const char *corruptedData = "skwdjhfjksd";
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -660,7 +660,7 @@ TEST(WebPageMainTest, DontRemoveSensorWhenWrongDataType)  // NOLINT
 
     auto incomingProperties = nlohmann::json({{"identifier", "string"}});
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -678,7 +678,7 @@ TEST(WebPageMainTest, DontRemoveSensorWhenMissingIdentifierInJson)  // NOLINT
 
     auto incomingProperties = nlohmann::json({{"thisIsNotCorrectField", 1}});
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     mock("WebRequestMock").expectOneCall("send").withParameter("code", HTML_BAD_REQ);
@@ -694,7 +694,7 @@ TEST(WebPageMainTest, Logout)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
 
     mock("WebRequestMock")
         .expectOneCall("send")
@@ -713,7 +713,7 @@ TEST(WebPageMainTest, sensorIDsToNames)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
 
     auto sensorsMapping = nlohmann::json({
         {"123", 321},
@@ -742,7 +742,7 @@ TEST(WebPageMainTest, getConfigurationWhenAuthorized)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
     mockAuthentication(true);
 
     auto someConfiguration = nlohmann::json({
@@ -772,7 +772,7 @@ TEST(WebPageMainTest, getSensorDataForSensor)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
 
     std::map<std::string, std::string> htmlGetRequestParams = {{"identifier", "123"}};
 
@@ -800,7 +800,7 @@ TEST(WebPageMainTest, NotGetSensorDataWhenNoIdentifierParameter)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
 
     std::map<std::string, std::string> htmlGetRequestParams = {{"wrongPatameter", "123"}};
 
@@ -824,7 +824,7 @@ TEST(WebPageMainTest, NotGetSensorDataWhenParameterIsWrong)  // NOLINT
     WebPageMain sut(arduino32AdpMock, webServerMock, std::make_unique<ResourcesMock>(),
                     confStorageMock);
 
-    mockOnGetCalls();
+    mockOnGetAndOnPostCalls();
 
     std::map<std::string, std::string> htmlGetRequestParams
         = {{"identifier", "should be number but is string"}};
