@@ -24,11 +24,22 @@
 
 class App
 {
-    enum class State
+    enum class Status
     {
         OK,
         FAIL,
         WIFI_CONFIGURATION_NEEDED
+    };
+
+    enum class State
+    {
+        INITIALIZATION_BASIC_COMPONENTS,
+        LOADING_CONFIGURATION,
+        CONNECTING_TO_WIFI,
+        HOSTING_WIFI_CONFIGURATION,
+        STARTING_SERVERS,
+        ERROR_REBOOTING,
+        RUNNING
     };
 
     enum class Mode
@@ -43,9 +54,9 @@ public:
     void update();
 
 private:
-    State systemInit();
-    State initConfig();
-    State connectWiFi();
+    Status systemInit();
+    Status initConfig();
+    Status connectWiFi();
     void wifiSettingsMode();
     void setupButtons();
     bool isWifiButtonPressed();
@@ -57,11 +68,13 @@ private:
     constexpr static auto m_wifiConfigServerTimeoutMillis = 1000 * 60 * 10;  // 10 minutes
     constexpr static auto m_resetToFactorySettings = 1000 * 10;              // 10 seconds
     constexpr static auto m_wifiConfigWebPort = 80;
+    constexpr static auto m_waitBeforeInitializationMs = 1000;
     constexpr static auto m_onErrorWaitBeforeRebootMs = 1000;
     constexpr static auto m_delayBetweenConnectionRetiresMs = 1000;
     constexpr static auto m_connectionRetriesBeforeRebootMs = 10;
 
     Mode m_mode = Mode::SENSOR_HOST;
+    State m_state = State::INITIALIZATION_BASIC_COMPONENTS;
 
     std::shared_ptr<LittleFSAdp> m_internalFS{std::make_shared<LittleFSAdp>()};
     std::shared_ptr<Wifi32Adp> m_wifiAdp{std::make_shared<Wifi32Adp>()};
