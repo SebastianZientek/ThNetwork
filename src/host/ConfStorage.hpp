@@ -5,10 +5,10 @@
 #include <nlohmann/json.hpp>
 #include <optional>
 
+#include "IConfStorage.hpp"
 #include "adapters/IFileSystem32Adp.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
-#include "interfaces/IConfStorage.hpp"
 
 class ConfStorage : public IConfStorage
 {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "interfaces/IResources.hpp"
+#include "IResources.hpp"
 
 class Resources : public IResources
 {

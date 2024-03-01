@@ -3,10 +3,10 @@
 #include <cstddef>
 #include <memory>
 
+#include "IConfStorage.hpp"
 #include "LedIndicator.hpp"
 #include "adapters/IArduino32Adp.hpp"
 #include "common/types.hpp"
-#include "interfaces/IConfStorage.hpp"
 
 class EspNowPairingManager
 {

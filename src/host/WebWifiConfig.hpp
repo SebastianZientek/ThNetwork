@@ -2,10 +2,10 @@
 
 #include <memory>
 
+#include "IConfStorage.hpp"
+#include "IResources.hpp"
 #include "adapters/IESP32Adp.hpp"
 #include "adapters/IWifi32Adp.hpp"
-#include "interfaces/IConfStorage.hpp"
-#include "interfaces/IResources.hpp"
 #include "webserver/IWebServer.hpp"
 
 class WebWifiConfig

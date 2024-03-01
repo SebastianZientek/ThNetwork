@@ -2,7 +2,7 @@
 
 #include <CppUTestExt/MockSupport.h>
 
-#include "interfaces/IResources.hpp"
+#include "IResources.hpp"
 
 class ResourcesMock : public IResources
 {
