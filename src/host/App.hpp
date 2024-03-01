@@ -21,14 +21,26 @@
 #include "adapters/LittleFS32Adp.hpp"
 #include "adapters/Wifi32Adp.hpp"
 #include "webserver/WebServer.hpp"
+#include "Button.hpp"
 
 class App
 {
-    enum class State
+    enum class Status
     {
         OK,
         FAIL,
         WIFI_CONFIGURATION_NEEDED
+    };
+
+    enum class State
+    {
+        INITIALIZATION_BASIC_COMPONENTS,
+        LOADING_CONFIGURATION,
+        CONNECTING_TO_WIFI,
+        HOSTING_WIFI_CONFIGURATION,
+        STARTING_SERVERS,
+        ERROR_REBOOTING,
+        RUNNING
     };
 
     enum class Mode
@@ -43,18 +55,18 @@ public:
     void update();
 
 private:
-    State systemInit();
-    State initConfig();
-    State connectWiFi();
+    Status systemInit();
+    Status initConfig();
+    Status connectWiFi();
     void wifiSettingsMode();
     void setupButtons();
     bool isWifiButtonPressed();
     bool isPairButtonPressed();
 
     constexpr static auto m_ledIndicatorPin = 23;
-    constexpr static auto m_wifiButton = 14;
+    constexpr static auto m_wifiBtn = 14;
     constexpr static auto m_pairButton = 18;
-    constexpr static auto m_wifiConfigServerTimeoutMillis = 1000 * 60 * 10;  // 10 minutes
+    constexpr static auto m_wifiConfigServerTimeoutMillis = 1000 * 60 * 3;  // 3 minutes
     constexpr static auto m_resetToFactorySettings = 1000 * 10;              // 10 seconds
     constexpr static auto m_wifiConfigWebPort = 80;
     constexpr static auto m_onErrorWaitBeforeRebootMs = 1000;
@@ -62,6 +74,7 @@ private:
     constexpr static auto m_connectionRetriesBeforeRebootMs = 10;
 
     Mode m_mode = Mode::SENSOR_HOST;
+    State m_state = State::INITIALIZATION_BASIC_COMPONENTS;
 
     std::shared_ptr<LittleFSAdp> m_internalFS{std::make_shared<LittleFSAdp>()};
     std::shared_ptr<Wifi32Adp> m_wifiAdp{std::make_shared<Wifi32Adp>()};
@@ -85,4 +98,8 @@ private:
     std::unique_ptr<WebPageMain> m_webPageMain{};
     WiFiUDP m_ntpUDP{};
     ReadingsStorage m_readingsStorage{};
+
+    Button m_wifiButton{m_arduinoAdp, m_wifiBtn};
+    Button m_pairAndResetButton{m_arduinoAdp, m_pairButton};
+    Timer m_wifiConfigurationTimer{m_arduinoAdp};
 };
