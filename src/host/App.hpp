@@ -21,6 +21,7 @@
 #include "adapters/LittleFS32Adp.hpp"
 #include "adapters/Wifi32Adp.hpp"
 #include "webserver/WebServer.hpp"
+#include "Button.hpp"
 
 class App
 {
@@ -68,7 +69,6 @@ private:
     constexpr static auto m_wifiConfigServerTimeoutMillis = 1000 * 60 * 10;  // 10 minutes
     constexpr static auto m_resetToFactorySettings = 1000 * 10;              // 10 seconds
     constexpr static auto m_wifiConfigWebPort = 80;
-    constexpr static auto m_waitBeforeInitializationMs = 1000;
     constexpr static auto m_onErrorWaitBeforeRebootMs = 1000;
     constexpr static auto m_delayBetweenConnectionRetiresMs = 1000;
     constexpr static auto m_connectionRetriesBeforeRebootMs = 10;

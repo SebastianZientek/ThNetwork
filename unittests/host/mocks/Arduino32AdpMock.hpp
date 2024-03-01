@@ -12,7 +12,7 @@ public:
     void pinMode(uint8_t pin, Mode mode) const override
     {
         mock("Arduino32Adp")
-            .actualCall("digitalWrite")
+            .actualCall("pinMode")
             .withParameter("pin", pin)
             .withParameter("mode", static_cast<int>(mode));
     }

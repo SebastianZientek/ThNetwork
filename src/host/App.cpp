@@ -57,8 +57,6 @@ void App::update()
     switch (m_state)
     {
     case State::INITIALIZATION_BASIC_COMPONENTS:
-        // m_arduinoAdp->delay(m_waitBeforeInitializationMs);
-
         logger::init();
         setupButtons();
         m_ledIndicator->switchOn(false);
