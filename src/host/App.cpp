@@ -10,46 +10,6 @@
 
 void App::init()
 {
-    return;
-    if (auto initStatus = systemInit(); initStatus == Status::FAIL)
-    {
-        constexpr auto msInSecond = 1000;
-        constexpr auto waitBeforeRebootSec = 5;
-
-        logger::logErr("System not initialized properly. Reboot in %ds", waitBeforeRebootSec);
-        delay(waitBeforeRebootSec * msInSecond);
-        m_espAdp->restart();
-    }
-    else if (initStatus == Status::WIFI_CONFIGURATION_NEEDED)
-    {
-        wifiSettingsMode();
-    }
-    else
-    {
-        m_webPageMain = std::make_unique<WebPageMain>(
-            m_arduinoAdp, std::make_shared<WebServer>(m_confStorage->getServerPort()),
-            std::make_unique<Resources>(), m_confStorage);
-
-        auto newReadingCallback = [this](float temp, float hum, IDType identifier)
-        {
-            m_readingsStorage.addReading(identifier, temp, hum, m_timeClient->getEpochTime());
-
-            auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
-            m_webPageMain->sendEvent(reading.c_str(), "newReading", m_arduinoAdp->millis());
-        };
-
-        m_espNow->init(newReadingCallback);
-
-        auto getSensorData = [this](const std::size_t &identifier)
-        {
-            auto data = m_readingsStorage.getReadingsAsJsonStr(identifier);
-            return data;
-        };
-
-        m_webPageMain->startServer(getSensorData);
-    }
-
-    logger::logInf("System initialized");
 }
 
 void App::update()
@@ -59,6 +19,25 @@ void App::update()
     case State::INITIALIZATION_BASIC_COMPONENTS:
         logger::init();
         setupButtons();
+
+        {
+            auto factoryReset = [this]
+            {
+                logger::logWrn("Reset to factory settings!");
+                m_confStorage->setDefault();
+                m_confStorage->save();
+                m_espAdp->restart();
+            };
+            m_pairAndResetButton.onLongClick(3000, factoryReset);
+        }
+
+        m_wifiButton.onClick(
+            [this]
+            {
+                wifiSettingsMode();
+                m_state = State::HOSTING_WIFI_CONFIGURATION;
+            });
+
         m_ledIndicator->switchOn(false);
 
         m_state = State::LOADING_CONFIGURATION;
@@ -84,6 +63,7 @@ void App::update()
         }
         else if (status == Status::WIFI_CONFIGURATION_NEEDED)
         {
+            wifiSettingsMode();
             m_state = State::HOSTING_WIFI_CONFIGURATION;
         }
         else
@@ -93,7 +73,6 @@ void App::update()
         break;
 
     case State::HOSTING_WIFI_CONFIGURATION:
-
         break;
 
     case State::STARTING_SERVERS:
@@ -125,6 +104,13 @@ void App::update()
 
             m_webPageMain->startServer(getSensorData);
         }
+
+        m_pairAndResetButton.onClick(
+            [this]
+            {
+                m_pairingManager->enablePairingForPeriod();
+            });
+
         m_state = State::RUNNING;
         break;
 
@@ -132,44 +118,9 @@ void App::update()
         break;
     }
 
-    static decltype(m_arduinoAdp->millis()) wifiModeStartTime = 0;
-    if (m_mode != Mode::WIFI_SETTINGS && isWifiButtonPressed())
-    {
-        wifiModeStartTime = m_arduinoAdp->millis();
-        wifiSettingsMode();
-    }
-
-    static decltype(m_arduinoAdp->millis()) resetStarted = 0;
-    if (isWifiButtonPressed())
-    {
-        if (resetStarted == 0)
-        {
-            resetStarted = m_arduinoAdp->millis();
-        }
-        else if (m_arduinoAdp->millis() - resetStarted > m_resetToFactorySettings)
-        {
-            logger::logWrn("Reset to factory settings!");
-            m_confStorage->setDefault();
-            m_confStorage->save();
-            m_espAdp->restart();
-        }
-    }
-    else
-    {
-        resetStarted = 0;
-    }
-
-    if (m_mode == Mode::WIFI_SETTINGS
-        && m_arduinoAdp->millis() > m_wifiConfigServerTimeoutMillis + wifiModeStartTime)
-    {
-        logger::logInf("Wifi configuration timeout. Reboot...");
-        m_espAdp->restart();
-    }
-
-    if (isPairButtonPressed())
-    {
-        m_pairingManager->enablePairingForPeriod();
-    }
+    m_pairAndResetButton.update();
+    m_wifiButton.update();
+    m_wifiConfigurationTimer.update();
 
     m_pairingManager->update();
     m_ledIndicator->update();
@@ -269,17 +220,25 @@ void App::wifiSettingsMode()
     }
     m_wifiAdp->disconnect();
     m_webWifiConfig->startConfiguration(m_confStorage);
+
+    m_wifiConfigurationTimer.setCallback(
+        [this]
+        {
+            logger::logInf("Wifi configuration timeout. Reboot...");
+            m_espAdp->restart();
+        });
+    m_wifiConfigurationTimer.start(m_wifiConfigServerTimeoutMillis);
 }
 
 void App::setupButtons()
 {
-    m_arduinoAdp->pinMode(m_wifiButton, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
+    m_arduinoAdp->pinMode(m_wifiBtn, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
     m_arduinoAdp->pinMode(m_pairButton, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
 }
 
 bool App::isWifiButtonPressed()
 {
-    return m_arduinoAdp->digitalRead(m_wifiButton) == false;
+    return m_arduinoAdp->digitalRead(m_wifiBtn) == false;
 }
 
 bool App::isPairButtonPressed()

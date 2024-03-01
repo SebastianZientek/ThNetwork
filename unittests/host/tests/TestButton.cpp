@@ -31,14 +31,14 @@ TEST(ButtonTest, DoNothingWhenCallbackIsNotSet)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(true);
+        .andReturnValue(false);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(1);
     button.update();
 
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(false);
+        .andReturnValue(true);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(2);
     button.update();
 }
@@ -61,7 +61,7 @@ TEST(ButtonTest, CallOnClickCallbackOnceWhenClicked)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(true);
+        .andReturnValue(false);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(1);
     button.update();
 
@@ -69,7 +69,7 @@ TEST(ButtonTest, CallOnClickCallbackOnceWhenClicked)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(false);
+        .andReturnValue(true);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(2);
     mock("Lambda").expectOneCall("onClick");
     button.update();
@@ -78,7 +78,7 @@ TEST(ButtonTest, CallOnClickCallbackOnceWhenClicked)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(true);
+        .andReturnValue(false);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(3);
     button.update();
 }
@@ -101,7 +101,7 @@ TEST(ButtonTest, CallOnLongClickCallbackWhenClickIsEnoughLong)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(true);
+        .andReturnValue(false);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(0);
     button.update();
 
@@ -109,7 +109,7 @@ TEST(ButtonTest, CallOnLongClickCallbackWhenClickIsEnoughLong)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(false);
+        .andReturnValue(true);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(25);
     button.update();
 
@@ -117,7 +117,7 @@ TEST(ButtonTest, CallOnLongClickCallbackWhenClickIsEnoughLong)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(true);
+        .andReturnValue(false);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(30);
     button.update();
 
@@ -125,7 +125,7 @@ TEST(ButtonTest, CallOnLongClickCallbackWhenClickIsEnoughLong)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(false);
+        .andReturnValue(true);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(60);
     mock("Lambda").expectOneCall("onLongClick");
     button.update();
@@ -155,7 +155,7 @@ TEST(ButtonTest, SetAndUseOnClickAndOnLongClickAtOnce)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(true);
+        .andReturnValue(false);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(0);
     button.update();
 
@@ -163,7 +163,7 @@ TEST(ButtonTest, SetAndUseOnClickAndOnLongClickAtOnce)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(false);
+        .andReturnValue(true);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(25);
     mock("Lambda").expectOneCall("onClick");
     button.update();
@@ -172,7 +172,7 @@ TEST(ButtonTest, SetAndUseOnClickAndOnLongClickAtOnce)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(true);
+        .andReturnValue(false);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(30);
     button.update();
 
@@ -180,7 +180,7 @@ TEST(ButtonTest, SetAndUseOnClickAndOnLongClickAtOnce)  // NOLINT
     mock("Arduino32Adp")
         .expectOneCall("digitalRead")
         .withParameter("pin", buttonPin)
-        .andReturnValue(false);
+        .andReturnValue(true);
     mock("Arduino32Adp").expectOneCall("millis").andReturnValue(60);
     mock("Lambda").expectOneCall("onLongClick");
     button.update();

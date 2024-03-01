@@ -64,9 +64,9 @@ private:
     bool isPairButtonPressed();
 
     constexpr static auto m_ledIndicatorPin = 23;
-    constexpr static auto m_wifiButton = 14;
+    constexpr static auto m_wifiBtn = 14;
     constexpr static auto m_pairButton = 18;
-    constexpr static auto m_wifiConfigServerTimeoutMillis = 1000 * 60 * 10;  // 10 minutes
+    constexpr static auto m_wifiConfigServerTimeoutMillis = 1000 * 60 * 3;  // 3 minutes
     constexpr static auto m_resetToFactorySettings = 1000 * 10;              // 10 seconds
     constexpr static auto m_wifiConfigWebPort = 80;
     constexpr static auto m_onErrorWaitBeforeRebootMs = 1000;
@@ -98,4 +98,8 @@ private:
     std::unique_ptr<WebPageMain> m_webPageMain{};
     WiFiUDP m_ntpUDP{};
     ReadingsStorage m_readingsStorage{};
+
+    Button m_wifiButton{m_arduinoAdp, m_wifiBtn};
+    Button m_pairAndResetButton{m_arduinoAdp, m_pairButton};
+    Timer m_wifiConfigurationTimer{m_arduinoAdp};
 };

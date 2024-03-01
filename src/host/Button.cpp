@@ -23,17 +23,17 @@ void Button::onLongClick(size_t timeMs, const BtnClbk &clbk)
 
 void Button::update()
 {
-    auto pressed = m_arduinoAdp->digitalRead(m_buttonPin);
-    m_lastButtonPressed = std::exchange(m_buttonPressed, pressed);
+    auto buttonState = m_arduinoAdp->digitalRead(m_buttonPin);
+    m_lastButtonState = std::exchange(m_currentButtonState, buttonState);
 
     // Button pressed
-    if (!m_lastButtonPressed && m_buttonPressed)
+    if (m_lastButtonState == UP && m_currentButtonState == DOWN)
     {
         m_startBtnTimer = m_arduinoAdp->millis();
     }
 
     // Button released (was pressed, but now is not)
-    if (m_lastButtonPressed && !m_buttonPressed)
+    if (m_lastButtonState == DOWN && m_currentButtonState == UP)
     {
         auto currentTime = m_arduinoAdp->millis();
         if (m_onLongClick && currentTime - m_startBtnTimer >= m_onLongClickTime)
