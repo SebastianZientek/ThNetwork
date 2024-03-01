@@ -16,6 +16,7 @@
 #include "Timer.hpp"
 #include "WebPageMain.hpp"
 #include "WebWifiConfig.hpp"
+#include "WifiConfigurator.hpp"
 #include "adapters/Arduino32Adp.hpp"
 #include "adapters/ESP32Adp.hpp"
 #include "adapters/EspNow32Adp.hpp"
@@ -102,4 +103,5 @@ private:
     Button m_wifiButton{m_arduinoAdp, m_wifiBtn};
     Button m_pairAndResetButton{m_arduinoAdp, m_pairButton};
     Timer m_wifiConfigurationTimer{m_arduinoAdp};
+    WiFiConfigurator m_wifiConfigurator{m_arduinoAdp, m_wifiAdp, m_confStorage};
 };

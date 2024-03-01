@@ -7,6 +7,7 @@
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
+#include "host/WifiConfigurator.hpp"
 
 void App::init()
 {
@@ -51,25 +52,25 @@ void App::update()
             logger::logWrn("Configuration file not exists, using default values");
         }
 
+        m_wifiConfigurator.connect();
         m_state = State::CONNECTING_TO_WIFI;
         break;
 
     case State::CONNECTING_TO_WIFI:
-        logger::logDbg("Connecting to WiFi");
-
-        if (auto status = connectWiFi(); status == Status::OK)
+        if (auto status = m_wifiConfigurator.processWifiConfiguration();
+            status == WiFiConfigurator::Status::CONNECTED)
         {
             m_state = State::STARTING_SERVERS;
         }
-        else if (status == Status::WIFI_CONFIGURATION_NEEDED)
-        {
-            wifiSettingsMode();
-            m_state = State::HOSTING_WIFI_CONFIGURATION;
-        }
-        else
+        else if (status == WiFiConfigurator::Status::CONNECTION_FAILURE)
         {
             m_state = State::ERROR_REBOOTING;
         }
+        else if (status == WiFiConfigurator::Status::CONFIGURATION_PAGE_HOSTED)
+        {
+            m_state = State::HOSTING_WIFI_CONFIGURATION;
+        }
+
         break;
 
     case State::HOSTING_WIFI_CONFIGURATION:
@@ -179,11 +180,6 @@ App::Status App::connectWiFi()
     uint8_t wifiConnectionTries = 0;
     while (m_wifiAdp->getStatus() != Wifi32Adp::Status::CONNECTED)
     {
-        if (isWifiButtonPressed())
-        {
-            return Status::WIFI_CONFIGURATION_NEEDED;
-        }
-
         wifiConnectionTries++;
         delay(m_delayBetweenConnectionRetiresMs);
         logger::logInf(".");
