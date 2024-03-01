@@ -4,7 +4,7 @@
 #include <optional>
 #include <string>
 
-#include "../adapters/IRaiiFile.hpp"
+#include "adapters/IRaiiFile.hpp"
 #include "common/types.hpp"
 
 class IConfStorage

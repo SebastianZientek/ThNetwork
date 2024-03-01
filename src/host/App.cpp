@@ -89,7 +89,6 @@ void App::update()
             auto newReadingCallback = [this](float temp, float hum, IDType identifier)
             {
                 m_readingsStorage.addReading(identifier, temp, hum, m_timeClient->getEpochTime());
-
                 auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
                 m_webPageMain->sendEvent(reading.c_str(), "newReading", m_arduinoAdp->millis());
             };
@@ -98,8 +97,7 @@ void App::update()
 
             auto getSensorData = [this](const std::size_t &identifier)
             {
-                auto data = m_readingsStorage.getReadingsAsJsonStr(identifier);
-                return data;
+                return m_readingsStorage.getReadingsAsJsonStr(identifier);
             };
 
             m_webPageMain->startServer(getSensorData);

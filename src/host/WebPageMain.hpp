@@ -4,10 +4,10 @@
 #include <nlohmann/json.hpp>
 #include <string_view>
 
+#include "IConfStorage.hpp"
+#include "IResources.hpp"
 #include "adapters/IArduino32Adp.hpp"
 #include "common/logger.hpp"
-#include "interfaces/IConfStorage.hpp"
-#include "interfaces/IResources.hpp"
 #include "webserver/IWebServer.hpp"
 
 class WebPageMain

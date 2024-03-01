@@ -2,7 +2,7 @@
 
 #include <CppUTestExt/MockSupport.h>
 
-#include "interfaces/IConfStorage.hpp"
+#include "IConfStorage.hpp"
 
 class ConfStorageMock : public IConfStorage
 {
