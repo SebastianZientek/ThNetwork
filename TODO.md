@@ -1,1 +1,0 @@
-- Add chart with temperatures from last days (check if it's achievable)
