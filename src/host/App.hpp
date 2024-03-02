@@ -87,10 +87,9 @@ private:
     std::shared_ptr<WifiConfiguratorWebServer> m_webWifiConfig{
         std::make_shared<WifiConfiguratorWebServer>(
             m_wifiAdp,
-            std::make_unique<WebServer>(m_wifiConfigWebPort),
-            m_espAdp,
+            std::make_shared<WebServer>(m_wifiConfigWebPort),
             std::make_unique<Resources>(),
-            m_confStorage)};
+            m_arduinoAdp)};
 
     std::unique_ptr<WebPageMain> m_webPageMain{};
     WiFiUDP m_ntpUDP{};

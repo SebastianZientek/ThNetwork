@@ -38,7 +38,7 @@ WiFiConfigurator::Status WiFiConfigurator::processWifiConfiguration()
 
     case Mode::HOST_WIFI_CONFIGURATOR:
         logger::logDbg("WifiConfigurator Mode::HOST_WIFI_CONFIGURATOR");
-        m_wifiConfiguratorWebServer->startServer();
+        // m_wifiConfiguratorWebServer->startServer();
         return Status::CONFIGURATION_PAGE_HOSTED;
         break;
 
