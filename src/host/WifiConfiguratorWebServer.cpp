@@ -1,21 +1,22 @@
-#include "WebWifiConfig.hpp"
+#include "WifiConfiguratorWebServer.hpp"
 
 #include "common/logger.hpp"
 
-WebWifiConfig::WebWifiConfig(const std::shared_ptr<IWifi32Adp> &wifiAdp,
-                             std::unique_ptr<IWebServer> server,
-                             const std::shared_ptr<IESP32Adp> &espAdp,
-                             std::unique_ptr<IResources> resources)
+WifiConfiguratorWebServer::WifiConfiguratorWebServer(const std::shared_ptr<IWifi32Adp> &wifiAdp,
+                                                     std::unique_ptr<IWebServer> server,
+                                                     const std::shared_ptr<IESP32Adp> &espAdp,
+                                                     std::unique_ptr<IResources> resources,
+                                                     std::shared_ptr<IConfStorage> confStorage)
     : m_wifiAdp(wifiAdp)
     , m_server(std::move(server))
     , m_espAdp(espAdp)
     , m_resources(std::move(resources))
+    , m_confStorage(confStorage)
 {
 }
 
-void WebWifiConfig::startConfiguration(std::shared_ptr<IConfStorage> confStorage)
+void WifiConfiguratorWebServer::startServer()
 {
-    m_confStorage = confStorage;
     constexpr auto HTML_OK = 200;
 
     m_wifiAdp->softAp("TH-NETWORK");
