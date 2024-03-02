@@ -55,5 +55,5 @@ unsigned long Arduino32Adp::millis() const
 
 void Arduino32Adp::delay(unsigned long milliseconds) const
 {
-    return delay(milliseconds);
+    return ::delay(milliseconds);
 }

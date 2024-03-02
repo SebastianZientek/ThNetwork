@@ -35,7 +35,7 @@ void App::update()
             [this]
             {
                 // Stop all servives and host wifi configurator
-                // wifiSettingsMode();
+                startWebWifiConfiguration();
                 m_state = State::HOSTING_WIFI_CONFIGURATION;
             });
 
@@ -141,7 +141,13 @@ void App::startWebWifiConfiguration()
         m_webPageMain->stopServer();
     }
     m_wifiAdp->disconnect();
-    m_webWifiConfig->startServer();
+    m_webWifiConfig->startServer(
+        [this](const std::string &ssid, const std::string &pass)
+        {
+            m_confStorage->setWifiConfig(ssid, pass);
+            m_confStorage->save();
+            m_espAdp->restart();
+        });
 
     m_wifiConfigurationTimer.setCallback(
         [this]
