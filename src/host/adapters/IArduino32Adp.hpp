@@ -17,6 +17,12 @@ public:
         PIN_ANALOG,
     };
 
+    enum class Lvl
+    {
+        Low,
+        High
+    };
+
     IArduino32Adp() = default;
     virtual ~IArduino32Adp() = default;
     IArduino32Adp(const IArduino32Adp &) = default;
@@ -25,8 +31,8 @@ public:
     IArduino32Adp &operator=(IArduino32Adp &&) noexcept = default;
 
     virtual void pinMode(uint8_t pin, Mode mode) const = 0;
-    [[nodiscard]] virtual bool digitalRead(uint8_t pin) const = 0;
-    virtual void digitalWrite(uint8_t pin, bool val) const = 0;
+    [[nodiscard]] virtual Lvl digitalRead(uint8_t pin) const = 0;
+    virtual void digitalWrite(uint8_t pin, Lvl val) const = 0;
     [[nodiscard]] virtual uint8_t getLedBuiltin() const = 0;
     [[nodiscard]] virtual unsigned long millis() const = 0;
     virtual void delay(unsigned long milliseconds) const = 0;

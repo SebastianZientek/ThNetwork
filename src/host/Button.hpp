@@ -19,15 +19,15 @@ public:
 private:
     std::shared_ptr<IArduino32Adp> m_arduinoAdp;
 
-    constexpr static auto DOWN = false;
-    constexpr static auto UP = true;
+    constexpr static auto DOWN = IArduino32Adp::Lvl::Low;
+    constexpr static auto UP = IArduino32Adp::Lvl::High;
 
     BtnClbk m_onClick{};
     BtnClbk m_onLongClick{};
     size_t m_onLongClickTime{};
     uint8_t m_buttonPin{};
 
-    bool m_currentButtonState{UP};
-    bool m_lastButtonState{UP};
+    IArduino32Adp::Lvl m_currentButtonState{UP};
+    IArduino32Adp::Lvl m_lastButtonState{UP};
     size_t m_startBtnTimer{};
 };
