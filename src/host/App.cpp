@@ -19,7 +19,6 @@ void App::update()
     {
     case State::INITIALIZATION_BASIC_COMPONENTS:
         logger::init();
-        setupButtons();
 
         {
             auto factoryReset = [this]
@@ -35,7 +34,8 @@ void App::update()
         m_wifiButton.onClick(
             [this]
             {
-                wifiSettingsMode();
+                // Stop all servives and host wifi configurator
+                // wifiSettingsMode();
                 m_state = State::HOSTING_WIFI_CONFIGURATION;
             });
 
@@ -68,6 +68,7 @@ void App::update()
         }
         else if (status == WiFiConfigurator::Status::CONFIGURATION_PAGE_HOSTED)
         {
+            startWebWifiConfiguration();
             m_state = State::HOSTING_WIFI_CONFIGURATION;
         }
 
@@ -125,80 +126,7 @@ void App::update()
     m_ledIndicator->update();
 }
 
-App::Status App::systemInit()
-{
-    // Let the board be electrically ready before initialization
-    constexpr auto waitBeforeInitializationMs = 1000;
-    delay(waitBeforeInitializationMs);
-    logger::init();
-
-    setupButtons();
-    m_ledIndicator->switchOn(false);
-
-    if (auto status = initConfig(); status != Status::OK)
-    {
-        return status;
-    }
-    if (auto status = connectWiFi(); status != Status::OK)
-    {
-        return status;
-    }
-
-    m_timeClient->begin();
-    m_timeClient->update();
-
-    return Status::OK;
-}
-
-App::Status App::initConfig()
-{
-    auto status = m_confStorage->load();
-    if (status == ConfStorage::State::FAIL)
-    {
-        logger::logWrn("Configuration file not exists, using default values");
-    }
-
-    return Status::OK;
-}
-
-App::Status App::connectWiFi()
-{
-    logger::logInf("Connecting to WiFi");
-
-    m_wifiAdp->setMode(Wifi32Adp::Mode::AP_STA);
-
-    auto wifiConfig = m_confStorage->getWifiConfig();
-    if (!wifiConfig)
-    {
-        logger::logWrn("No wifi configuration!");
-        return Status::WIFI_CONFIGURATION_NEEDED;
-    }
-
-    auto [ssid, pass] = wifiConfig.value();
-    m_wifiAdp->init(ssid, pass);
-
-    uint8_t wifiConnectionTries = 0;
-    while (m_wifiAdp->getStatus() != Wifi32Adp::Status::CONNECTED)
-    {
-        wifiConnectionTries++;
-        delay(m_delayBetweenConnectionRetiresMs);
-        logger::logInf(".");
-
-        if (wifiConnectionTries >= m_connectionRetriesBeforeRebootMs)
-        {
-            logger::logWrn("WiFi connection issue, reboot.");
-            delay(m_onErrorWaitBeforeRebootMs);
-            m_espAdp->restart();
-        }
-    }
-
-    logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", m_wifiAdp->getSsid(),
-                   m_wifiAdp->getLocalIp(), m_wifiAdp->getMacAddr(), m_wifiAdp->getChannel());
-
-    return Status::OK;
-}
-
-void App::wifiSettingsMode()
+void App::startWebWifiConfiguration()
 {
     logger::logInf("Wifi configuration mode");
     m_ledIndicator->switchOn(true);
@@ -213,7 +141,7 @@ void App::wifiSettingsMode()
         m_webPageMain->stopServer();
     }
     m_wifiAdp->disconnect();
-    m_webWifiConfig->startConfiguration(m_confStorage);
+    m_webWifiConfig->startServer();
 
     m_wifiConfigurationTimer.setCallback(
         [this]
@@ -222,20 +150,4 @@ void App::wifiSettingsMode()
             m_espAdp->restart();
         });
     m_wifiConfigurationTimer.start(m_wifiConfigServerTimeoutMillis);
-}
-
-void App::setupButtons()
-{
-    m_arduinoAdp->pinMode(m_wifiBtn, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
-    m_arduinoAdp->pinMode(m_pairButton, Arduino32Adp::Mode::PIN_INPUT_PULLUP);
-}
-
-bool App::isWifiButtonPressed()
-{
-    return m_arduinoAdp->digitalRead(m_wifiBtn) == false;
-}
-
-bool App::isPairButtonPressed()
-{
-    return m_arduinoAdp->digitalRead(m_pairButton) == false;
 }

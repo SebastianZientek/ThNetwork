@@ -8,14 +8,15 @@
 #include "adapters/IWifi32Adp.hpp"
 #include "webserver/IWebServer.hpp"
 
-class WebWifiConfig
+class WifiConfiguratorWebServer
 {
 public:
-    WebWifiConfig(const std::shared_ptr<IWifi32Adp> &wifiAdp,
-                  std::unique_ptr<IWebServer> server,
-                  const std::shared_ptr<IESP32Adp> &espAdp,
-                  std::unique_ptr<IResources> resources);
-    void startConfiguration(std::shared_ptr<IConfStorage> confStorage);
+    WifiConfiguratorWebServer(const std::shared_ptr<IWifi32Adp> &wifiAdp,
+                              std::unique_ptr<IWebServer> server,
+                              const std::shared_ptr<IESP32Adp> &espAdp,
+                              std::unique_ptr<IResources> resources,
+                              std::shared_ptr<IConfStorage> confStorage);
+    void startServer();
 
 private:
     constexpr static auto m_initializationTimeMs = 1000;

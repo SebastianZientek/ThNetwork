@@ -15,8 +15,8 @@
 #include "Resources.hpp"
 #include "Timer.hpp"
 #include "WebPageMain.hpp"
-#include "WebWifiConfig.hpp"
 #include "WifiConfigurator.hpp"
+#include "WifiConfiguratorWebServer.hpp"
 #include "adapters/Arduino32Adp.hpp"
 #include "adapters/ESP32Adp.hpp"
 #include "adapters/EspNow32Adp.hpp"
@@ -56,13 +56,7 @@ public:
     void update();
 
 private:
-    Status systemInit();
-    Status initConfig();
-    Status connectWiFi();
-    void wifiSettingsMode();
-    void setupButtons();
-    bool isWifiButtonPressed();
-    bool isPairButtonPressed();
+    void startWebWifiConfiguration();
 
     constexpr static auto m_ledIndicatorPin = 23;
     constexpr static auto m_wifiBtn = 14;
@@ -90,11 +84,13 @@ private:
     std::unique_ptr<EspNowServer> m_espNow{std::make_unique<EspNowServer>(
         std::make_unique<EspNow32Adp>(), m_pairingManager, m_wifiAdp, m_confStorage)};
     std::shared_ptr<NTPClient> m_timeClient{std::make_shared<NTPClient>(m_ntpUDP)};
-    std::unique_ptr<WebWifiConfig> m_webWifiConfig{
-        std::make_unique<WebWifiConfig>(m_wifiAdp,
-                                        std::make_unique<WebServer>(m_wifiConfigWebPort),
-                                        m_espAdp,
-                                        std::make_unique<Resources>())};
+    std::shared_ptr<WifiConfiguratorWebServer> m_webWifiConfig{
+        std::make_shared<WifiConfiguratorWebServer>(
+            m_wifiAdp,
+            std::make_unique<WebServer>(m_wifiConfigWebPort),
+            m_espAdp,
+            std::make_unique<Resources>(),
+            m_confStorage)};
 
     std::unique_ptr<WebPageMain> m_webPageMain{};
     WiFiUDP m_ntpUDP{};
@@ -103,5 +99,5 @@ private:
     Button m_wifiButton{m_arduinoAdp, m_wifiBtn};
     Button m_pairAndResetButton{m_arduinoAdp, m_pairButton};
     Timer m_wifiConfigurationTimer{m_arduinoAdp};
-    WiFiConfigurator m_wifiConfigurator{m_arduinoAdp, m_wifiAdp, m_confStorage};
+    WiFiConfigurator m_wifiConfigurator{m_arduinoAdp, m_wifiAdp, m_confStorage, m_webWifiConfig};
 };
