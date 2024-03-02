@@ -17,20 +17,23 @@ public:
             .withParameter("mode", static_cast<int>(mode));
     }
 
-    [[nodiscard]] bool digitalRead(uint8_t pin) const override
+    [[nodiscard]] IArduino32Adp::Lvl digitalRead(uint8_t pin) const override
     {
-        return mock("Arduino32Adp")
+        static auto defaultState = IArduino32Adp::Lvl::Low;
+        auto *returnVal = mock("Arduino32Adp")
             .actualCall("digitalRead")
             .withParameter("pin", pin)
-            .returnBoolValueOrDefault(false);
+            .returnPointerValueOrDefault(&defaultState);
+
+        return *static_cast<IArduino32Adp::Lvl *>(returnVal);
     }
 
-    void digitalWrite(uint8_t pin, bool val) const override
+    void digitalWrite(uint8_t pin, IArduino32Adp::Lvl val) const override
     {
         mock("Arduino32Adp")
             .actualCall("digitalWrite")
             .withParameter("pin", pin)
-            .withParameter("val", val);
+            .withParameter("val", static_cast<int>(val));
     }
 
     [[nodiscard]] uint8_t getLedBuiltin() const override

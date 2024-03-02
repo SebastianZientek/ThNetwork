@@ -10,14 +10,15 @@ LedIndicator::LedIndicator(const std::shared_ptr<IArduino32Adp> &arduinoAdp, std
         [this, ledOn = false]() mutable
         {
             ledOn = !ledOn;
-            m_arduinoAdp->digitalWrite(m_ledPin, ledOn);
+            m_arduinoAdp->digitalWrite(m_ledPin,
+                                       ledOn ? IArduino32Adp::Lvl::High : IArduino32Adp::Lvl::Low);
         });
 }
 
 void LedIndicator::switchOn(bool state)
 {
     m_blinkTimer.stop();
-    m_arduinoAdp->digitalWrite(m_ledPin, state);
+    m_arduinoAdp->digitalWrite(m_ledPin, state ? IArduino32Adp::Lvl::High : IArduino32Adp::Lvl::Low);
 }
 
 void LedIndicator::blinking()

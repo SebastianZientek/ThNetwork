@@ -33,14 +33,14 @@ void Arduino32Adp::pinMode(uint8_t pin, Mode mode) const
     }
 }
 
-bool Arduino32Adp::digitalRead(uint8_t pin) const
+IArduino32Adp::Lvl Arduino32Adp::digitalRead(uint8_t pin) const
 {
-    return ::digitalRead(pin) == HIGH;
+    return ::digitalRead(pin) == HIGH ? Lvl::High : Lvl::Low;
 }
 
-void Arduino32Adp::digitalWrite(uint8_t pin, bool val) const
+void Arduino32Adp::digitalWrite(uint8_t pin, Lvl lvl) const
 {
-    ::digitalWrite(pin, val ? HIGH : LOW);
+    ::digitalWrite(pin, lvl == Lvl::High ? HIGH : LOW);
 }
 
 uint8_t Arduino32Adp::getLedBuiltin() const
