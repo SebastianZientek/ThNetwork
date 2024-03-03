@@ -1,10 +1,9 @@
 #include "App.hpp"
 
-#include "boardsettings.hpp"
+#include "BoardSettings.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "config.hpp"
-#include "pinout.hpp"
 #include "utils.hpp"
 
 void App::setup()
@@ -12,7 +11,7 @@ void App::setup()
     logger::init();
     logger::logInf("Mac address: %s", m_wifiAdp->macAddress().c_str());
 
-    pinMode(boardsettings::pairButton, INPUT_PULLUP);
+    pinMode(boardSettings::pairButton, INPUT_PULLUP);
     pinMode(LED_BUILTIN, OUTPUT);
 
     utils::switchOffLed(m_arduinoAdp);
@@ -28,9 +27,9 @@ void App::setup()
     }
 
     m_espNow.init(m_currentConfiguration.channel);
-    m_sensor.init(pinout::getSDA(), pinout::getSCL());
+    m_sensor.init(boardSettings::sensorSDA, boardSettings::sensorSCL);
 
-    if (digitalRead(boardsettings::pairButton) == LOW)
+    if (digitalRead(boardSettings::pairButton) == LOW)
     {
         logger::logInf("Pairing");
         if (auto transmitterConfigOpt = m_espNow.pair(); transmitterConfigOpt)
