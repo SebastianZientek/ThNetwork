@@ -62,10 +62,6 @@ void App::startWebWifiConfiguration()
     m_mode = Mode::HOSTING_WIFI_CONFIGURATOR;
     m_ledIndicator->switchOn(true);
 
-    if (m_espNow)
-    {
-        m_espNow->deinit();
-    }
     if (m_webPageMain)
     {
         m_webPageMain->stopServer();
