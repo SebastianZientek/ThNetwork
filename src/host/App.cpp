@@ -4,10 +4,10 @@
 #include <memory>
 #include <numeric>
 
+#include "WifiConfigurator.hpp"
 #include "common/MacAddr.hpp"
 #include "common/logger.hpp"
 #include "common/types.hpp"
-#include "host/WifiConfigurator.hpp"
 
 void App::init()
 {
