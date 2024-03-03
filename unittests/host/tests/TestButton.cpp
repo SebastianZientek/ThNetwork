@@ -12,9 +12,6 @@ TEST_GROUP(ButtonTest)  // NOLINT
     void teardown() override{
         mock().checkExpectations();
         mock().clear();
-
-        // lvlHigh = IArduino32Adp::Lvl::High;
-        // lvlLow = IArduino32Adp::Lvl::High;
     }
 
     std::shared_ptr<Arduino32AdpMock> arduinoAdp{std::make_shared<Arduino32AdpMock>()};

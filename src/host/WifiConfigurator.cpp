@@ -1,97 +1,55 @@
 #include "WifiConfigurator.hpp"
 
-WiFiConfigurator::WiFiConfigurator(
-    std::shared_ptr<IArduino32Adp> arduinoAdp,
-    std::shared_ptr<IWifi32Adp> wifiAdp,
-    std::shared_ptr<IConfStorage> confStorage,
-    std::shared_ptr<WifiConfiguratorWebServer> wifiConfiguratorWebServer)
+WiFiConfigurator::WiFiConfigurator(const std::shared_ptr<IArduino32Adp> &arduinoAdp,
+                                   const std::shared_ptr<IWifi32Adp> &wifiAdp)
     : m_arduinoAdp(arduinoAdp)
     , m_wifiAdp(wifiAdp)
-    , m_confStorage(confStorage)
-    , m_wifiConfiguratorWebServer(wifiConfiguratorWebServer)
 {
 }
 
-void WiFiConfigurator::connect()
+void WiFiConfigurator::connect(const std::string &ssid, const std::string &pass)
 {
-    m_mode = Mode::INITIALIZE;
+    m_ssid = ssid;
+    m_pass = pass;
+    initialize();
 }
 
-WiFiConfigurator::Status WiFiConfigurator::processWifiConfiguration()
+WiFiConfigurator::Status WiFiConfigurator::status()
 {
-    switch (m_mode)
-    {
-    case Mode::NOT_INITIALIZED:
-        return Status::NOT_INITIALIZED;
-        break;
+    return m_status;
+}
 
-    case Mode::INITIALIZE:
-        logger::logDbg("WifiConfigurator Mode::INITIALIZE");
-        initialize();
-        break;
-
-    case Mode::PROCESSING_CONNECTION:
-        m_connectionRetriesTimer.update();
-        return Status::CONNECTION_ONGOING;
-        // TODO: Reconnect if connection lost
-        break;
-
-    case Mode::HOST_WIFI_CONFIGURATOR:
-        logger::logDbg("WifiConfigurator Mode::HOST_WIFI_CONFIGURATOR");
-        // m_wifiConfiguratorWebServer->startServer();
-        return Status::CONFIGURATION_PAGE_HOSTED;
-        break;
-
-    case Mode::CONNECTED:
-        logger::logDbg("WifiConfigurator Mode::CONNECTED");
-        return Status::CONNECTED;
-        break;
-
-    case Mode::ERROR:
-        return Status::CONNECTION_FAILURE;
-        break;
-    }
-
-    return Status::NOT_INITIALIZED;
+void WiFiConfigurator::update()
+{
+    m_connectionRetriesTimer.update();
 }
 
 void WiFiConfigurator::initialize()
 {
     logger::logInf("Connecting to WiFi");
     m_wifiAdp->setMode(IWifi32Adp::Mode::AP_STA);
-
-    auto wifiConfig = m_confStorage->getWifiConfig();
-    if (!wifiConfig)
-    {
-        logger::logWrn("No wifi configuration!");
-        m_mode = Mode::HOST_WIFI_CONFIGURATOR;
-    };
-
-    auto [ssid, pass] = wifiConfig.value();
-    m_wifiAdp->init(ssid, pass);
+    m_wifiAdp->init(m_ssid, m_pass);
 
     auto connectToWifi = [this, retries = 0]() mutable
     {
-        if (retries++, retries > m_maxConnectionRetries)
+        if (retries++, retries >= m_maxConnectionRetries)
         {
             m_connectionRetriesTimer.stop();
-            m_mode = Mode::ERROR;
-            // CONNECTION ERROR, STOP TRYING
+            m_status = Status::CONNECTION_FAILURE;
         }
 
         logger::logInf(".");
         if (m_wifiAdp->getStatus() == IWifi32Adp::Status::CONNECTED)
         {
-            m_mode = Mode::CONNECTED;
+            m_status = Status::CONNECTION_SUCCESS;
             logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", m_wifiAdp->getSsid(),
                            m_wifiAdp->getLocalIp(), m_wifiAdp->getMacAddr(),
                            m_wifiAdp->getChannel());
         }
     };
 
-    connectToWifi();
     m_connectionRetriesTimer.setCallback(connectToWifi);
     m_connectionRetriesTimer.start(m_delayBetweenConnectionRetiresMs, true);
 
-    m_mode = Mode::PROCESSING_CONNECTION;
+    m_status = Status::CONNECTION_ONGOING;
 }

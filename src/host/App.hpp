@@ -98,5 +98,5 @@ private:
     Button m_wifiButton{m_arduinoAdp, m_wifiBtn};
     Button m_pairAndResetButton{m_arduinoAdp, m_pairButton};
     Timer m_wifiConfigurationTimer{m_arduinoAdp};
-    WiFiConfigurator m_wifiConfigurator{m_arduinoAdp, m_wifiAdp, m_confStorage, m_webWifiConfig};
+    WiFiConfigurator m_wifiConfigurator{m_arduinoAdp, m_wifiAdp};
 };

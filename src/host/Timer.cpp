@@ -26,7 +26,7 @@ void Timer::stop()
 
 void Timer::update()
 {
-    if (!m_stopped && m_period + m_startTime < m_arduinoAdp->millis())
+    if (!m_stopped && m_period + m_startTime <= m_arduinoAdp->millis())
     {
         m_function();
 

@@ -45,32 +45,42 @@ void App::update()
         break;
 
     case State::LOADING_CONFIGURATION:
+    {
         logger::logDbg("Loading configuration");
-
         if (auto status = m_confStorage->load(); status == ConfStorage::State::FAIL)
         {
             logger::logWrn("Configuration file not exists, using default values");
         }
 
-        m_wifiConfigurator.connect();
-        m_state = State::CONNECTING_TO_WIFI;
-        break;
-
-    case State::CONNECTING_TO_WIFI:
-        if (auto status = m_wifiConfigurator.processWifiConfiguration();
-            status == WiFiConfigurator::Status::CONNECTED)
+        auto wifiConfig = m_confStorage->getWifiConfig();
+        if (wifiConfig.has_value())
         {
-            m_state = State::STARTING_SERVERS;
+            auto [ssid, pass] = wifiConfig.value();
+            m_wifiConfigurator.connect(ssid, pass);
+            m_state = State::CONNECTING_TO_WIFI;
         }
-        else if (status == WiFiConfigurator::Status::CONNECTION_FAILURE)
+        else
         {
-            m_state = State::ERROR_REBOOTING;
-        }
-        else if (status == WiFiConfigurator::Status::CONFIGURATION_PAGE_HOSTED)
-        {
-            startWebWifiConfiguration();
             m_state = State::HOSTING_WIFI_CONFIGURATION;
         }
+    }
+    break;
+
+    case State::CONNECTING_TO_WIFI:
+        // if (auto status = m_wifiConfigurator.processWifiConfiguration();
+        //     status == WiFiConfigurator::Status::CONNECTED)
+        // {
+        //     m_state = State::STARTING_SERVERS;
+        // }
+        // else if (status == WiFiConfigurator::Status::CONNECTION_FAILURE)
+        // {
+        //     m_state = State::ERROR_REBOOTING;
+        // }
+        // else if (status == WiFiConfigurator::Status::CONFIGURATION_PAGE_HOSTED)
+        // {
+        //     startWebWifiConfiguration();
+        //     m_state = State::HOSTING_WIFI_CONFIGURATION;
+        // }
 
         break;
 
@@ -120,7 +130,8 @@ void App::update()
 
     m_pairAndResetButton.update();
     m_wifiButton.update();
-    m_wifiConfigurationTimer.update();
+    m_wifiConfigurator.update();
+    m_wifiConfigurationTimer.update(); // Needed?
 
     m_pairingManager->update();
     m_ledIndicator->update();
