@@ -19,7 +19,7 @@ During first startup host will provide access point named `TH-NETWORK`. By conne
 ## Pairing
 You have to enable pairing on host (by pair button), then hold `pair` button on the transmitter and click reset. After pairing, transmitter should be visible in `Admin` view, were you can change its name.
 
-# Preparing boards
+# Boards preparation
 The project was built based on prototype boards nodemcu (esp8266) and node32s (esp32).
 ![img](resources/boards.jpg)
 Transmitter board have one additional connection: D0 is connected with reset pin. It is mandatory as transmitter after sending data is going to deep sleep for specified time. Board will not be able to wake up without this connection.
