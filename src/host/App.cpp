@@ -11,115 +11,45 @@
 
 void App::init()
 {
+    logger::init();
+    initConfiguration();
+    initPeripherals();
+    initWifi();
 }
 
 void App::update()
 {
-    switch (m_state)
+    switch (m_mode)
     {
-    case State::INITIALIZATION_BASIC_COMPONENTS:
-        logger::init();
-
-        {
-            auto factoryReset = [this]
-            {
-                logger::logWrn("Reset to factory settings!");
-                m_confStorage->setDefault();
-                m_confStorage->save();
-                m_espAdp->restart();
-            };
-            m_pairAndResetButton.onLongClick(3000, factoryReset);
-        }
-
-        m_wifiButton.onClick(
-            [this]
-            {
-                // Stop all servives and host wifi configurator
-                startWebWifiConfiguration();
-                m_state = State::HOSTING_WIFI_CONFIGURATION;
-            });
-
-        m_ledIndicator->switchOn(false);
-
-        m_state = State::LOADING_CONFIGURATION;
+    case Mode::INITIALIZATION:
         break;
-
-    case State::LOADING_CONFIGURATION:
-        logger::logDbg("Loading configuration");
-
-        if (auto status = m_confStorage->load(); status == ConfStorage::State::FAIL)
+    case Mode::WAITING_FOR_WIFI:
+        if (auto wifiStatus = m_wifiConfigurator.status();
+            wifiStatus == WiFiConfigurator::Status::CONNECTION_SUCCESS)
         {
-            logger::logWrn("Configuration file not exists, using default values");
+            m_mode = Mode::STARTING_SERVICES;
         }
-
-        m_wifiConfigurator.connect();
-        m_state = State::CONNECTING_TO_WIFI;
+        else if (wifiStatus == WiFiConfigurator::Status::CONNECTION_FAILURE)
+        {
+            constexpr auto timeoutMs = 3000;
+            logger::logWrn("Can't connect to wifi, reboot in 3s");
+            m_arduinoAdp->delay(timeoutMs);
+            m_espAdp->restart();
+        }
         break;
-
-    case State::CONNECTING_TO_WIFI:
-        if (auto status = m_wifiConfigurator.processWifiConfiguration();
-            status == WiFiConfigurator::Status::CONNECTED)
-        {
-            m_state = State::STARTING_SERVERS;
-        }
-        else if (status == WiFiConfigurator::Status::CONNECTION_FAILURE)
-        {
-            m_state = State::ERROR_REBOOTING;
-        }
-        else if (status == WiFiConfigurator::Status::CONFIGURATION_PAGE_HOSTED)
-        {
-            startWebWifiConfiguration();
-            m_state = State::HOSTING_WIFI_CONFIGURATION;
-        }
-
+    case Mode::HOSTING_WIFI_CONFIGURATOR:
         break;
-
-    case State::HOSTING_WIFI_CONFIGURATION:
+    case Mode::STARTING_SERVICES:
+        startServices();
+        m_mode = Mode::NORMAL_OPERATION;
         break;
-
-    case State::STARTING_SERVERS:
-        logger::logDbg("Starting servers");
-
-        m_timeClient->begin();
-        m_timeClient->update();
-
-        {
-            m_webPageMain = std::make_unique<WebPageMain>(
-                m_arduinoAdp, std::make_shared<WebServer>(m_confStorage->getServerPort()),
-                std::make_unique<Resources>(), m_confStorage);
-
-            auto newReadingCallback = [this](float temp, float hum, IDType identifier)
-            {
-                m_readingsStorage.addReading(identifier, temp, hum, m_timeClient->getEpochTime());
-                auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
-                m_webPageMain->sendEvent(reading.c_str(), "newReading", m_arduinoAdp->millis());
-            };
-
-            m_espNow->init(newReadingCallback);
-
-            auto getSensorData = [this](const std::size_t &identifier)
-            {
-                return m_readingsStorage.getReadingsAsJsonStr(identifier);
-            };
-
-            m_webPageMain->startServer(getSensorData);
-        }
-
-        m_pairAndResetButton.onClick(
-            [this]
-            {
-                m_pairingManager->enablePairingForPeriod();
-            });
-
-        m_state = State::RUNNING;
-        break;
-
-    case State::RUNNING:
+    case Mode::NORMAL_OPERATION:
         break;
     }
 
     m_pairAndResetButton.update();
     m_wifiButton.update();
+    m_wifiConfigurator.update();
     m_wifiConfigurationTimer.update();
 
     m_pairingManager->update();
@@ -129,9 +59,9 @@ void App::update()
 void App::startWebWifiConfiguration()
 {
     logger::logInf("Wifi configuration mode");
+    m_mode = Mode::HOSTING_WIFI_CONFIGURATOR;
     m_ledIndicator->switchOn(true);
 
-    m_mode = Mode::WIFI_SETTINGS;
     if (m_espNow)
     {
         m_espNow->deinit();
@@ -156,4 +86,66 @@ void App::startWebWifiConfiguration()
             m_espAdp->restart();
         });
     m_wifiConfigurationTimer.start(m_wifiConfigServerTimeoutMillis);
+}
+
+void App::initConfiguration()
+{
+    logger::logDbg("Loading configuration");
+    if (auto status = m_confStorage->load(); status == ConfStorage::State::FAIL)
+    {
+        logger::logWrn("Configuration file not exists, using default values");
+    }
+}
+
+void App::initPeripherals()
+{
+    auto factoryReset = [this]
+    {
+        logger::logWrn("Reset to factory settings!");
+        m_confStorage->setDefault();
+        m_confStorage->save();
+        m_espAdp->restart();
+    };
+    m_pairAndResetButton.onLongClick(3000, factoryReset);
+    m_wifiButton.onClick([this] { startWebWifiConfiguration(); });
+    m_ledIndicator->switchOn(false);
+}
+
+void App::initWifi()
+{
+    auto wifiConfig = m_confStorage->getWifiConfig();
+    if (wifiConfig.has_value())
+    {
+        auto [ssid, pass] = wifiConfig.value();
+        m_wifiConfigurator.connect(ssid, pass);
+        m_mode = Mode::WAITING_FOR_WIFI;
+    }
+    else
+    {
+        startWebWifiConfiguration();
+    }
+}
+
+void App::startServices()
+{
+    logger::logDbg("Starting services");
+
+    m_timeClient->begin();
+    m_timeClient->update();
+
+    m_webPageMain = std::make_unique<WebPageMain>(
+        m_arduinoAdp, std::make_shared<WebServer>(m_confStorage->getServerPort()),
+        std::make_unique<Resources>(), m_confStorage);
+
+    auto newReadingCallback = [this](float temp, float hum, IDType identifier)
+    {
+        m_readingsStorage.addReading(identifier, temp, hum, m_timeClient->getEpochTime());
+        auto reading = m_readingsStorage.getLastReadingAsJsonStr(identifier);
+        m_webPageMain->sendEvent(reading.c_str(), "newReading", m_arduinoAdp->millis());
+    };
+
+    m_espNow->init(newReadingCallback);
+    m_webPageMain->startServer([this](const std::size_t &identifier)
+                               { return m_readingsStorage.getReadingsAsJsonStr(identifier); });
+    m_pairAndResetButton.onClick([this] { m_pairingManager->enablePairingForPeriod(); });
 }

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <functional>
 #include <memory>
+#include <string>
 
 #include "IConfStorage.hpp"
 #include "Timer.hpp"
@@ -14,41 +16,30 @@ class WiFiConfigurator
 public:
     enum class Status
     {
+        NOT_INITIALIZED,
         CONNECTION_ONGOING,
-        CONNECTED,
-        CONFIGURATION_PAGE_HOSTED,
-        CONNECTION_FAILURE,
-        NOT_INITIALIZED
+        CONNECTION_SUCCESS,
+        CONNECTION_FAILURE
     };
 
-    WiFiConfigurator(std::shared_ptr<IArduino32Adp> arduinoAdp,
-                     std::shared_ptr<IWifi32Adp> wifiAdp,
-                     std::shared_ptr<IConfStorage> confStorage,
-                     std::shared_ptr<WifiConfiguratorWebServer> wifiConfiguratorWebServer);
+    WiFiConfigurator(const std::shared_ptr<IArduino32Adp> &arduinoAdp,
+                     const std::shared_ptr<IWifi32Adp> &wifiAdp);
 
-    void connect();
-    Status processWifiConfiguration();
+    void connect(const std::string &ssid, const std::string &pass);
+    Status status();
+    void update();
 
 private:
-    enum class Mode
-    {
-        NOT_INITIALIZED,
-        ERROR,
-        INITIALIZE,
-        HOST_WIFI_CONFIGURATOR,
-        PROCESSING_CONNECTION,
-        CONNECTED,
-    };
-
     constexpr static auto m_delayBetweenConnectionRetiresMs = 1000;
     constexpr static auto m_maxConnectionRetries = 10;
 
-    Mode m_mode{Mode::NOT_INITIALIZED};
     std::shared_ptr<IArduino32Adp> m_arduinoAdp;
     std::shared_ptr<IWifi32Adp> m_wifiAdp;
-    std::shared_ptr<IConfStorage> m_confStorage;
-    std::shared_ptr<WifiConfiguratorWebServer> m_wifiConfiguratorWebServer;
+
     Timer m_connectionRetriesTimer{m_arduinoAdp};
+    Status m_status{Status::NOT_INITIALIZED};
+    std::string m_ssid{};
+    std::string m_pass{};
 
     void initialize();
 };

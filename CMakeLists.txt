@@ -54,6 +54,7 @@ set(HOST_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/Timer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/Button.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/host/WifiConfiguratorWebServer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/host/WifiConfigurator.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/common/MacAddr.cpp
 
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_main.cpp
@@ -65,6 +66,7 @@ set(HOST_TEST_SRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestWebPageMain.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestButton.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestWifiConfiguratorWebServer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/unittests/host/tests/TestWifiConfigurator.cpp
 )
 
 set(TRANSMITTER_INCLS
