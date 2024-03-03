@@ -12,13 +12,25 @@ void init();
 
 enum LogLevel
 {
-    INF = 0,
+    ERR = 0,
     WRN = 1,
-    ERR = 2,
+    INF = 2,
     DBG = 3,
 };
 
-constexpr std::array<const char *, 4> logCString = {"INF: ", "WRN: ", "ERR: ", "DBG: "};
+constexpr std::array<const char *, 4> logCString = {"ERR: ", "WRN: ", "INF: ", "DBG: "};
+
+#ifdef LOGGER_ERR
+constexpr auto logLevel = LogLevel::ERR;
+#elif LOGGER_WRN
+constexpr auto logLevel = LogLevel::WRN;
+#elif LOGGER_INF
+constexpr auto logLevel = LogLevel::INF;
+#elif LOGGER_DBG
+constexpr auto logLevel = LogLevel::DBG;
+#else
+constexpr auto logLevel = LogLevel::INF;
+#endif
 
 template <typename T>
 decltype(auto) stdStrToCStr(const T &arg)
@@ -55,25 +67,37 @@ void log(const LogLevel logLevel, const F &fmt, const T &...values)
 template <typename... Ts>
 void logErr(const Ts &...args)
 {
-    log(logger::ERR, args...);
+    if constexpr (logLevel >= logger::ERR)
+    {
+        log(logger::ERR, args...);
+    }
 }
 
 template <typename... Ts>
 void logWrn(const Ts &...args)
 {
-    log(logger::WRN, args...);
+    if constexpr (logLevel >= logger::WRN)
+    {
+        log(logger::WRN, args...);
+    }
 }
 
 template <typename... Ts>
 void logInf(const Ts &...args)
 {
-    log(logger::INF, args...);
+    if constexpr (logLevel >= logger::INF)
+    {
+        log(logger::INF, args...);
+    }
 }
 
 template <typename... Ts>
 void logDbg(const Ts &...args)
 {
-    log(logger::DBG, args...);
+    if constexpr (logLevel >= logger::DBG)
+    {
+        log(logger::DBG, args...);
+    }
 }
 
 }  // namespace logger
