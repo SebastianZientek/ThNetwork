@@ -42,6 +42,7 @@ void WiFiConfigurator::initialize()
         if (m_wifiAdp->getStatus() == IWifi32Adp::Status::CONNECTED)
         {
             m_status = Status::CONNECTION_SUCCESS;
+            m_connectionRetriesTimer.stop();
             logger::logInf("Connected to %s IP: %s MAC: %s, channel %d", m_wifiAdp->getSsid(),
                            m_wifiAdp->getLocalIp(), m_wifiAdp->getMacAddr(),
                            m_wifiAdp->getChannel());

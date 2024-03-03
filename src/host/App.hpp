@@ -46,8 +46,11 @@ class App
 
     enum class Mode
     {
-        SENSOR_HOST,
-        WIFI_SETTINGS
+        INITIALIZATION,
+        WAITING_FOR_WIFI,
+        HOSTING_WIFI_CONFIGURATOR,
+        STARTING_SERVICES,
+        NORMAL_OPERATION
     };
 
 public:
@@ -68,7 +71,7 @@ private:
     constexpr static auto m_delayBetweenConnectionRetiresMs = 1000;
     constexpr static auto m_connectionRetriesBeforeRebootMs = 10;
 
-    Mode m_mode = Mode::SENSOR_HOST;
+    Mode m_mode = Mode::INITIALIZATION;
     State m_state = State::INITIALIZATION_BASIC_COMPONENTS;
 
     std::shared_ptr<LittleFSAdp> m_internalFS{std::make_shared<LittleFSAdp>()};
@@ -99,4 +102,9 @@ private:
     Button m_pairAndResetButton{m_arduinoAdp, m_pairButton};
     Timer m_wifiConfigurationTimer{m_arduinoAdp};
     WiFiConfigurator m_wifiConfigurator{m_arduinoAdp, m_wifiAdp};
+
+    void initConfiguration();
+    void initPeripherals();
+    void initWifi();
+    void startServices();
 };
