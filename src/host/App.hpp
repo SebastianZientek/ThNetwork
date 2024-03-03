@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "BoardSettings.hpp"
 #include "Button.hpp"
 #include "ConfStorage.hpp"
 #include "EspNowPairingManager.hpp"
@@ -61,9 +62,6 @@ public:
 private:
     void startWebWifiConfiguration();
 
-    constexpr static auto m_ledIndicatorPin = 23;
-    constexpr static auto m_wifiBtn = 14;
-    constexpr static auto m_pairButton = 18;
     constexpr static auto m_wifiConfigServerTimeoutMillis = 1000 * 60 * 3;  // 3 minutes
     constexpr static auto m_resetToFactorySettings = 1000 * 10;             // 10 seconds
     constexpr static auto m_wifiConfigWebPort = 80;
@@ -81,7 +79,7 @@ private:
         std::make_shared<ConfStorage>(m_internalFS, "/config.json")};
     std::shared_ptr<ESP32Adp> m_espAdp{std::make_shared<ESP32Adp>()};
     std::shared_ptr<LedIndicator> m_ledIndicator{
-        std::make_shared<LedIndicator>(m_arduinoAdp, m_ledIndicatorPin)};
+        std::make_shared<LedIndicator>(m_arduinoAdp, boardSettings::ledIndicatorPin)};
     std::shared_ptr<EspNowPairingManager> m_pairingManager{
         std::make_unique<EspNowPairingManager>(m_confStorage, m_arduinoAdp, m_ledIndicator)};
     std::unique_ptr<EspNowServer> m_espNow{std::make_unique<EspNowServer>(
@@ -98,8 +96,8 @@ private:
     WiFiUDP m_ntpUDP{};
     ReadingsStorage m_readingsStorage{};
 
-    Button m_wifiButton{m_arduinoAdp, m_wifiBtn};
-    Button m_pairAndResetButton{m_arduinoAdp, m_pairButton};
+    Button m_wifiButton{m_arduinoAdp, boardSettings::wifiButtonPin};
+    Button m_pairAndResetButton{m_arduinoAdp, boardSettings::pairButtonPin};
     Timer m_wifiConfigurationTimer{m_arduinoAdp};
     WiFiConfigurator m_wifiConfigurator{m_arduinoAdp, m_wifiAdp};
 
