@@ -16,8 +16,7 @@ public:
     void loop();
 
 private:
-    constexpr static unsigned long m_usInMin
-        = 1e6;  // Should be 6e7, now it's seconds (for debug purposes)
+    constexpr static unsigned long m_usInMin = 6e7;
     config::TransmitterConfig m_currentConfiguration;
 
     std::shared_ptr<IArduino8266Adp> m_arduinoAdp{std::make_shared<Arduino8266Adp>()};
