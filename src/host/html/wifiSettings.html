@@ -5,6 +5,20 @@
     <title>T/H monitor - admin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="pico.min.css" />
+    <script>
+        function closeModal(modalName) {
+            const dialog = document.getElementById(modalName);
+            dialog.close();
+        }
+
+        function showInfoModal(text) {
+            const dialog = document.getElementById("infoModal");
+            let infoModalText = document.getElementById("infoModalText");
+            infoModalText.innerText = text;
+
+            dialog.showModal();
+        }
+    </script>
 </head>
 
 <body>
@@ -26,10 +40,23 @@
                 <input type="text" id="ssid" name="ssid"><br><br>
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password"><br><br>
-                <input class="cred_button" type="submit" value="Submit">
+                <input class="cred_button" onclick="showInfoModal('SSID and password configured. Rebooting.')"
+                    type="submit" value="Submit">
             </form>
         </article>
     </main>
+
+    <dialog id="infoModal">
+        <article>
+            <header>
+                <h3>Sending data</h3>
+            </header>
+            <p id="infoModalText"></p>
+            <footer>
+                <button autofocus id="btnConfirmSensorRemoval" onclick="closeModal('infoModal')">Ok</button>
+            </footer>
+        </article>
+    </dialog>
 </body>
 
 </html>

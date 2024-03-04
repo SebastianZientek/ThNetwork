@@ -17,6 +17,23 @@ This project was developed using prototype boards, including the NodeMCU (ESP826
 ![img](resources/boards.jpg)
 The transmitter board features an additional connection where D0 is linked with the reset pin. This connection is essential because the transmitter enters deep sleep mode for a specified period after data transmission. Without this connection, the board will be unable to wake up.
 
+## Pinout
+Pinout customization can be achieved by modifying:
+ - Host: `src/host/BoardConfiguration.hpp`
+ - Transmitter: `src/transmitter/BoardConfiguration.hpp`
+
+### Default for transmitter (nodemcu)
+ - ATH10:
+   - SCL: D5
+   - SDA: D6
+ - Pair button: D2
+
+### Default for host (node32s)
+ - Wifi button: 14
+ - pair/factory reset: 18
+ - Led: 23
+
+
 ## Flashing boards
 To begin, open the project in `PlatformIO`, select the target corresponding to your board (transmitter or host), and proceed to flash the board.
 If you've already prepared an ESP8266 board with a link between D0 and RST (as described in the "Boards Preparation" section), you'll need to press the "flash" button while flashing.
@@ -26,28 +43,6 @@ During initial startup, the host will establish an access point named TH-NETWORK
 
 ## Pairing
 To initiate pairing on the host, press the pair button. Then, hold down the pair button on the transmitter and simultaneously click reset. Once paired, the transmitter will become visible in the Admin view, allowing you to modify its name as needed.
-
-# Default pinout
-Pinout customization can be achieved by modifying:
- - Host: `src/host/BoardConfiguration.hpp`
- - Transmitter: `src/transmitter/BoardConfiguration.hpp`
-
-## Default configuration
-### Transmitter (nodemcu)
-ATH10
- - SCL: D5
- - SDA: D6
-
-Pair button
- - pin: D2
-
-### Host (node32s)
-Buttons
- - wifi: 14
- - pair/factory reset: 18
-
-Led
- - pin: 23
 
 # Tests
 Unit tests are written using cpputest. You can build them using CMake:
